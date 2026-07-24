@@ -1,0 +1,11 @@
+bookdown::gitbook:
+  css: style.css
+  config:
+    toc:
+      before: |
+        <li><a href="./">POL 683 · Advanced Regression</a></li>
+        <li><a href="https://christopher-weber.com/pedagogy/">← Teaching resources</a></li>
+    edit: null
+    download: no
+    sharing: no
+  always_allow_html: true

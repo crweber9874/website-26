@@ -1,0 +1,555 @@
+# Binary Dependent Variables
+
+At this point, you should be familiar with the Bernoulli and Binomial densities. The Binomial density is used if we observe a series of Bernoulli trials. Thus, the Bernoulli is a special case of the Binomial, i.e., when $n=1$. We use the Bernoulli/Binomial when the observation for each unit is *success* or *failure* or equivalently, 0 or 1. In other words, we have a binary variable. The Bernoulli density for $n$ observed trials is simply the product of each constituent probability.
+
+```{r}
+rbinom(10, 1, 0.5) #  10 observations, 1 trial, 0.5 probability
+dbinom(5, 10, 0.5) # Success, Trials, Probability, the PDF
+pbinom(5, size=10, prob=.50, lower.tail=FALSE) # The CDF
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(plotly)
+
+# Define parameters for the binomial distribution
+size <- 100  # Number of trials we'll conduct
+prob <- 0.3  # Probability of success for each trial
+
+# Now for every value from 0:100, callculate the binomial and save as a dataframe
+
+# Calculate binomial probabilities
+x <- 0:size  # Possible number of successes
+y <- dbinom(x, size=size, prob=prob)  # Binomial PMF
+
+data = data.frame(x=x, y=y) 
+
+
+fig <- plot_ly(data, 
+               x = ~x, 
+               y = ~y, type = 'bar', 
+               marker = list(color = 'purple', opacity = 0.7),
+               text = ~paste('Successes (10:', x, '<br>Probability:', round(y, 4)),
+               hoverinfo = 'text') %>%
+  layout(
+    title = 'Binomial Distribution',
+    xaxis = list(title = 'Number of Successes', range = c(10, 70)),
+    yaxis = list(title = 'Probability'),
+    template = 'plotly_white'
+  )
+fig
+```
+
+Mathematically, the probability of observing some particular sequence of data, $k$, is
+
+$$p(k)=\prod\theta^y_i(1-\theta)^{1-y_i}=\theta^k(1-\theta)^{n-k}$$
+
+Don't be too intimidated by how this looks. It's just a mathematical representation of the steps necessary to calculate the likelihood of observing our data, given $\theta$. For instance, say I know a coin is fair, biased in favor of **H**, such that we anticipate 6 out of 10 flips will yield an **H**. Assume I observe **H, T, H, H, H**. What is the probability of observing an data, the sequence?
+
+Just multiply all the constituent probabilities, $0.6 \times 0.4 \times 0.6 \times 0.6 \times 0.6 = 0.0518$.
+
+However, another sequence – consisting of the same number of **H**s and **T**s would given the same probability. So, we can use a probability distribution – the binomial probability – which is effectively the same formula above, but accounts for the number of ways to observe a particular outcome
+
+Thus, we can also calculate the probability of any set of $k$ outcomes, given $n$, by multiplying the above function by the number of $k$ possible combinations for $n$ trials, i.e., $n \choose k$
+
+$$p(K | \theta, N)= {n \choose k} \theta^k(1-\theta)^n-k$$
+
+This is the binomial density – an example is the histogram above.
+
+If we don't know $\theta$ – we often don't– we can change the question, to: What is the most likely value of $\theta$ for a particular "dataset" (maybe just a sequence of 1s and 0s). We'll estimate $p(D|\theta)$, the likelihood.
+
+Recall Bayes' Rule
+
+$$
+P(\theta | D) = {P(D|\theta)p(\theta)\over p(D)}
+$$
+
+Like McElreath's (2020) "Globe Flipping" example to calculate the proportion of the earth that is water, \$\\theta\$, imagine a similar example.
+
+## Public Policy
+
+Imagine you conduct a poll of Arizona residents about water scarcity and management in the state. Of 1,243 respondents, 902 stated that water scarcity is a "somewhat" or "very serious" problem. Prior research has not explored this issue, so your "prior beliefs" are non-informative.
+
+$P(D|\theta)$. This is the *likelihood* of observing the data, given the parameter(s). What is the "most" likely value of $\theta$? Here, we use the data to form an estimate of $\theta$
+
+$P(\theta)$. This is the *prior* of of the parameter. What do we know about $\theta$ before we observe the data? Here, we would use prior research.
+
+$P(D)$. This is the probability of the data.
+
+$P(\theta | D)$ is the posterior. It's not a single value. It's a distribution.
+
+### The Log Likelihood
+
+```{r}
+library(plotly)
+
+# Define parameters
+theta <- seq(0, 1, by = 0.01)
+
+
+# The log-likelihood function, using Bernoulli trials
+log_likelihood <- 902 * log(theta) + 341 * log(1 - theta)
+df <- data.frame(theta, log_likelihood)
+
+# Find the theta value that maximizes the log-likelihood
+max_log_likelihood_theta <- df$theta[which.max(df$log_likelihood)]
+
+min_log_likelihood_theta <- df$theta[which.min(df$log_likelihood)]
+
+# Create the plot using Plotly
+fig <- plot_ly(df, x = ~theta, y = ~log_likelihood, type = 'scatter', mode = 'lines', name = 'Log-Likelihood') %>%
+  add_segments(x = max_log_likelihood_theta, xend = max_log_likelihood_theta, 
+               y = -4000, yend = max(df$log_likelihood), 
+               line = list(color = 'red', dash = 'dash'), name = 'Maximum Log Likelihood') %>%
+  layout(
+    title = 'Log-Likelihood Function for 902 Heads and 341 Tails',
+    xaxis = list(title = 'Theta (Probability of Heads)'),
+    yaxis = list(title = 'Log-Likelihood'),
+    template = 'plotly_white'
+  )
+
+# Show the plot
+fig
+
+# Print additional information
+cat("Possible values of theta:", paste(head(theta), collapse = ", "), "...\n")
+cat("Assume we observe 902 heads, 341 tails. What's our best guess?\n\n")
+cat("The maximum value of the distribution is at theta =", max_log_likelihood_theta, "\n")
+```
+
+So that takes care of the likelihood -- what it means, and one way to find it. The maximum likelihood estimate for $p(D|\theta)$ in this example is just **sucesss/number of trials**. That is our estimate.
+
+### The Prior
+
+The prior in this case is non-informative. Assume we have no idea what $\theta$ might be. To represent this as a probability density, we might say that every value of $\theta$ is equally probable; a uniform density. To review, the uniform along the interval [0,1] means any value of $\theta$ on this interval is equally likely. Let's use **grid approximation**.
+
+```{r}
+grid_values <- seq(0, 1, by = 0.01)
+
+# Define the prior, likelihood
+prior <- rep(1, length(grid_values))  # All values equally probable
+
+likelihood <- dbinom(902, 1243, grid_values)  # binomial
+
+# Calculate the posterior
+posterior <- likelihood * prior
+posterior <- posterior / sum(posterior)  # p(D)
+
+data <- data.frame(grid_values = grid_values, posterior = posterior)
+
+# Calculate the 95% credible interval
+cumulative_posterior <- cumsum(posterior)
+lower_bound <- grid_values[which(cumulative_posterior >= 0.025)[1]] # find bounds
+upper_bound <- grid_values[which(cumulative_posterior >= 0.975)[1]]
+
+fig <- plot_ly(data, 
+               x = ~grid_values, 
+               y = ~posterior, 
+               type = 'scatter', 
+               mode = 'lines', 
+               line = list(color = 'purple', width = 2),
+               text = ~paste('Theta:', round(grid_values, 2), '<br>Posterior:', round(posterior, 4)),
+               hoverinfo = 'text') %>%
+  add_ribbons(x = ~grid_values, ymin = 0, ymax = ~posterior, 
+              line = list(color = 'rgba(0, 0, 0, 0)'), 
+              fillcolor = 'rgba(128, 0, 128, 0.2)', 
+              name = '95% Credible Region',
+              showlegend = FALSE) %>%
+  layout(
+    title = 'Posterior Density Plot with 95% Credible Region',
+    xaxis = list(title = 'Theta (Probability of Success)'),
+    yaxis = list(title = 'Posterior Density'),
+    shapes = list(
+      list(type = 'rect', 
+           x0 = lower_bound, x1 = upper_bound, 
+           y0 = 0, y1 = max(posterior), 
+           fillcolor = 'rgba(128, 0, 128, 0.05)', 
+           line = list(color = 'rgba(128, 0, 128, 0.2)'))
+    ),
+    template = 'plotly_white'
+  )
+
+fig
+
+cat("Possible values of theta, 0 to 1:", paste(head(grid_values), collapse = ", "), "...\n")
+cat("Assume we observe 902 heads, 341 tails. What's our best guess?\n\n")
+cat("The maximum value of the distribution is at theta =", grid_values[which.max(posterior)], "\n")
+cat("The 95% credible interval is from", lower_bound, "to", upper_bound, "\n")
+
+```
+
+The important thing to realize here, is that $\theta$ isn't one value, it's a distribution.As such, we can sample from that distribution
+
+```{r}
+# Sample 100 values from the posterior
+sample(grid_values, 100, prob = posterior, replace = TRUE) %>% mean()
+```
+
+Although in this example we used the likelihood (not logged), and the uniform, we should use the log of the likelihood (and the prior). Also, we can use other prior, perhaps where we assign a higher probability mass to certain values of $\theta$.
+
+## Maximum Likelihood
+
+Again, it's more analytically and computationally tractable to apply the logarithm to the function.
+
+$$log(p(D|\theta))=\sum_{n=1}^Nlogp(y_n|\theta)=\sum_{n=1}^N[y_n log\theta+(1-y_n)log(1-\theta)] $$
+
+The reason is simple: Multiplication can give exceedingly large (or small) numbers. It's also arguably harder to understand (and implement, for both humans and computers). Computation is far easier by utilizing the log of the probabilities.
+
+The key "unknown" parameter in these trials is $\theta$, the probability of success, $p(y=1)$. We could use either the Bernoulli or Binomial densities (I'll use the two interchangably), but instead of estimating $\theta$ directly, we write $\theta$ as some function of predictor variables.
+
+We've been reasoning there is a single value of $\theta$, but perhaps that is not the case, and instead, $\theta$ the probability of success is a function of a covariate or set of covariates.
+
+The simplest thing to do would be to assume that $$\theta_i=a+b_x+\epsilon$$. The problem, however, is that we never observe $\theta$, like we do $y$ in the OLS model; instead, we only observe an outcome that is 0 or 1, which of course is not a probability.
+
+This can be viewed as a problem of missing data.
+
+Assume $$y_{obs} \in [0,1]$$. Likewise, let's assume that $x$ is just some n-length vector of real numbers, $x \in \rm I\!R^{n}$. We want to estimate something like this, $(a+b_x+\epsilon) \rightarrow \theta \rightarrow y$. We need to map the linear predictor(s) onto a probability which is then used to estimate the joint probability of $n$ Bernoulli trials. The problem is that we do not have $\theta_i$. It's not an observed variable like $y$ when we ran a linear regression. It's an unkown parameter. The other restriction is that $\theta_i$ cannot be any number. By construction, it's bound between 0 and 1, as a probability would be.
+
+So the motivation is identical to OLS: Estimate a regression model where the dependent variable is a function of some covariates. The difference is that the dependent variable is not continuous, but binary. We're interested in estimating a probability. But we don't observe a probability. We observe a 0 or 1.
+
+Let's start out with the simplest way to tackle this.
+
+## The Linear Probability Model
+
+Let's start simple. Estimate an OLS model, regressing the dependent variable on the independent variable(s). After all, the DV is bound between 0 and 1, just like a probability.....but it's not a probability.
+
+It may seem fine to estimate a linear regression, regressing $y_{obs}$ on a set of covariates. Indeed, we could think of the outcomes as probabilities, where $E(y|x)=b_0+b_1x$, with expectation corresponding to probability estimate, $P_i$. This initially may appear okay because if we meaningfully scale y to be a 0 or 1, then we can interpret the any slope (or intercept) as an effect on the probability of observing 1. This is called the **linear probability model** and summarized in Long (1997).
+
+Without reading ahead, if $y \in [0,1]$, what is the problem with minimizing the sum of squared residuals associated with the difference of $\hat{y}$ and $y_{obs}$? Is there a problem?
+
+There are several issues that arise when we use OLS with a binary dependent variable.
+
+$\bullet$ The expectation is not a true probability because it is not bound between 0 and 1. There is nothing that restricts $\hat{y}<1$, or $\hat{y}>0$. It is entirely possible to have predictions outside [0,1]. This makes little sense in the context of a probability; in fact, it quite clearly violates the very notion of a probability, which must lie between 0 and 1.
+
+That's one strike against the model.
+
+$\bullet$ Second, the residuals are not normally distributed, nor are they constant. Why? Recall that $e_i=y_i-\hat{y_i}$. But, we know that $y_i$ may only take on two values, 0 or 1. Thus, if $y=1$, the residual becomes: $1-b_0-b_1x$, but if $y=0$, the residual becomes $-b_0-b_1x$. We will always have a different variance estimate when $y=0$ relative to when $y=1$. Put another way, as noted in Long (1997, p. 38):
+
+$$var(y|x)=pr(y=1|x)(1-pr(y=1|x))=xb(1-xb)$$
+
+This is the second strike. We also encounter heteroskedasticity.
+
+Now, we know that if the variance is not constant, there are several solutions. Insofar as $b$ is a non-zero number, we have heteroskedasticity. But, knowing the nature of heteroskedasticity, we could first estimate a model using OLS. Then, we could use generalized least squares assuming $var(e)=\hat{y}(1-\hat{y})$. This will partially solve the heteroskedasticity problem, though it will not solve the non-sense prediction problem.
+
+$\bullet$ Finally -- the third strike -- is the issue of functional form. The linear model assumes a constant effect of $x\rightarrow y$. It doesn't matter what value of $x$ we consider, the marginal effect on $y$ is always $b$. What if we expect a decreasing or increasing return of $x$ on $y$, such that the rate of change differs at levels of $x$? If OLS assumes the partial derivative with respect to $x$ is $b$, what if this is not the case?
+
+## Binary Regression and the Latent Variable Formulation
+
+```{r}
+library(plotly)
+
+# Define the data points
+x <- c(-500:500) / 100
+logistic_cdf <- plogis(x)
+normal_cdf <- pnorm(x)
+logistic_pdf <- dlogis(x)
+normal_pdf <- dnorm(x)
+
+# Create subplots
+fig <- subplot(
+  plot_ly() %>%
+    add_lines(x = ~x, y = ~logistic_cdf, name = 'Logistic CDF', 
+              line = list(width = 4), 
+              text = ~paste('x:', round(x, 2), '<br>Logistic CDF:', round(logistic_cdf, 4)),
+              hoverinfo = 'text') %>%
+    add_lines(x = ~x, y = ~normal_cdf, name = 'Normal CDF', 
+              line = list(width = 2, dash = 'dash'), 
+              text = ~paste('x:', round(x, 2), '<br>Normal CDF:', round(normal_cdf, 4)),
+              hoverinfo = 'text') %>%
+    add_lines(x = ~x, y = rep(0.5, length(x)), name = 'y = 0.5', 
+              line = list(color = 'black', dash = 'dash')) %>%
+    layout(
+      title = 'CDFs',
+      xaxis = list(title = 'x'),
+      yaxis = list(title = 'CDF', range = c(0, 1)),
+      shapes = list(
+        list(type = 'rect', 
+             x0 = min(x), x1 = max(x), 
+             y0 = 0.5, y1 = 1, 
+             fillcolor = 'rgba(128, 128, 128, 0.2)', 
+             line = list(color = 'rgba(128, 128, 128, 0.2)')),
+        list(type = 'rect', 
+             x0 = min(x), x1 = max(x), 
+             y0 = 0, y1 = 0.5, 
+             fillcolor = 'rgba(255, 255, 255, 0.2)', 
+             line = list(color = 'rgba(255, 255, 255, 0.2)'))
+      ),
+      annotations = list(
+        list(x = mean(x), y = 0.75, text = 'Observe 1', showarrow = FALSE, font = list(size = 12)),
+        list(x = mean(x), y = 0.25, text = 'Observe 0', showarrow = FALSE, font = list(size = 12))
+      ),
+      showlegend = FALSE
+    ),
+  plot_ly() %>%
+    add_lines(x = ~x, y = ~logistic_pdf, name = 'Logistic PDF', 
+              line = list(width = 4, color = 'blue'), 
+              text = ~paste('x:', round(x, 2), '<br>Logistic PDF:', round(logistic_pdf, 4)),
+              hoverinfo = 'text') %>%
+    add_lines(x = ~x, y = ~normal_pdf, name = 'Normal PDF', 
+              line = list(width = 2, dash = 'dash', color = 'red'), 
+              text = ~paste('x:', round(x, 2), '<br>Normal PDF:', round(normal_pdf, 4)),
+              hoverinfo = 'text') %>%
+    layout(
+      title = 'PDFs',
+      xaxis = list(title = 'x'),
+      yaxis = list(title = 'PDF'),
+      showlegend = TRUE
+    ),
+  nrows = 2, shareX = TRUE
+)
+
+# Show the plot
+fig
+```
+
+If we assume $x$ is simply an unobserved latent variable, and the log of x ($log(x)$) is similarly monotonic, yet crosses the axis at 0, we can think of this as a latent variable model
+
+The problem we encounter is that of missing data. Let's call this missing value $y_{latent}$. We observe $y_{obs}$. We can think of $y_{latent}$ as the "true" value of $y$, but we only observe $y_{obs}$.
+
+$$ x_{obs} \rightarrow y_{latent} \rightarrow y_{obs} $$
+
+If we knew $y_{latent}$, all would be good and we could estimate OLS. Instead, we observe a realization of $y_{latent}$ in $y_{obs}$. We'd like to estimate $y_{latent}=x_iB+e_i$, but the dependent variable is unknown, and the **errors are unknown**. If this is the case, what is there to minimize?
+
+We we don't observe $y_{latent}$; nor can we observe $e_i$. It's not possible to observe the difference between our prediction of $y_{latent}$ and the (actual?) latent y.
+
+Thus, we will need to make an assumption about the distribution of $e_i$.
+
+Traditionally, one makes an assumption that the errors are standard normal (mean\$=$0, variance$=\$1), which is the **probit regression**. This means the errors have mean 0 and standard deviation 1. Or, we assume that the errors follow the logistic distribution, which is the **logit regression**. Logistically distributed errors have mean 0 and variance $\pi^2/3$.
+
+If the errors follow the standard normal, the PDF/CDF for the errors is:
+
+#### PDF for Normally Distributed (or Gaussian) Errors (Probit)
+
+$$probit={{1}\over{\sqrt{2 \pi}}}exp({-{t^2}\over {2}})$$.
+
+#### CDF for Normal Errors (Probit)
+
+$$probit=\int_{-\infty}^{e}{{1}\over{\sqrt{2 \pi}}}exp({-{t^2}\over {2}})dt$$.
+
+If the errors follow the logit density, then:
+
+#### PDF for Logit Errors (Logit)
+
+$$logit(e)={{exp(e)}\over{1+exp(e)^2}}$$.
+
+#### CDF for Logit Errors (Logit):
+
+$$logit(e)={{exp(e)}\over{1+exp(e)}}$$.
+
+The characteristic thing to note here is that the logistic density has fatter tails; there is a greater area at larger values of x. Other than this, the models are similar. In practice, probit and logit regressions generally yield the same results, in terms of z-statistics and p-values.
+
+The estimates from a logit or probit model should be different.
+
+The variances of the errors are different -- $\pi^2/3$ (logit) relative to 1 (probit).
+
+What you should note is the scale of the errors is entirely arbitrary, such that $\pi^2/3$ and 1 are not inherently meaningful. Yet, we need to make an assumption about the distribution of $y_{latent}$ to identify the model. In particular, we need to make 3 identifying assumptions (Long 1997):
+
+(1) The mean of the error for the latent variable $e$ is 0.
+
+(2) $\tau$ is 0.
+
+(3) The variance of the error term is constant.
+
+Consequently, if
+
+$$p(y_{obs}=1|x)=p(y_{latent}>0|x)$$
+
+Then,
+
+$$p(xB+e>0|x>0|x)=p(e<-xB|x)$$
+
+Because the distribution for $e$ must be symmetric,
+
+$$p(xB+e>0|x>0|x)=p(e>-xB|x)=p(e<xB|x)$$
+
+This is easiest to envision graphically. Essentially, if we identify a point $xB$, then we can find the probability of $y_{obs}=1$ to the point by using the logistic or standard normal (probit) CDFs
+
+Yet, the actual values for $b$ will be different in the output. Recall, the logit has fatter tails. Even though the parameters differ, the the probabilties $p(y=1|x)$ will stay roughly the same. $B$ will be different insofar as the $y_{latent}$ is scaled differently. Why?
+
+### Scale Indeterminacy
+
+The problem -- and a non-trivial one -- is that because $y_{latent}$ is unobserved, we need to make an assumption about the scale of the error term. Imagine a classical linear regression. If
+
+$$y=a+bx+e$$
+
+Say we multiply $y$ by $10$. If we do this, let's call $y^*=10y$
+
+$$var(y^*)=10^2var(y)$$
+
+The variance will increase by a factor of 100. By construction, the OLS estimates will change:
+
+$$y^*=100 \times a+100 \times bx+100\times e$$
+
+The OLS will change by a factor of 100, The estimates are sensitive to the scale of the dependent (and independent) variable. The standard errors will also change. The predictions will also change, but by a constant factor.
+
+The binary models described above are no different. If we make decisions about the scale of the error term (which by construction are assumptions about the $y_{latent}$ scale), this will change the size of the coefficients in the model. In fact, it can be shown that the differences between the probit and logit model is a constant approximately equal to 1.81. That is,
+
+$$1.81 \times b_{probit}=b_{logit}$$
+
+Because the scale of the error term is entirely arbitrary, though we need to specify something, the coefficients themselves are meaningless. They cannot be directly interpreted in the way we interpret OLS coefficients. We'll see this in a bit when we discuss interpretation, but for the time being it's sufficient to simply understand that we need to make an entirely arbitrary assumption about the scale of $e$ which will cascade across the estimated coefficients in the model. **This does not mean that the predictions from the model are arbitrary; on the contrary, the probabilities** $y|x$ will be similar regardless of the assumption of whether the error is normal or logistically distributed. The output of the model -- in terms of probabilities -- are valuable and not generally susceptible to the scale of $e$; this is not the case for the regression parameter estimates, which are inherently arbitrary because of the scale indeterminacy. \*\*These models, along with all models explored from this class, require careful attention to post-estimation and substantial elaboration (and interpretation).
+
+### The Nonlinear Regression
+
+There is a second way to think about these models, and this approach doesn't strongly draw on a notion of an unobserved latent variable. We know the log-likelihood function for a series of Bernoulli trials.
+
+$$  log(p(D|\theta))=\sum_{n=1}^Nlogp(y_n|\theta)=\sum_{n=1}^N[y_n log\theta+(1-y_n)log(1-\theta)] $$
+
+In a sense, we now move the other way. The latent variable approach works in this direction $$ x_{obs} \rightarrow y_{latent} \rightarrow y_{obs} $$. Let's now move the opposite direction, We have our observed data, we know that is a function of a probability, $\theta$, and we suspect our linear predictors translate to an unobservable score that maps onto the probability.
+
+What must be true of $\theta_i$? Recall, we need, $\theta_i$ to be bound between 0 and 1. However, if we want to form a linear prediction, we need to remove the upper and lower bound restriction.If we remove this restriction, then we can use that to generate a linear prediction. We want to transform $\theta$ to fall on the number line. One way is to specify:
+
+$${{\theta_i}\over{1-\theta_i}}$$
+
+**This frees the upper bound restriction.** The transformation is an "odds" that may approach $\infty$. But, we still have the zero restriction. Take the natural logarithm of the odds, resulting in the **log odds**.
+
+$$\eta_i=log[{{\theta_i)}\over{1-\theta_i}}]$$
+
+Such that $\eta \in [-\infty, \infty]$.
+
+This is the *logit* transformation, the log of the odds.
+
+Then by calculating the log-odds we have a transformed variable that we can predict with $xB$. Extend this further, by assuming $\eta_i=xB$.
+
+$$log{{xB}\over{1-(xB)}}$$
+
+If we calculate the inverse of this function, we may then return to the probability scale.
+
+$$p(y=1|x)={{exp(xB)}\over{1+exp(xB)}}$$
+
+Which simplifies to,
+
+$$p(y=1|x)=\theta_i={1\over{1+exp(-(xB))}}$$
+
+Now, we have generated a function that maps the linear prediction onto the probability that $y=1$. We have linked the prediction formed by $a+bx$ onto a probability. Knowing this, we can simply input $\theta_i$ onto the likelihood function.
+
+$$p(D|\theta)=\prod_{n=1}^N[\frac{1}{1+exp(-(xB))}]^{y_n}[1-\frac{1}{1+exp(-(xB)}]^{1-{y_n}}$$
+
+The log of the likelihood is identical to what we've already derived. Here, we can make use of just about any $\textbf{link function}$ that maps the linear predictors onto a [0,1] interval. In particular $\hat{xB} \rightarrow \theta_i \rightarrow y_{obs}$. You probably guessed there are two common links: The logit link and the probit link. We've explored the logit, the probit (i.e., normal) another option, which I won't spend much time on is the complementary log-log, which is an asymmetric distribution that is occasionally used.
+
+$$p(y=1|x)=\int_{-\infty}^{xB}{{1}\over{\sqrt{2 \pi}}}exp({-{t^2}\over {2}})dt=\Gamma(xB)$$.
+
+## Estimating the Binary Regression Model
+
+There are several ways to solve for $\theta_i$.
+
+## Analytical Methods
+
+Analytical methods involve solving for $\theta_i$ by deriving the partial derivative(s) of each parameter with respect to the model, setting this equation to 0, and solving. This can be done in steps.
+
+(1) Calculate the partial derivatives for the $\theta$ vector.
+
+(2) Set the derivative to 0 and, if possible, solve for $\theta$.
+
+(3) We should also calculate the second derivative to ensure that the function is a maximum, rather than a minimum. Thus, the second derivative of the likelihood function should be negative.
+
+This is a reasonable approach when we take the log of the likelihood function. Otherwise, we are dealing with products. The problem is that there is often not an analytic solution to the (log) likelihood function. We can't always use calculus and algebra to find the maximum with respect to $\theta$. For this reason, we often rely on alternative computational approximation methods
+
+## Numerical Methods
+
+### Grid Approximation
+
+If the likelihood function is:
+
+$$p(Y|theta)=\prod\theta^y_i(1-\theta)^{1-y_i}=p(y_1|\theta)p(y_2|\theta)....p(y_n|\theta)$$
+
+Then we generate a vector of plausible values of $\theta$ and choose the one that maximizes the probability of $y$. The grid method computes the likelihood across a parameter space -- for instance, for $\theta$ between 0 and 1. I find this to be one of the most useful methods to understand maximum likelihood. It's limited in practice. The reason is if the parameter space is multidimensions, then we have to calculate the probability of y for every possible permutation of parameter values. For instance, say we have a two parameter model, each with 25 possible values. We don't calculate the likelihood with respect to 25 possible values, we do it with 625 possible values ($25 \times 25$). As the parameter space grows, and the number of parameters increase, we introduce more and more computational costs by calculating the probability across this entire parameter space.
+
+### Additional Methods
+
+Instead of search across a grid of all possible permutations, approximation methods (by far the most common technique), take starting values for $\theta$ and then use an algorithm to introduce a new value of $\theta$. If, for example, we start at $\theta_1$, calculate the log likelihood, then adjust the value to $\theta_2$ by subtracting some number and we find that the log likelihood decreases, then we return back to $\theta_1$ and add, rather than subtract, some number. The algorithm then settles on a point that results in very little change to the log-likelihood -- which corresponds to a tangent of zero (the maximum or minimum of a function). There are a number of "optimization" routines.
+
+Most techniques use some sort of iterative algorithm (Long 1997, page 55). These involve using a starting value for $\theta$ and updating that value with $\gamma$. At each step, we compare the updated value of $\theta$ to the preceding value and if that value changes by a negligible amount, we assume the method has converged to a reasonable solution. That is,
+
+$$\theta_1=\theta_0+\gamma_0$$
+
+$$\theta_{n+1}=\theta_n+\gamma_n$$
+
+The \`\`tricky'' part involves finding a value for $\gamma$. One approach that is widely used is the \emph{Method of Steepest Ascent}:
+
+$$\theta_{n+1}=\theta_n+{{\partial ll}\over{\partial \theta_n}}$$
+
+The $\theta$ value is updated by the partial derivative. If the function -- again called the \`\`gradient'' -- is negative the value decreases, if it is positive it increases; ultimately, it should near zero and the update doesn't yield noticeable change. The problem is that the technique jumps over the solution or moves too slowly. It's also possible for it to settle on a local, rather than global solution.
+
+### Newton-Raphson Approximation
+
+The Newton-Raphson algorithm is a common technique that takes into account \emph{both} the gradient (the partial derivative) and the second derivative, which recall gives the rate of change. To update the estimate of $\theta_n$, use the following algorithm.
+
+$$\theta_{n+1}=\theta_n-({{\partial^2 ll}\over{\partial \theta_n \partial \theta^T_n}})^{-1}{{\partial LL}\over{\partial \theta_n}}$$
+
+In other words we adjust the estimate by the gradient (just like with steepest ascent), multiplied by the inverse of the rate of change. Smaller adjustments to $\theta$ occur the flatter the gradient \emph{and} the smaller the rate of change.
+
+### Example
+
+```{r}
+
+```
+
+### Interpretation
+
+The probit and logit models typically produce very similar results. I tend to prefer the logit, at least to present the basic logic of the binary dependent variable regression. **The thing to remember: It doesn't really matter in practice.** This is a personal preference and not a strong (or even meaningful) recommendation. The key difference is that we make a different assumption about the errors, whereby they follow a normal or logit distribution (or we make a different assumption about how the latent variable maps onto the observed variable).
+
+In both cases, we assume that if the latent variable is greater than 0, we observe 1; otherwise, we observe 0. This latent variable doesn't have a natural scale. Remember, it's a hypothetical, unobserved variable. A "unit change" really doesn't mean a lot then. The reason we can effectively use either the logit or probit and they will be approximately the same in terms of probabilistic predictions is that
+
+$$p(y=1)=p(xB+e>0|x)=p(-xB>e|x)=p(xB<-e|x)$$
+
+Which simply means that because both distributions are symmetric, the area under the curve from infinity to $xB$ will correspond to the probability that $y=1$. We can find this area using the CDF. Even if $xB$ produces a different value based on the scale of $e$, the probability prediction should be the same. The statement above is simply the area under either the logit or probit CDF, \$ \int*{*\infty}\^{-xB}F(x)dx$, and by symmetry,$\int{-\infty}\^{xB}F(x)dx\$. What this also means is that $p(y=0)=1-\int_{\infty}^{-xB}F(x)dx=1-\int_{-\infty}^{xB}F(x)dx$. Simply use the logit or CDF in this expression.
+
+The logit and probit models are not linear (we've shown this), nor are they additive. The effect of one variable is conditional on values of the other variables. Let's see this with a simple example.
+
+The problem with these models is that they are not directly interpretable, due to the non-linearity of the effect of $x$ on $y$. Consistent with Long (1997), if we take the partial derivatives with respect to $x$ (Use the chain rule and then ${{\partial F(x)} \over {\partial x}}=f(x)$:
+
+$${{\partial F(x)}\over{\partial x}}=b \times f(x)$$
+
+In this case, f(x) is either the logit or probit PDF. So, for logit,
+
+$${{\partial F_{logit}(x)}\over{\partial x}}=b \times {{exp(a+bx)}\over{1+exp(a+bx)^2}}$$
+
+The slope associated with $x$ is a function of $b$ and the given value of $x$. For probit, just replace f(x) with the normal PDF.
+
+It is even more challenging to interpret the results when there are other covariates, since:
+
+$${{\partial F_{logit}(x)}\over{\partial x_k}}=b_k \times {{exp(a+\sum b_j x_j)}\over{1+exp(a+\sum b_j x_j)^2}}$$
+
+We could attempt to interpret the coefficients in terms of the partial derivative for the latent variable, though recall why this is ill-advised: The coefficients depend on the scale of the error term. Depending upon the variance of the error (normal or logit), this effects the coefficient. Thus, it is quite difficult to make much sense from the slopes alone.
+
+As noted by Long (1997), we could partially standardized the slopes, by dividing each slope by the standard deviation of $y$, ($b/s_y)$. Now the interpretation is, "for a one unit change in x we anticipate a b standard deviation change in $y_{latent}$." We could alternatively fully standardize the slopes by multiplying $b$ with $(s_x/s_y)$. Now, we may state\`\`for a one standard deviation change in x we anticipate a b standard deviation change in $y_{latent}$.'' These approaches are somewhat more common, but it's still far from ideal. What does $y_{latent}$ mean, in practice?
+
+It's not very intuitive. To see this, let's just consider the logit model, though really the same problem exists for the probit.
+
+Recall the logit model is:
+
+$${log{{\theta_i}\over{1-\theta_i}}}=x_iB$$
+
+The model estimates the linear effect of $x_i$ on the log odds ratio. Thus, every coefficient in the model represents the expected log change in the odds for a unit change in $x$. Unlike an OLS model, the coefficients in the logit (or probit) are not directly interpretable. If you are absolutely certain that a reader thinks of the world in terms of log odds ratios, then just leave the model as is. Or, perhaps readers think in terms of standardized log odds ratios? If not, you it's necessary to do a fair amount of post-estimation work to show the consequences of your independent variables on you 0/1 outcome.
+
+The problem more or less boils down to something relatively simple: The model is non-additive and non-linear. The consequences of x on the probability that $y=1$ is inherently tied to the value of x and the value of all other covariates in the particular model. The \`\`non-additivity'' part is unimportant here, since there is only one indepenendent variable. But, we can still see that the slope of x$\rightarrow$y is far from constant.
+
+## Several Approaches to Parameter Interpretation
+
+There are several ways to approach this problem. I should preface all of this by saying that presenting the results from a non-linear model are much more of an art than a science. There are many ways to go about each of the steps I'll present. It is up to you as the researcher to determine how best to present your results, given your particular research question and theoretical expectations.
+
+**Predicted Probabilites**. Because the model inherently deals with probabilities, it is often useful to present the predicted probability that $y=1$ at levels of your covariate(s).
+
+**Odds Ratios (logit only)**. Because the model inherently deals with probabilities, it is often useful to present the predicted probability that $y=1$ at levels of your covariate(s). The coefficients can be transformed as odds ratios, though this only works for the logit model. There are several reasons why the logit model is slightly more interpetable. First, if we exponentiate $b$, then
+
+$${{\theta_i}\over{1-\theta_i}}=e^{x_iB}$$
+
+Let's consider two variables:
+
+$$exp(a+b_1x1+b_2x_2)=exp(a)exp(b_1x_1)exp(b_2x_2)$$
+
+And, what if we are interested in a one unit change in $x_1$, then this prediction becomes:
+
+$$exp(a)exp(b_1 (x_1+1))exp(b_2x_2)$$
+
+The ratio of these two predictions is:
+
+$${{exp(a)exp(b_1x_1)exp(b_2x_2)} \over {exp(a)exp(b_1 (x_1+1))exp(b_2x_2)} }=exp(b_1)$$
+
+If we exponentiate the coefficients, they may be interpreted in terms of odds ratio. Recall that an odds is $p/(1-p)$. If we derive an odds of 1 that means both events are equally likely. If we find an odds of 2 that means the likelihood of success is two times as likely as the probability of failure. If the odds is less than 1, we can state that the odds of a 0 is 1 minus this amount.
+
+For example, if a one unit change in $x$ translates to a change in probability from 0.33 to 0.5, the odds ratio is approximately two ($(0.5/0.5)/(0.33/0.67)$) (Gelman and Hill 2007, 83). In our example, $x$ varies from 0 to 1. The logit estimate is -4.35. Then $e^{-4.35}=0.01$ This means that contrasting high to low racially resentful people decreases the odds ratio of voting for Obama to about 0.01. I personally find odds ratios incredibly difficult to interpret. I find it's almost always more natural to convert the estimate into a probability or set of probabilities. Again, this is a personal preference. If you find this intuitive and you can successfuly guide a reader through a series of odds ratios, then this may be an effective way to present your results.
+
+**Discrete changes in a covariate**. Just as we could present, $p(y|x)$, it may be useful to present $\Delta=p(y|x+\delta)-p(y|x)$, which corresponds to the change in the predicted probability of $y$ for some $\delta$ change in $x$. You must determine what $\delta$ is -- which should stem from (1) the scale of the variable and (2) what makes most sense given your research design. Maybe it's going from min to max values of $x$ (though be careful, particularly if there ar outliers); perhaps it's going from the 25th to 50th percentile. I often present the change from the 10th to 90th percentiles. This way, I'm not misleading the reader (in case there are outliers) while also presenting the consequences of what happens in $p(y)$ across the range of $x$.
+

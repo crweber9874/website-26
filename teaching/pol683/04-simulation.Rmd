@@ -1,0 +1,397 @@
+# Simulation and Statistical Models
+
+## Prediction Uncertainty
+
+This chapter will focus on how we can use simulation to improve our statistical models, provide more clarity about causal effects and begin to build upon the framework used to estimate causal effects. 
+
+Thus far, we have only discussed the point estimates of a logit/probit model. But, we also need to discuss the variances of the estimates, in order to derive standard errors and test-statistics. Typically, when we use maximum likelihood, we can use the matrix of second derivatives to calculate the variance of a parameter.
+
+First, let's define the Hessian as the matrix of second derivatives for our parameters. As noted by Long (1997, p.32)
+
+$$H(\theta)={{\partial^2 ln L(\theta) }\over{\partial \theta \partial \theta^T}}$$
+
+What does the second derivative tell us? If the first derivative is the instantaneous effect of $x$ on $y$. The second derivative is the rate of change. For instance, we previously used it to determine whether a function is concave (upside down u) or convex (u) shaped. If a function is concave, and we find the global maximum, the first derivative will be 0 and the second derivative will be negative. If it's convex, it will be positive.
+
+The negative of the expected value of the Hessian is the information matrix,
+
+$$I(\theta)=-E(H(\theta))$$.
+
+The inverse of the information matrix is the variance-covariance matrix for the parameters.
+
+$$V(\theta)=[-E(H(\theta))]^{-1}$$.
+
+We can display the estimated variance matrix by using the $\texttt{vcov}$ statement.
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE}
+library(dplyr)
+load("~/Dropbox/github_repos/teaching/POL683_Fall24/advancedRegression/vignettes/dataActive.rda")
+dat = dataActive %>% mutate( support_protest = ifelse(violent >3, 1, 0)) %>%
+  select(support_protest, VIOLENT)
+# Estimate logit
+logitModel = glm(support_protest ~ VIOLENT, data = dat, 
+                 family = binomial(link = "logit")) 
+logitModel
+```
+
+The variance-covariance matrix of the parameters can be used to simulate the distribution of the predicted probabilities.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(MASS)
+variance = vcov(logitModel)
+variance
+###
+```
+
+So this is the variance-covariance matrix of parameters. We could then simulate from a multivariate normal density, where the means correspond to the regression parameter estimates -- from the model -- and a variance-covariance matrix of these estimates.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(MASS)
+library(plotly)
+library(tidyr)
+variance = vcov(logitModel)
+simval = mvrnorm(1000, coef(logitModel), variance)
+variance  
+head(simval, 10)
+```
+
+-   The treatment effect
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE}
+library(dplyr)
+library(plotly)
+
+simval %>%
+  as.data.frame() %>%
+  mutate(
+    y = 1 / (1 + exp(-(logitModel$coefficients["(Intercept)"] + logitModel$coefficients["VIOLENT"] * VIOLENT)))
+  ) %>%
+  plot_ly() %>%
+  add_histogram(x = ~y, nbinsx = 100, name = "Predicted Probabilities") %>%
+  layout(
+    title = "Predicted Probabilities",
+    xaxis = list(title = "Probability"),
+    yaxis = list(title = "Frequency")
+  )
+```
+
+## Marginal Effects
+
+It can often be useful to calculate the marginal effect of a variable -- i.e., the change in probabilities for a one unit increase in the variable. Given how I've coded my data, a "one-unit" change corresponds to the following.
+
+$\Delta x_i =x_{i,1}-x_{i,0}$
+
+For y, the marginal value is then.
+
+$\Delta y=f\left(x_{i,1},\ldots,x_n \right)-f\left(x_{i,0},\ldots,x_n \right)$
+
+And the marginal effect is (if a unit change, then the denominator is 1):
+
+$\frac{\Delta y}{\Delta x}=\frac{f\left(x_{i,1},\ldots,x_n \right)-f\left(x_{i,0},\ldots,x_n \right)}{x_{i,1}-x_{i,0}}$
+
+So,
+
+(1) Calculate the probability that $y=1$ when $x=0$.
+
+(2) Calculate the probability that $y=1$ when $x=1$.
+
+(3) Subtract (1) from (2)
+
+We might simulate a confidence interval as well, by modifying the recipe.
+
+(1) Calculate the probability that $y=1$ when $x=0$ by drawing $K$ draws from the multivariate normal of the model, with mean values corresponding to the slopes and the variance covariance matrix of the model parameters.
+
+(2) Calculate the probability that $y=1$ when $x=1$ by drawing $K$ draws from the multivariate normal of the model, with mean values corresponding to the slopes and the variance covariance matrix of the model parameters.
+
+(3) Subtract (1) from (2), which will now yield a distribution.
+
+## The Normal Distribution
+
+The normal -- Gaussian -- distribution plays an important role in statistics. The reason is fairly obvious: many phenomean are normally distributed. Think of the central limit theorem, or more generally, the distribution of natural phenemona. We've discussed the logit regression, and the role that maximum likelihood plays in estimating model parameter, but we can actually do the identical thing with a linear model
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE}
+set.seed(123)
+n <- 100
+x <- rnorm(n, 0, 1)
+y <- 0.25 + 0.25 * x + rnorm(n, 0, 0.5)
+
+intercept_grid <- seq(0, 1, length.out = 100)
+slope_grid <- seq(0, 1, length.out = 100)
+sigma <- 1  # Assume known sigma for simplicity
+
+# initialize the likelihood matrix. We'll fill this in as we go.
+# Basically we're going to calculate the likelihood for each combination of intercept and slope
+likelihood <- matrix(0, nrow = length(intercept_grid), ncol = length(slope_grid))
+
+for (i in 1:length(intercept_grid)) {
+  for (j in 1:length(slope_grid)) {
+    intercept <- intercept_grid[i]
+    slope <- slope_grid[j]
+    y_pred <- intercept + slope * x
+    likelihood[i, j] <- prod(dnorm(y, mean = y_pred, sd = sigma))
+  }
+}
+
+  # Plot in 3d
+ dat %>% plot_ly(x = ~intercept_grid, y = ~slope_grid, z = ~likelihood) %>%
+  add_surface(type = "scatter3d",  colorscale = list(c(0,1),c("lightgrey","black")))  %>%
+  layout(
+    scene = list(
+      xaxis = list(title = 'Intercept'),
+      yaxis = list(title = 'Slope'),
+      zaxis = list(title = 'Likelihood'),
+      scene = list(
+      )
+    )
+    )
+  
+```
+
+## The Posterior Distribution
+
+Imagine our interest is in predicting a feeling thermometer score, using a person's ideology, $x_i$. The feeling thermometer score ranges from 0 to 100.
+
+Consistent with McElreath (2021), let's write the scientific model like this:
+
+$$
+y_{feeling} \sim Normal(\mu_i, \sigma)\\
+\mu_i = \beta_0 + \beta_1 (x_i - \bar{x})\\
+\beta_0 \sim Normal(0, 10)\\
+\beta_1 \sim Normal(0, 10)\\
+\sigma \sim Uniform(0, 50)
+$$
+
+We'll sample from the posterior in a variety of ways. Let's start using $\texttt{stan}$/$\texttt{brms}$.
+
+
+
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE}
+library(brms)
+
+n <- 100
+x <- rnorm(n, 0, 1)
+y <- 2 + 3 * (x - mean(x)) + rnorm(n, 0, 1)
+data <- data.frame(x = x, y = y)
+
+# Define the model formula
+formula <- bf(y ~ x - mean(x))
+
+# Specify the priors
+priors <- c(
+  prior(normal(0, 10), class = "b"),
+  prior(normal(0, 10), class = "Intercept"),
+  prior(uniform(0, 50), class = "sigma")
+)
+
+# Fit the model
+fit <- brm(formula, data = data, prior = priors, chains = 4, iter = 2000, warmup = 1000)
+
+# Summarize the results
+summary(fit)
+
+# Plot the results
+plot(fit)
+
+```
+
+Then build the model with real data.
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE}
+library(brms)
+load("~/Dropbox/github_repos/teaching/POL683_Fall24/advancedRegression/vignettes/dataActive.rda")
+dat = dataActive 
+dat$authoritarianism = scale(dat$authoritarianism)
+dat$sdo = scale(dat$sdo)
+dat$college = ifelse(dat$educ == "4-year" | dat$educ == "Post-grad", 1, 0)
+                       
+formula <- bf(sdo ~ authoritarianism + college + authoritarianism:college)
+
+# Specify the priors
+priors <- c(
+  prior(normal(0, 10), class = "b"),
+  prior(normal(0, 10), class = "Intercept"),
+  prior(uniform(0, 100), class = "sigma")
+)
+
+# Fit the model
+fit <- brm(formula, data = dat, prior = priors, chains = 1, iter = 2000, warmup = 1000)
+
+summary(fit)
+
+# Plot the results
+plot(fit)
+
+```
+
+The process of generating **posterior predictions** is similar to generating predictions from a linear model. We'll use the $\texttt{add_epred_draws}$ function to generate predictions from the model. $\texttt{data_grid}$ comes from the $\texttt{modelr}$ package; it builds on the $\texttt{expand.grid}$ fucntion in base R, but it's a bit more flexible. (Here, it's identical)
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE}
+library(tidybayes)
+library(dplyr)
+library(ggplot2)
+library(modelr)
+fit <- brm(formula, data = dat, prior = priors, chains = 1, iter = 2000, warmup = 1000)
+
+dat %>% data_grid( authoritarianism = seq_range(authoritarianism, n = 30),
+                   college = c(0, 1)) %>%
+  add_epred_draws(fit) %>%
+  group_by(authoritarianism, college) %>%
+  mutate(college = ifelse(college == 1, "College", "Less than College")) %>%
+  summarize(
+    .value = mean(.epred),
+    .lower = quantile(.epred, 0.025),
+    .upper = quantile(.epred, 0.975)
+  ) %>%
+  ggplot(aes(x = authoritarianism, y = .value, color = factor(college))) +
+  geom_line() +
+  geom_ribbon(aes(ymin = .lower, ymax = .upper), alpha = 0.3) +
+  facet_wrap(~college) +
+  labs(
+    x = "Authoritarianism",
+    y = "Social Dominance Orientation",
+    color = "Education",
+    title = "Predicted Social Dominance Orientation \nby Authoritarianism and Education"
+  ) + 
+  theme_minimal()
+```
+
+## Building a Model
+
+Simulation can be a powerful tool, beyond just generating predictions -- posterior or point. It allows us to test underlying assumptions in our models.
+
+In Chapter 2 we discussed the Directed Acyclic Graph – DAG - and how this is a useful tool to represent theoretical relationships and build both statistical and causal models. If we focus solely on *association* as opposed to *causation*, it is entirely conceivable that you'll document some strange relationships, like a positive association between the number of waffle houses in a state, and that state's divorce rate (McElreath 2022), or the positive relationship between per capita ice-cream consumption and death rates among minors. If we solely focus on the *statistical*, ignoring the *scientific* these kind of counter-intuitive, downright strange relationships abound.
+
+## Steps to Building a Model
+
+-   Build a scientific model. This is the theoretical model that you believe underlies the data. This is often represented in a DAG.
+
+-   Build a statistical model. How might we use a statistical model to create estimands -- parameters that we'll estimate with our data?
+
+-   Estimation, Simulation and Prediction. Here we'll join the statistical and scientific model, using the data to test associations and causal processes.
+
+## The DAG
+
+### Conservatism and Age
+
+The DAG depicts a theoretical relationship between variables. Let's start simple, the relationship between age and conservatism. We're probably all familiar with this problematic "quote."
+
+"If you’re not a liberal when you’re 25, you have no heart. If you’re not a conservative by the time you’re 35, you have no brain."
+
+This the infamous quote, falsely attribute to Winston Churchill.There's no evidence he actually said this, but in any case, folk wisdom seems to similar point to this.
+
+As the story goes, when one ages in a post industrial market economy, they develop financial (e.g., home and car ownership) and social capital (e.g., promotions, power). As an ideology, conservatism tends to correlate with lower taxes, a smaller size (and scope) of federal government, and a preference to free market to government solutions. Throughout the lifespan, one accumulates more wealth, subsequently developing a personal interest in maintaining such wealth.
+
+Continuing on, when one reaches retirement age -- the story goes -- a senior has less "skin in the game," as their children are grown and they are no longer working. These individuals, on average, are even less likely to favor liberal social welfare programs. And of course we have observational/anecdotal evidence supporting such a narrative. Just look to retirement states -- like Arizona and Florida -- where social welfare programs are meager.
+
+Though this is the folk narrative, there is relatively little empirical evidence to support this notion. Peterson, Smith and Hibbing (2020) show no relationship between age and conservatism, instead document remarkable stability in political attitudes over the life course. Likewise, Alford, Funk, and Hibbing (2005) show that political attitudes are partially heritable, and that genetic factors explain a significant portion of the variance in political ideology. In psychology, John Jost and colleagues (Jost et al 2004) show that conservatism is firmly rooted in stable personality traits -- like authoritarianism and social dominance orientation -- and epistemic goals (e.g., need for cognitive closure). These empirical investigations develop a very different narrative: Ideology is a relatively stable expression of psychological and even biological predispositions.
+
+Let's use this to develop different DAGs, simulate data, generate causal estimands, and test the relationship between age and conservatism. We'll start with a simple model, moving to a more complex model, all the while considering the role of age in *causing* political conservatism.
+
+Here's the simple model:
+
+```{r, fig.width=4, fig.height=4, echo = FALSE, warning = FALSE, message = FALSE}
+library(ggdag)
+
+dagify(conservatism ~ age,
+       labels = c(
+  "conservatism" = "Political Conservatism",
+  "age" = "Age")) %>% ggdag(text = FALSE, use_labels = "label")  + 
+  theme_dag()
+```
+
+Let's also not hide our interests in cause-and-effect in imprecise language, like "association," "correlation," and "relationships." While we're interested in these things, assume our core interest is in *causation*. Does age *causally impact* conservatism? I'll say more about causation in the next chapter. For our purposes now, it's sufficient to note that we can often sort out how to create causal estimands by simply drawing a graphical depiction of how variables relate to one another, the DAG.
+
+## The Confound
+
+### The Fork
+
+Here's the simple model:
+
+```{r, fig.width=6, fig.height=6, echo = FALSE, warning = FALSE, message = FALSE}
+# 
+library(ggdag)
+
+dagify(conservatism ~ household + education ,
+       household ~ education + age,
+       labels = c(
+  "conservatism" = "Political Conservatism",
+  "household"    = "Personal Wealth",
+  "education"       = "Post Secondary Education",
+  "age" = "Age")) %>% 
+  ggdag(text = FALSE, use_labels = "label")  + theme_dag()
+```
+
+This seems to be a plausible graph -- age influences the accumulation of personal wealth, personal wealth perhaps leads to conservatism, with the goal of maximizing one's wealth. Again, fiscal conservatism advocates a smaller federal government, lower taxes, and less regulation. However, post-secondary education also relates to personal wealth -- as a college degree generally translates to higher paying jobs. Post-secondary education is also related to political conservatism. But in the United States, it's typically found that college and graduate degrees translate to *political liberalism*. Let's ignore age for the time being, focusing on post-secondary education, the **fork**.
+
+```{r, fig.width=4, fig.height=4, echo = FALSE, warning = FALSE, message = FALSE}
+# 
+library(ggdag)
+dagify(conservatism ~ household + education ,
+       household ~ education,
+       labels = c(
+  "conservatism" = "Political Conservatism",
+  "household"    = "Personal Wealth",
+  "education"       = "Post Secondary Education",
+  "age" = "Age")) %>% ggdag(text = FALSE, use_labels = "label")  + theme_dag()
+```
+
+Post-secondary education is a "confounding" variable. The relationship between personal wealth and political conservatism might be spurious if one were to ignore post-secondary education. If education is a confound, failing to condition on education, a common cause of both personal wealth and political conservatism, means that if we ignore education, the independence will no longer hold.
+
+Let's simulate a world in which education is a confound. We'll simulate a population in which 30% has a college or post-graduate degree. We'll then predict personal wealth and political conservatism. We'll then compare the relationship between wealth and conservatism, conditioning on education, and not conditioning on education.
+
+```{r, fig.width=4, fig.height=4, echo = FALSE, warning = FALSE, message = FALSE}
+# Imagine a population that in which 30% have a college or post-graduate degree
+education = rbinom(1000, 1, 0.30)
+# predict personal wealth
+wealth = 1 + 0.8*education + rnorm(1000, 0, 0.5)
+political_conservatism = 1 + 0.3*wealth - 0.5*education + rnorm(1000, 0.5)
+# Notice the change
+lm(political_conservatism ~ wealth) %>% summary()
+lm(political_conservatism ~ wealth + education) %>% summary()
+#
+coef(lm(political_conservatism ~ wealth + education))["wealth"] -
+coef(lm(political_conservatism ~ wealth))["wealth"]
+```
+
+The difference between the wealth coefficient in the two models is fairly substantial. It's attenuated in the equation without education -- why? -- and considerably larger (and signed in the conservative direction) in the model that includes education.
+
+We can simulate this experiment a bunch of times, varying the sample size, and number of trials.
+
+```{r, fig.width=4, fig.height=4, echo = FALSE, warning = FALSE, message = FALSE}
+library(plotly)
+
+simulate_difference <- function(n_simulations = 1000, n_samples = 1000, p_education = 0.30) {
+  differences <- numeric(n_simulations)
+  
+  for (i in 1:n_simulations) {
+    # Simulate data
+    education <- rbinom(n_samples, 1, p_education)
+    wealth <- 1 + 0.8 * education + rnorm(n_samples, 0, 0.5)
+    political_conservatism <- 1 + 0.3 * wealth - 0.5 * education + rnorm(n_samples, 0, 0.5)
+    
+    model1 <- lm(political_conservatism ~ wealth)
+    model2 <- lm(political_conservatism ~ wealth + education)
+    
+    # Calculate the difference in the coefficient of wealth
+    diff <- coef(model2)["wealth"] - coef(model1)["wealth"]
+    differences[i] <- diff
+  }
+  
+  return(differences)
+}
+
+# Run the simulation
+differences <- simulate_difference()
+
+plot_ly(x = ~differences, type = "histogram") %>%
+  layout(title = "Differences in Coefficient of Wealth, conditioning on Education",
+         xaxis = list(title = "Difference"),
+         yaxis = list(title = "Count"))
+
+```
+
+In these simulations, notice that the difference between these coefficients hovers around 0.2, with a range from 0.15 to 0.33 or so. In this fictitious example, wealth is related to political conservatism. But, when we condition on education, the relationship between wealth and conservatism changes. According to our scientific model, education predicts both wealth and conservatism. It is a *confound*. It should not be ignored.
+
+Though our interest is in *age* and *conservatism* let's say we want to generate a causal estimate of wealth. How does wealth *causally impact* political conservatism?
+
+In the next chapter, we'll consider causation further, by building upon the DAGs in this chapter, while also elaborating on a common language used to express causal relationships.

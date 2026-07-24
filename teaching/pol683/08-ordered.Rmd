@@ -1,0 +1,340 @@
+# Ordinal and Multicategory Regression
+
+## Ordinal Regression
+
+Let's transition now to the scenario in which we have an ordinal dependent variable. Unlike a continuous dependent variable, the distances between categories may be unequal. Although a question such as "How much do you agree or disagree with the following item'' scored on a five point scale can be logically ordered, the intervals between categories are not equal. Can we assume that the numerical distance between strongly disagree to disagree is equal to disagree to slightly disagree?
+
+If we have ordered, non-interval level data, we again will violate the assumptions of the classical linear regression model. In what ways:
+
+1)  We have non-constant variance.
+
+2)  Second, predictions may be non-sensical (i.e., we predict things outside of the observed bounds).
+
+3)  If the category distances are theoretically quite different, the OLS model and the more appropriate ordinal probit or logit will diverge -- ordered regression models.
+
+That said, there may be circumstances under which the models agree (though I would default to logit or probit). For instance, if the category distances are in fact equal then OLS and the ordinal models will agree. Second, if there are many categories, not much sparsity, and a relatively normal looking distribution of responses, the OLS and ordered models will agree.
+
+However, at this point there is little reason not to use an ordinal model. I'll present many of the key concepts using the logisitic model, though this is just a matter of personal prefernece. the ordered probit model is nearly equivalent, just as it was in the binary case. Again, it's just based on the distribution of the errors -- normal or logit. The error PDFs and CDFs are again the same, and follow the formula from previous chapters. Using ordered logit or probit is often a matter of personal preference; theoretically, they only involve assumptions about the errors. I find the logit version marginally easier to interpret, as we can think of the latent variable in terms of **odds ratios.** For this reason, the ordered logit model is sometimes called the "proportional odds regression" because of its odds ratio interpretation.
+
+## Intuition
+
+We should only use an ordered parameterization when we have ordered data. Some data can be ordered, even if they are theoretically multidimensional. An example is party identification in the United States. This is often placed on a continuum, where Independents reside in the middle. Why is it justified to treat PID as ordinal?
+
+Occasionally, ordering is less justifiable. Here, an example is ideology. Many scholars have shown that it's multidimensional, consisting of a social and economic dimension. Thus, someone may identify as conservative, while justifying their belief in a way that is unique relative to another conservative.
+
+Sometimes ordering is theoretically justifiable, but in practice it makes little sense. Long (1997) uses color as an example. Yes, we can order colors on a spectrum. But, if we had data on the color of cars purchased from a local dealership, it would be silly to order cars in this way. In short, the order should be theoretically and practically justifiable. If it is not, do not use an ordinal regression model.
+
+## The Latent Variable Approach
+
+Much of this is simply a summarization of Long (1997), Chapter 5. The formula I present below is also similar, though I simply describe the model in a slightly different manner.
+
+Assume $y_{latent}$ is an unobserved variable which is mapped onto the probability of $y_{obs} \in (1,2,3,...k)$. Instead of the variable being 0/1, it is not more than two categories that are ordered. For exposition, let's briefly just assume we know $y_{latent}$ and want to map that to observing a particular category.
+
+Using the same logic from the binary regression model, assume that we observe the category based on its orientation to a series of cutpoints, where
+
+$$y_i=m: \tau_{k-1}\leq y_{latent} < \tau_{k}$$
+
+The $\tau$ parameters represent a series of thresholds that map the latent variable onto the categorical variable. Again, it's a \emph{measurement model} (Long 1997, 123)
+
+$$y_{obs} =
+  \begin{array}{lr}
+    A, \tau_0=\infty \leq y_{latent}<\tau_1\\
+    B, \tau_1\leq y_{latent}<\tau_2\\
+    C, \tau_2\leq y_{latent}<\tau_3\\
+    D, \tau_3\leq y_{latent}<\tau_4\\
+    E, \tau_4\leq y_{latent}<\tau_5=\infty
+  \end{array}
+$$
+
+Setting aside the **structural model** we have projected $y_{latent}$ onto $y_{obs}$ through a series of cutpoints. The **structural model** is
+
+$$y_{latent}=\beta_0 + \beta_1x_i +...\sum^{J}_{j =1} \beta_j x_{ij}+e_i$$
+
+$$y=X\beta+e$$
+
+Where each row vector of X is a 1 (for the intercept) and any $j+1$ predictors. So, again, though we do not observe$y_{latent}$, we assume it is mapped onto what we do observe -- a series of ordered categories -- depending on a series of cutpoints. Then,
+
+So what we're doing is defining $K-1$ cutpoints, the slicing up the latent distribution into discrete categories.
+
+\begin{eqnarray*}
+pr(y_{i}=1|X_i) & = & pr(\tau_0 \leq y_{i,latent}<\tau_1)|X_i) \\
+             & = &  pr(\tau_0 \leq X_i b+e_i<\tau_1)|X_i) \\
+             & = &  pr(\tau_0 - X_ib \leq e_i<\tau_1-X_ib)|X_i) \\
+             & = &  pr(\tau_1-X_ib)|X_i)-pr(\tau_0 - X_ib|X_i) \\
+             & = &  F(\tau_1-X_ib)-F(\tau_0 - X_ib) \\
+\end{eqnarray*}
+
+If F denotes the CDF, then for the ordered probit:
+
+\begin{eqnarray*}
+pr(y_{i}=k|X_i) & = &\Phi(\tau_1-\alpha-\beta X) \\
+             & = &  \Phi(\tau_2-\alpha-\beta X)-\Phi(\tau_1-\alpha-\beta X) \\
+             & = &  \Phi(\tau_3-\alpha-\beta X)-\Phi(\tau_2-\alpha-\beta X)\\
+             & = &  1-\Phi(\tau_4-\alpha-\beta X)\\
+\end{eqnarray*} The last row is simplified because the probability of the CDF evaluated from $-\infty$ to $\infty$ is 1, so the first term becomes 1. Any CDF is plausible, such as the logit, in which case we have,
+
+\begin{eqnarray*}
+pr(y_{i}=k|X_i) & = &Logit(\tau_1-\alpha-\beta X) \\
+                & = &  Logit(\tau_2-\alpha-\beta X)-Logit(\tau_1-\alpha-\beta X) \\
+                & = &  Logit(\tau_3-\alpha-\beta X)-Logit(\tau_2-\alpha-\beta X)\\
+             & = &  1-Logit(\tau_4-\alpha-\beta X)\\
+\end{eqnarray*}
+
+It's customary to use $F$ generically to mean the CDF; and $f$ to denote the PDF. In practice, for the kind of models we'll discuss, substitute $F$ and $f$ for the normal or logit densities.
+
+Graphically, we might think of the model as an effect of the independent variable on the latent variable and the latent variable mapped onto the observed variable through a series of cutpoints. Of course, in the graphical model we need to apply constraints to the error variance and we can only estimate $k-1$ thresholds and an intercept or $k$ thresholds and no intercept term.
+
+### The Likelihood
+
+Recall, that the probability of being in the $k$th category for the $i$th subject is,
+
+\begin{eqnarray*}
+pr(y_{i}=k|X_i) & = & F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+\end{eqnarray*}
+
+Thus, for each subject we need to calculate the joint parameter space. Things are a little different now, becauae we have a series of cutpoings, and we can theoretically predict a probability for each category for each subject. So, we need to calculate the joint probability for category membership, for each subject. This is
+
+$$pr(y_{i}=1|X_i)\times pr(y_{i}=2|X_i) \times pr(y_{i}=3|X_i) \times....pr(y_{i}=K|X_i)$$.
+
+This is just the joint probability for category membership, for each subject, so
+
+\begin{eqnarray*}
+pr(y_{i}|X_i) & = & \prod_{k=1}^K F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+\end{eqnarray*}
+
+This only refers to the probability space for a single subject. Since the likelihood is $\prod_{i=1}^N p_i$, we need to calculate the joint probability for each subject, which is,
+
+\begin{eqnarray*}
+pr(y|X) & = & \prod_{i=1}^N \prod_{k=1}^K F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+L(\beta \tau | y, X)& = & \prod_{i=1}^N \prod_{k=1}^K F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+\end{eqnarray*}
+
+Once again, it's far easier to calculate the probabilities by taking the log of the likelihood.
+
+\begin{eqnarray*}
+Loglik(\beta \tau | y, X)& = & \sum_{i=1}^N \sum_{k=1}^K log[F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta)] \\
+\end{eqnarray*}
+
+It's useful to pause for a moment and consider how this really is just an extension of the binary logit model. We have a series of cutpoints that map the latent variable onto the observed variable. The latent variable is also function of a set of independent variables. And just like the binary logit, we can think about things in stages $x \rightarrow y_{latent} \rightarrow y_{obs}$. The only thing that is different is that instead of a single cutpoint -- at 0 -- we have a series of cutpoints.
+
+Notice now that each $\tau$ represents the likelihood of being in all categories through $k$. Thus, $\tau_1$ represents the likelihood of category 1,$\tau_2$ represents categories 1 and 2, and so forth. They represent the cumulative likelihood of each category membership. They are cumulative logits (or probits). This is why we the differences then allow us to calculate the likelihood of particular category membership.
+
+Consider the ordered logit,
+
+$$log{{{pr(y\leq k|x)}\over{pr(y > k |x)}}}=log{{{pr(y\leq k|x)}\over{pr(y > k |x)}}}=\tau_k- X \beta$$
+
+This is important for intepretation.
+
+$${{{pr(y\leq k|x)}\over{pr(y > k |x)}}}=exp(\tau_k- X \beta)$$
+
+Which accompanies the interpretation of the odds as the $pr(y\leq k|x)$ to $pr(y > k|x)$. Interpreting the output in terms of the exponentiated log odds can make a lot of sense, but it is dependent upon the nature of your variable.
+
+For instance, say we are predicting the log odds from 1 through the $k$th category membership, relative to all higher categories. Our dependent variable coded Strongly Agree, Agree, Disagree, and Strongly Disagree. If we use the linear prediction and the first threshold, that represents the log odds of being in the "Strongly Agree" category, relative to all other categories. If we use the linear prediction and the second threshold, that represents the log odds of being in the "Strongly Agree," and "Disagree" category, relative to the "Disagree" and "Strongly Disagree" categories.
+
+If we estimate a simple model. Another strong assumption is lurking in this model, is that is the odds of being in each category given the independent variable is constant. This is the reason why the ordered logit is called the "proportional odds model."
+
+\*\*This is a common question that will come up if you use an ordered logit model. So, let's consider it in a fair amount of detail. Let's assume a simple case,
+
+\begin{eqnarray*}
+y& \sim & ordered\_ logit(\alpha+\beta_1 x, \tau) \\
+\end{eqnarray*}
+
+Let's just say that $\tau$ is a vector of length 3. So, how many categories do we observe for $y$?
+
+What this means is that, the $\tau_1$ represents the log-odds of being in category 1 (versus 2 through 4).
+
+If we express the cumulative probabilities as,
+
+\begin{eqnarray*}
+pr(y\leq 1|x)=F(\tau_1-\alpha-\beta x)
+\end{eqnarray*}
+
+Then $\tau_2$ represents the log-odds of being in category 1 or 2 (versus 3 and 4).
+
+\begin{eqnarray*}
+pr(y\leq 2|x)=F(\tau_2-\alpha-\beta x)
+\end{eqnarray*}
+
+More generally,
+
+\begin{eqnarray*}
+pr(y\leq k|x)=F(\tau_k-\alpha-\beta x)
+\end{eqnarray*}
+
+If we plot the prediction that $y<1$, $y<2$ and so forth, we should observe that the lines are parallel. You can prove this to yourself by noting that the partial derivatives are the same,
+
+\begin{eqnarray*}
+{{\partial pr(y \leq 1|x)}\over{\partial x}}={{\partial pr(y \leq 2|x)}\over{\partial x}}={{\partial pr(y \leq 3|x)}\over{\partial x}}={{\partial pr(y \leq 4|x)}\over{\partial x}}
+\end{eqnarray*}
+
+The model is assuming that the regression lines are parallel, hence the parallel lines assumption. We can test for the feasibility of this model by estimating a series of parallel regression models. Let's estimate three binary logit regression. In the first model, we coded the dependent variable 1 if the response is **Strongly Agree** 0 if it is any of the other categories. In the second model we code the response 1 if the response is **Strongly Agree** or **Agree** and 0 if in the other categories. Then in the third model code it 1 if **Strongly Agree**, **Agree** or **Disagree** and 0 if **Strongly Disagree.** Now you have three versions of the dependent variable. Estimate three logistic regressions, one for each dependent variable.
+
+```{r, warning = FALSE, message = FALSE}
+# Install and load necessary libraries
+library(plotly)
+
+# Create data for parallel lines using the logit function
+x <- seq(-10, 10, length.out = 100)
+logit <- function(x) 1 / (1 + exp(-x))
+
+# Create y values for three parallel lines with different intercepts
+y1 <- logit(x - 1)
+y2 <- logit(x - 3)
+y3 <- logit(x + 5)
+y4 <- logit(x + 6.6)
+y5 <- logit(x + 9)
+
+# Create a data frame
+data <- data.frame(x, y1, y2, y3)
+
+# Plot using Plotly
+fig <- plot_ly(data, x = ~x) %>%
+  add_trace(y = ~y1, type = 'scatter', mode = 'lines', name = 'Category 1 v 0') %>%
+  add_trace(y = ~y2, type = 'scatter', mode = 'lines', name = 'Category 2 v 1/0') %>%
+  add_trace(y = ~y3, type = 'scatter', mode = 'lines', name = 'Category 3 v 2/1/0') %>%
+  add_trace(y = ~y4, type = 'scatter', mode = 'lines', name = 'Category 4 v 3/2/1/0') %>%
+  add_trace(y = ~y5, type = 'scatter', mode = 'lines', name = 'Category 5 v 4/3/2/1/0') %>%
+  layout(title = 'The Parallel Lines Assumption',
+         xaxis = list(title = 'Independent Variable'),
+         yaxis = list(title = 'Pr(y=1)'))
+
+fig
+```
+
+The parallel lines assumption underlying the model is that the slopes are equivalent and all that moves the regression line is the threshold. In other words, the effect of the independent variable on the dependent variable is the same across all categories.
+
+Say we have four categories. If we were to simply estimate a series of binary regression, combining categories, we could test the parallel lines assumption.
+
+$$\beta_1=\beta_2=\beta_3$$
+
+This is a test of whether the regression lines are parallel. It is a test of $X$ on $Y$ with $K-1$ separate logit equations (here 3 equations).
+
+We can test the aformentioned constraints in the ordered logit by relaxing the assumption that the $\beta$ parameters are the same in the model. For instance, we could conduct a likelihood ratio test by comparing the model fit of the fully constrained model (the normal ordered logit) to one with freeing this constraint and estimating the three unique parameters for $\beta$.
+
+The LR test statistic is distributed $\chi^2$ with $J(K-2)$ degrees of freedom, where $K$ corresponds to the number of categories and $J$ is the number of independent variables. In this case, we have $1\times 2=2$ degrees of freedom. Why is it 2?
+
+An alternative is the Wald test, which operates by again considering $K-1$ logits, and specifying a constraint matrix. Long (1997, 143-144) describes the derivation of the test, which follows from the Wald test we discussed in the previous lecture. This was introduced by Brant (1990) and is occasionally called the Brant test of the parallel lines/proportional odds/parallel logit assumption.
+
+## Nominal Models
+
+Often, dependent variables don't have a natural ordering. We cannot array the variable on a continuum; nor are the distances between categories equal. For example, voting in multiparty elections presents this issue: It's not clear how to array four or five (or more) parties on a single continuum. Even party identification in the U.S. could be construed as non-ordered. Do "Independent'' voters fall inbetween Republicans and Democrats? What about Green Party Voters, or Libertarians? Should we just assume these voters are ideological moderates?
+
+If we have multi-category nominal data, we again will violate the assumptions of the classical linear regression model. In addition to the usual problems (non-constant variance, non-sensical predictions, wrong functional form), OLS with an unordered variable is essentially meaningless because $X$ doesn't have a linear effect on $Y$.
+
+In the case of nominal data, we again can use the intuition of logit and probit with binary variables. The logit and probit models are somewhat different with multiple category data. Here, we'll mainly stick with the logit case, called the *multinomial logit model* (MLM).
+
+Instead of a single logit, we now will make multiple comparisons. For instance, consider voting for one of three parties
+
+1=Democrat
+
+2=Republican
+
+3=Libertarian
+
+We could run one logit model predicting the probability of Democrat relative to Republican voting. Then, run a second model predicting Democrat versus Libertarian. Then, run a third model predicting Republican versus Libertarian. We could also include covariates predicting the outcome in each of these three models.
+
+## Intuition
+
+Much of this is simply a summarization of Long (1997), Chapter 6. Assume $y_{obs} \in (R, D, L)$.
+
+Maintaining the previous logic, estimate three models.
+
+$$ln({{pr(D|x)}\over{pr(R|x})}=\beta_{0,D|R}+\beta_{1,D|R}x$$ $$ln({{pr(D|x)}\over{pr(L|x})}=\beta_{0,D|L}+\beta_{1,D|L}x$$ $$ln({{pr(R|x)}\over{pr(L|x})}=\beta_{0,R|L}+\beta_{1,R|L}x$$
+
+Exponentiate and
+
+$${{pr(D|x)}\over{pr(R|x})}=exp(\beta_{0,D|R}+\beta_{1,D|R}x)$$ $${{pr(D|x)}\over{pr(L|x})}=exp(\beta_{0,D|L}+\beta_{1,D|L}x)$$ \$${{pr(R|x)}\over{pr(L|x})}=exp(\beta_{0,R|L}+\beta_{1,R|L}x$)\$
+
+Now, we are predicting the relative odds of being in each category. There is something that should appear redundant about this formulation. If we predict the the odds of A over B given x, and then predict the odds of B over C given x, we should be able to use these results to estimate the odds of A over C given x, rather than estimating an altogether separate model. In fact, it can be shown that this is the case: The sum of the first two equations equals the third equation. We need not estimate each model; it's redundant (and not identified).
+
+We could also calculate the probability of being in the $k$th category.
+
+$${{pr(y=K|x)}}={{exp(X\beta_{k})}\over {\sum_k exp(X\beta_{k})}}$$
+
+If we were to estimate this model for each outcome, the model is not identified. We cannot find a unique solution for this sytem of equations. Multiply the above expression by $\tau$, $exp(x\tau)/exp(x\tau)$. The probabilities will stay the same, but $\beta=\beta+\tau$. You should sort of see this in the three equations as well. We don't really need to estimate three models to find the probability of the three categories. We only need to estimate two models and note that the third category has a probabity equal to 1 minus the sum of the two.
+
+Instead, we need to apply a constraint to identify the model. A common one is that the $\beta$s for one of the equations are all equal to 1. So, for instance,
+
+$$y_{obs} =
+  \begin{array}{lr}
+    D, 1/(1+\sum_{k=2}^K exp(XB_k))\\
+    R,  exp(XB_{R})/(1+\sum_{k=2}^K exp(XB_k))\\
+    L,  exp(XB_{L})/(1+\sum_{k=2}^K exp(XB_k))\\
+  \end{array}
+$$
+
+Similar to a dummy variable regression, we estimate $k-1$ unique equations, where one category serves as the baseline, reference category. In the above example, the excluded category is Democrat. So, the basic logic of a series of chained logits still holds, but we are anchoring these logits relative to a common baseline (here, Democrat).
+
+## The Likelihood
+
+The likelihood is not all that dissimilar to that of the ordered logit. Recall, the probability of being in the $k$th category for the $i$th subject is,
+
+\begin{eqnarray*}
+pr(y_{i}=K|x_i) & = &{ {exp(XB)}\over{\sum exp(XB)} }\\
+\end{eqnarray*}
+
+With the constraint that $B=0$ for the set of predictors in one category. Again, we need to calculate the joint parameter space, $pr(y_{i}=1|X_i)\times pr(y_{i}=2|X_i) \times pr(y_{i}=3|X_i) \times....pr(y_{i}=K|X_i)$. This is just the joint probability for category membership, for each subject, so
+
+\begin{eqnarray*}
+pr(y_{i}|X_i) & = & \prod_{k=1}^K { {exp(XB)}\over{\sum exp(XB)} }\\
+\end{eqnarray*}
+
+This only refers to the probability space for a single subject. Since the likelihood is $\prod_{i=1}^N p_i$, we need to calculate the joint probability for each subject, which is,
+
+\begin{eqnarray*}
+pr(y|X) & = & \prod_{i=1}^N \prod_{k=1}^K { {exp(XB)}\over{\sum exp(XB)} }\\
+\end{eqnarray*}
+
+Once again, it's far easier to calculate the probabilities by taking the log of the likelihood.
+
+\begin{eqnarray*}
+Loglik(\beta | y, X)& = & \sum_{i=1}^N \sum_{k=1}^K log[{ {exp(XB)}\over{\sum exp(XB)} } \\
+\end{eqnarray*}
+
+Again, we could use maximum likelihood to estimate the parameters in the model.
+
+## Interpretation
+
+With $k$ categories, there are $k-1$ unique "models" in the multinomial logit model. In other words, if we include 2 covariates and there are 3 categories, we would estimate six parameters. Again, just think of this as a set of chained binary logit models, with a common baseline. For instance, if our dependent variable is voting Democrat, Republican, or Libertaraian, we could set Democrat as the baseline and predict the log odds of voting Democrat relative to Republican and Democrat relative to Libertarianism.
+
+As is probably not surprising, what this means is that the partial derivative is not a constant,
+
+$${{\partial pr(y=k|x)}\over{\partial x}}=\sum_{j=1}^J \beta_{j,m}pr(y=k|x)$$
+
+Where, $k$ corresponds to the category, $j$ the item.
+
+The key to understand here is that one category serves as the baseline and we interpret the results of the $k-1$ categories in reference to that baseline. If we would like to test whether one variable does not have an effect, then:
+
+$$H_0=\beta_{k,1|r}=\beta_{k,2|r}=....\beta_{k,J|r}$$
+
+Likewise, we may also test the probability of being in the $k$th category, given a particular value of $x$.
+
+$$pr(y=k|x)={{exp(xB_k)}/{\sum_{j=1}^Jexp(xB_k)}}$$
+
+## The Conditional Logit
+
+A related model -- but one that deserves a separate treatment -- is what is called the **Conditional Logit Model** In the multinomial logit model, recall that we are modeling the choice as a function of an individual covariate. Individual $i$ has the same value, regardless of what he/she chooses. We could flip things and also consider how the characteristics of the choices themselves predict the outcome.
+
+As an example, we predicted voting in the Canadian election with authoritarianism. This is how the data might appear for person 1.
+
+Thus, there are three columns for each individual, corresponding to the choice. Within each participant, $i$ there is a single value for authoritarianism. This doesn't vary within (?) subjects, it only varies between subjects.
+
+But what if we anticipated that choice was also a function of how much candidate $j$ spends. If we expect that candidate choice is also a function of the choices themselves, then the data might look something like this:
+
+Now note how the choice scores vary within participants. The participant still chooses, but that choice is not only a function of that participant's characteristics, but also the choices themselves. We could then write the model as a function of the choices.
+
+$$pr(y=k|x)={{exp(z_kB_k)}/{\sum_{k=1}^Kexp(z_kB_k)}}$$
+
+Each choice is a function of $z$ -- a characteristic of that choice. Here, we need not apply the constraint that $\beta=0$ because $z$ varies across choices. Thus, there will be $k$ sets of estimates for each category.
+
+It is possible to write a hybrid of these approaches, combining both characteristics of the choices with characteristics of the individual. Long (1997, pp 181-182) describes the general intuition. Given the fact there will be many parameters, and that conditional logit models are relatively rare in political science, I'm going to avoid spending class time to discuss this model. You should note, however, that this is type of model may be estimated.
+
+## Independence of Irrelevant Alternatives
+
+Both the multinomial and conditional logit models make a relatively strong assumption about the choice process. It is called the **Independence of Irrelevant Alternatives** (IIA) assumption. Formally, it states that the probability of odds contrasting two choices are unaffected by additional alternatives. McFadden (cited on Long 1997, p. 182) introduces the now classic **Red Bus/Blue Bus** example. Say there are two forms of transportation available in a city: The city bus and driving one's car. If an individual is indifferent to these approaches, taking advantage of both about equally, assume that $p(car)=0.5$ and $p(bus)=0.5$, then the odds of taking the bus relative to the car is 1. The buses in the city are all red.
+
+But, let's say the city introduces a bus on this individual's route. The only difference is that the bus is blue. So now there is a red bus, a blue bus, and the car. IIA requires that the addition of the new option -- the blue bus -- will not change the original odds. Because the blue bus is identical (with the exception of the color), the individual probably doesn't prefer it over the red bus. So, the only way that IIA holds is if the probability of $p(car)=0.33, p(Red)=0.33, p(Blue)=0.33$.
+
+But now this also doesn't make much sense; it implies that the individual will ride the bus over driving -- the probability of taking \emph{a bus} is 2/3. Logically, what we should observe is that $p(drive)=0.5, p(red)=0.25, p(blue)=0.25$. This involves a violation of IIA. If the new bus is introduced, the only way for IIA to hold is if the associated probabilities change and $p(car)=p(red)$. But we are unlikely to observe this if we logically think about the problem.
+
+If we think about how we might test the IIA. The odds of selecting the red bus, relative to the car should be the same regardless of whether blue buses are available. We need to make the IIA in both the multinomial and conditional logit models. Say I predict the odds of voting for Bush v. Clinton in 1992. I do this in one model by excluding third party voters; then I do this again in a multinomial model with Perot voters included. The assumption holds that the odds (i.e., the coefficients) should be the same in both models. This can be tested by using a *Hausman test.* Conceptually, the test involves comparing the full multinomial model to one where outcome categories are dropped from the analysis. The test is distributed $\chi^2$ and relies on the change in coefficients weighted by the inverse of the variance-covariance matrix of the full and restricted multinomial models. See Long (1997, p 184) for the exact calculation. This is often called a Hausman test, or a Hausman-McFadden test of IIA.

@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "file_date": "2024-07-19",
+    "source": "avp_survey.rda",
+    "min_cell": 25,
+    "generated": "2026-07-22"
+  },
+  "rows": [
+    {
+      "group": "White Supremacists",
+      "count": 121,
+      "share": 0.1507,
+      "n_base": 803
+    },
+    {
+      "group": "MAGA supporters",
+      "count": 106,
+      "share": 0.132,
+      "n_base": 803
+    },
+    {
+      "group": "Communists",
+      "count": 76,
+      "share": 0.0946,
+      "n_base": 803
+    },
+    {
+      "group": "Ku Klux Klan",
+      "count": 76,
+      "share": 0.0946,
+      "n_base": 803
+    },
+    {
+      "group": "Christian Nationalists",
+      "count": 66,
+      "share": 0.0822,
+      "n_base": 803
+    },
+    {
+      "group": "Fascists",
+      "count": 60,
+      "share": 0.0747,
+      "n_base": 803
+    },
+    {
+      "group": "Socialists",
+      "count": 53,
+      "share": 0.066,
+      "n_base": 803
+    },
+    {
+      "group": "Marxists",
+      "count": 48,
+      "share": 0.0598,
+      "n_base": 803
+    },
+    {
+      "group": "Other",
+      "count": 38,
+      "share": 0.0473,
+      "n_base": 803
+    },
+    {
+      "group": "Democrats",
+      "count": 32,
+      "share": 0.0399,
+      "n_base": 803
+    },
+    {
+      "group": "Undocumented immigrants",
+      "count": 28,
+      "share": 0.0349,
+      "n_base": 803
+    },
+    {
+      "group": "Liberals",
+      "count": 23,
+      "share": 0.0286,
+      "n_base": 803
+    },
+    {
+      "group": "Muslims",
+      "count": 13,
+      "share": 0.0162,
+      "n_base": 803
+    },
+    {
+      "group": "Pro-abortionists",
+      "count": 13,
+      "share": 0.0162,
+      "n_base": 803
+    },
+    {
+      "group": "BLM supporters",
+      "count": 12,
+      "share": 0.0149,
+      "n_base": 803
+    },
+    {
+      "group": "Non voters",
+      "count": 8,
+      "share": 0.01,
+      "n_base": 803
+    },
+    {
+      "group": "Republicans",
+      "count": 8,
+      "share": 0.01,
+      "n_base": 803
+    },
+    {
+      "group": "Anti-abortionist",
+      "count": 7,
+      "share": 0.0087,
+      "n_base": 803
+    },
+    {
+      "group": "Atheists",
+      "count": 5,
+      "share": 0.0062,
+      "n_base": 803
+    },
+    {
+      "group": "Conservatives",
+      "count": 5,
+      "share": 0.0062,
+      "n_base": 803
+    },
+    {
+      "group": "LGBT+ individuals",
+      "count": 5,
+      "share": 0.0062,
+      "n_base": 803
+    }
+  ]
+}

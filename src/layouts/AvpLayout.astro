@@ -1,0 +1,103 @@
+---
+import "maplibre-gl/dist/maplibre-gl.css";
+import "@/styles/avp.css";
+import { site } from "@/data/site";
+
+interface Props {
+  title?: string;
+  module: string;
+}
+const { title, module } = Astro.props;
+const fullTitle = title
+  ? `${title} — Arizona Voter Project`
+  : "Arizona Voter Project";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{fullTitle}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .avp-bar {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 24px;
+        background: var(--azblue);
+        color: #fff;
+        font-family: var(--mono);
+        font-size: 13px;
+      }
+      .avp-bar a { color: #fff; }
+      .avp-bar .home {
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      .avp-bar .beta {
+        display: inline-block;
+        margin-left: 10px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: #fff;
+        color: var(--azblue, #0a1e40);
+        font-weight: 700;
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        vertical-align: middle;
+      }
+      .avp-beta-note {
+        padding: 8px 24px;
+        background: #1f2937;
+        color: #e5e7eb;
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.5;
+        text-align: center;
+      }
+      .avp-beta-note strong { color: #fff; letter-spacing: 0.06em; }
+      .avp-bar nav {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .avp-bar nav a { opacity: 0.8; text-decoration: none; }
+      .avp-bar nav a:hover,
+      .avp-bar nav a.active { opacity: 1; text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <header class="avp-bar">
+      <a class="home" href="/voter"
+        >← Arizona Voter Project<span class="beta">BETA</span></a
+      >
+      <nav>
+        <a href="/voter/explorer" class={module === "explorer" ? "active" : ""}>Explorer</a>
+        <a href="/voter/party" class={module === "party" ? "active" : ""}>Party</a>
+        <a href="/voter/agreement" class={module === "agreement" ? "active" : ""}>Common Ground</a>
+        <a href="/">{site.shortName}</a>
+      </nav>
+    </header>
+    <div class="avp-beta-note">
+      <strong>BETA</strong> — this module is a work in progress. Figures and
+      data are preliminary and will migrate to the official
+      <a href={site.voterProject} style="color:#fff;">Arizona Voter Project</a>
+      site.
+    </div>
+    <div class="page-body">
+      <slot />
+    </div>
+  </body>
+</html>

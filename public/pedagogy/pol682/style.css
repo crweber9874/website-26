@@ -1,0 +1,72 @@
+p.caption {
+  text-align: center;
+  font-style: italic;
+  margin-top: 0.5em;
+}
+
+pre {
+  background-color: #f5f5f5;
+  padding: 1em;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+code {
+  background-color: #f5f5f5;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.book .book-body .page-wrapper .page-inner section.normal h1 {
+  color: #2c3e50;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 0.3em;
+}
+
+.book .book-body .page-wrapper .page-inner section.normal h2 {
+  color: #34495e;
+  margin-top: 1.5em;
+}
+
+.book .book-body .page-wrapper .page-inner section.normal h3 {
+  color: #7f8c8d;
+}
+
+blockquote {
+  border-left: 4px solid #3498db;
+  padding-left: 1em;
+  margin-left: 0;
+  color: #555;
+  font-style: italic;
+}
+
+table {
+  margin: 1em auto;
+  border-collapse: collapse;
+}
+
+table th {
+  background-color: #3498db;
+  color: white;
+  padding: 0.5em 1em;
+}
+
+table td {
+  padding: 0.5em 1em;
+  border: 1px solid #ddd;
+}
+
+table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}

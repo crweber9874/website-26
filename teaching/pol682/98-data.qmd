@@ -1,0 +1,42 @@
+# Data Sources {.unnumbered}
+
+This appendix briefly describes the datasets used throughout the book.
+
+## Spotify Track Data
+
+**Used in:** Chapter 1 (Simple Regression)
+
+A sample of tracks from the Spotify API, including audio features (danceability, energy, valence, tempo, etc.) and popularity scores. Used to introduce bivariate regression and the `lm()` function.
+
+- **Unit of observation:** Individual music track
+- **Key variables:** `track_popularity`, `danceability`, `energy`, `valence`, `tempo`
+- **Source:** Spotify Web API
+
+## Western States Survey (WSS 2020)
+
+**Used in:** Chapters 5 (Inference & Variables), 6 (Interactions)
+
+A survey of residents across western U.S. states conducted in 2020. The survey measures political attitudes, institutional trust, authoritarianism, and demographic characteristics. Used to illustrate dummy variables, intercept shifts, interactions, and cross-validation.
+
+- **Unit of observation:** Individual survey respondent
+- **Key variables:** `institutional_trust` (7-item composite scale, 0--1), `authoritarianism`, `republican`, `democrat`, `independent`, `pid_label`
+- **Source:** Western States Survey, 2020
+- **File:** `wss20.rda`
+
+## Arizona Precinct Data (2024)
+
+**Used in:** Chapters 6 (Interactions), 7 (Heteroskedasticity)
+
+Precinct-level election returns from the 2024 Arizona presidential election, merged with Census tract-level demographics from the American Community Survey (ACS). This dataset is a natural setting for heteroskedasticity because precincts vary enormously in size and demographic composition.
+
+- **Unit of observation:** Election precinct (n = 1,688)
+- **Dependent variable:** `trump_harris_margin` -- Trump's vote margin over Harris (positive = Trump advantage)
+- **Key predictors:**
+  - `tract_acs_median_household_income` -- Median household income from ACS
+  - `pct_latino` -- Percent Latino population (derived from `tract_acs_latino / tract_acs_total_population`)
+  - `pct_white` -- Percent non-Latino white population
+  - `tract_acs_median_age` -- Median age from ACS
+  - `tract_acs_gini_index` -- Gini coefficient of income inequality (0--1)
+- **Geography:** `precinct_tract_data.rda` contains `sf` polygon geometries for mapping
+- **Source:** Arizona Secretary of State voter file; U.S. Census Bureau ACS 5-year estimates
+- **Files:** `precinct_voter_summary.rda`, `precinct_tract_data.rda`

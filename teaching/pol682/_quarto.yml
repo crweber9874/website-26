@@ -1,0 +1,49 @@
+project:
+  type: book
+  output-dir: _site
+
+book:
+  title: "Linear Regression Analysis"
+  author: "Christopher Weber, PhD"
+  date: today
+  chapters:
+    - index.qmd
+    - part: "Part I: Foundations"
+      chapters:
+        - 01-simple-regression.qmd
+        - 02-BLUE.qmd
+        - 03-estimation.qmd
+        - 04-matrix.qmd
+        - 05-inference-variables.qmd
+    - part: "Part II: Diagnostics and Extensions"
+      chapters:
+        - 06-interactions.qmd
+        - 07-heteroskedasticity.qmd
+        - 08-multicollinearity.qmd
+        - 09-autocorrelation.qmd
+        - 10-application-panel.qmd
+        - 11-measurement-error.qmd
+        - 12-endogenous-regression.qmd
+
+  site-url: https://christopher-weber.com/pedagogy/pol682/
+  search: true
+
+bibliography:
+  - book.bib
+  - packages.bib
+
+format:
+  html:
+    theme: cosmo
+    css: style.css
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    link-citations: true
+    code-tools: false
+  pdf:
+    documentclass: book
+    cite-method: natbib
+    keep-tex: true
+  epub:
+    toc: true

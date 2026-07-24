@@ -1,0 +1,425 @@
+# Index {.unnumbered}
+
+```{r}
+#| echo: false
+#| output: asis
+#| message: false
+#| warning: false
+
+# Searchable index of key terms with chapter references
+# Each entry: term, chapter file, section description
+
+index_entries <- data.frame(
+  Term = c(
+    # A
+    "ANOVA (Analysis of Variance)",
+    "Autocorrelation (see Independent errors)",
+    "Authoritarianism",
+    # B
+    "Best Linear Unbiased Estimator (BLUE)",
+    "Bias (see Unbiasedness)",
+    "Breusch-Pagan test",
+    # C
+    "Causation vs. correlation",
+    "Cholesky decomposition",
+    "Coefficient of determination (see R-squared)",
+    "Coefficients, interpretation of",
+    "Coefficients, multiple regression",
+    "Collinearity (see Multicollinearity)",
+    "Confidence intervals",
+    "Confounding",
+    "Cook-Weisberg test",
+    "Cook's distance",
+    "Correlation coefficient",
+    "Covariance",
+    "Covariance, vectors",
+    "Cross product",
+    "Cronbach's alpha",
+    # D
+    "Data Generating Process (DGP)",
+    "Degrees of freedom",
+    "Dependent variable",
+    "Deterministic vs. stochastic",
+    "Diagnostic plots",
+    "Dot product (see Inner product)",
+    "dplyr (mutate, filter, select, group_by, summarize)",
+    "Dummy variables",
+    # E
+    "Endogenous variable",
+    "Error term",
+    "Euclidean distance",
+    "Exogeneity assumption",
+    "Exogenous variable",
+    # F
+    "F-distribution",
+    "F-statistic",
+    "Fitted values",
+    "Frequency weights",
+    # G
+    "Gauss-Markov assumptions",
+    "Gauss-Markov theorem",
+    "Generalized Least Squares (GLS)",
+    "Gini index",
+    "glm() vs. gls() vs. lm()",
+    "Goldfeld-Quandt test",
+    # H
+    "Heteroskedasticity",
+    "Heteroskedasticity, consequences of",
+    "Heteroskedasticity, detection",
+    "Heteroskedasticity, examples of",
+    "Homoskedasticity assumption",
+    "Horvitz-Thompson principle",
+    # I
+    "Identity matrix",
+    "Independent errors assumption",
+    "Independent variable",
+    "Inference",
+    "Inner product",
+    "Institutional trust",
+    "Interaction effects",
+    "Intercept",
+    "Intercept shifts (dummy variables)",
+    "Inverse probability of treatment weighting (IPTW)",
+    "Iteratively Reweighted Least Squares (IRLS)",
+    # K
+    "k weights (OLS)",
+    # L
+    "Law of cosines",
+    "Leverage",
+    "Linear algebra",
+    "Linear regression, assumptions",
+    "Linearity assumption",
+    "lm() function",
+    "lm() object components",
+    # M
+    "Matrix algebra",
+    "Matrix multiplication",
+    "Matrix, design (X)",
+    "Matrix, identity",
+    "Matrix, inverse",
+    "Matrix, symmetric",
+    "Matrix, transpose",
+    "Matrix, variance-covariance",
+    "Mean centering",
+    "Mean squared error",
+    "Meta-analysis weights",
+    "Minimum variance",
+    "Model fit",
+    "Model specification assumption",
+    "Monte Carlo simulation",
+    "Multicollinearity",
+    "Multiple regression",
+    # N
+    "Normal distribution",
+    "Normal Q-Q plot",
+    "Normality assumption",
+    "Norm of a vector",
+    # O
+    "OLS estimator, derivation (scalar)",
+    "OLS estimator, derivation (matrix)",
+    "OLS estimator, properties",
+    "Omega matrix",
+    "Orthogonal vectors",
+    "Outer product",
+    # P
+    "p-value",
+    "Partial effect",
+    "Party identification",
+    "Population Regression Function (PRF)",
+    "Prediction",
+    "Probability weights (survey)",
+    "Propensity score weights",
+    # R
+    "R-squared",
+    "R-squared, relationship to correlation",
+    "Reference category",
+    "Regression Sum of Squares (RegSS)",
+    "Residual Sum of Squares (RSS)",
+    "Residuals",
+    "Residuals vs. fitted plot",
+    "Rho matrix (GLS transformation)",
+    "Robust standard errors (HC1, HC3)",
+    # S
+    "Sample Regression Function (SRF)",
+    "Sampling distribution",
+    "Sampling weights (see Probability weights)",
+    "Scale-Location plot",
+    "Slope coefficient",
+    "Spotify data example",
+    "Standard error",
+    "Sum of squared residuals",
+    "Survey weights",
+    # T
+    "t-statistic",
+    "Total Sum of Squares (TSS)",
+    "Transpose",
+    "Trump-Harris margin (Arizona data)",
+    # U
+    "Unbiasedness",
+    "Unbiasedness, simulation",
+    # V
+    "Variance",
+    "Variance-covariance matrix",
+    "Variance-covariance matrix (OLS)",
+    "Variance function estimation",
+    "Variance Inflation Factor (VIF)",
+    "Vectors",
+    # W
+    "Weighted Least Squares (WLS)",
+    "Weighted Least Squares, implementation",
+    "Western States Survey (WSS)",
+    "White's robust standard errors",
+    "White's test",
+    # Z
+    "Zero mean error assumption"
+  ),
+  Chapter = c(
+    # A
+    "Ch. 3", "Ch. 6", "Ch. 5",
+    # B
+    "Ch. 2", "Ch. 2", "Ch. 6",
+    # C
+    "Ch. 1", "Ch. 6", "Ch. 3", "Ch. 1", "Ch. 5", "Ch. 5",
+    "Ch. 1", "Ch. 1", "Ch. 6", "Ch. 1", "Ch. 3, 4", "Ch. 2, 4",
+    "Ch. 4", "Ch. 4", "Ch. 5",
+    # D
+    "Ch. 3", "Ch. 1, 3", "Ch. 1", "Ch. 1", "Ch. 1", "Ch. 4",
+    "Ch. 6", "Ch. 5",
+    # E
+    "Ch. 1", "Ch. 1, 2", "Ch. 4", "Ch. 2", "Ch. 1",
+    # F
+    "Ch. 3", "Ch. 3", "Ch. 1", "Ch. 6",
+    # G
+    "Ch. 2, 6", "Ch. 2, 6", "Ch. 6", "Ch. 6", "Ch. 6", "Ch. 6",
+    # H
+    "Ch. 6", "Ch. 6", "Ch. 6", "Ch. 6", "Ch. 2, 6", "Ch. 6",
+    # I
+    "Ch. 4", "Ch. 2", "Ch. 1", "Ch. 5", "Ch. 4", "Ch. 5",
+    "Ch. 5", "Ch. 1", "Ch. 5", "Ch. 6", "Ch. 6",
+    # K
+    "Ch. 2",
+    # L
+    "Ch. 4", "Ch. 1", "Ch. 4", "Ch. 2, 6", "Ch. 2",
+    "Ch. 1", "Ch. 1",
+    # M
+    "Ch. 4", "Ch. 4", "Ch. 4", "Ch. 4", "Ch. 4", "Ch. 4",
+    "Ch. 4", "Ch. 2, 6", "Ch. 6", "Ch. 3", "Ch. 6",
+    "Ch. 2, 6", "Ch. 3", "Ch. 2", "Ch. 3", "Ch. 5",
+    "Ch. 5",
+    # N
+    "Ch. 1, 2", "Ch. 1", "Ch. 2", "Ch. 4",
+    # O
+    "Ch. 1", "Ch. 4, 5", "Ch. 2", "Ch. 6", "Ch. 4", "Ch. 4",
+    # P
+    "Ch. 1", "Ch. 5", "Ch. 5", "Ch. 2, 3", "Ch. 1, 3",
+    "Ch. 6", "Ch. 6",
+    # R
+    "Ch. 3", "Ch. 3", "Ch. 5", "Ch. 3", "Ch. 3",
+    "Ch. 1", "Ch. 1, 6", "Ch. 6", "Ch. 6",
+    # S
+    "Ch. 2, 3", "Ch. 2", "Ch. 6", "Ch. 1", "Ch. 1",
+    "Ch. 1", "Ch. 1, 2", "Ch. 1", "Ch. 6",
+    # T
+    "Ch. 1", "Ch. 3", "Ch. 4", "Ch. 5, 6",
+    # U
+    "Ch. 2", "Ch. 2",
+    # V
+    "Ch. 1, 2", "Ch. 2, 6", "Ch. 2, 6", "Ch. 6", "Ch. 5, 6",
+    "Ch. 4",
+    # W
+    "Ch. 6", "Ch. 6", "Ch. 5", "Ch. 6", "Ch. 6",
+    # Z
+    "Ch. 2"
+  ),
+  Section = c(
+    # A
+    "Model Fit: R², Correlation, and ANOVA",
+    "Gauss-Markov Assumptions",
+    "Dummy Variables and Categorical Predictors",
+    # B
+    "The Gauss-Markov Theorem",
+    "Unbiasedness",
+    "Formal Tests for Heteroskedasticity",
+    # C
+    "Important Considerations",
+    "Modeling Variation (rho decomposition)",
+    "R²: The Coefficient of Determination",
+    "Anatomy of lm",
+    "Interpretation of Coefficients in Multiple Regression",
+    "From Bivariate to Multiple Regression",
+    "confint() — Confidence Intervals",
+    "Important Considerations",
+    "Formal Tests for Heteroskedasticity",
+    "Plot 4: Influence",
+    "The Relationship Between R² and Correlation; Similarity and Vector Products",
+    "Gauss-Markov Assumptions; Covariance and Correlation",
+    "Similarity and Vector Products",
+    "Looking Forward: The Cross Product",
+    "Dummy Variables and Categorical Predictors",
+    # D
+    "Data Generating Process (DGP)",
+    "Components of lm; The F-statistic and ANOVA",
+    "Understanding Linear Regression",
+    "Deterministic versus Stochastic",
+    "Diagnostic Plots",
+    "Similarity and Vector Products",
+    "Data and Setup (dplyr refresher callout)",
+    "Dummy Variables and Categorical Predictors",
+    # E
+    "Understanding Linear Regression",
+    "Types of Data; Gauss-Markov Assumptions",
+    "The Norm of a Vector",
+    "Gauss-Markov Assumptions",
+    "Understanding Linear Regression",
+    # F
+    "The F-statistic and ANOVA",
+    "The F-statistic and ANOVA",
+    "Fitted Values ($fitted.values)",
+    "Common Weighting Schemes",
+    # G
+    "Gauss-Markov Assumptions; Recall the G-M Theorem",
+    "The Gauss-Markov Theorem; Recall the G-M Theorem",
+    "GLS/WLS",
+    "Data and Setup",
+    "glm() vs. gls() vs. lm() (callout)",
+    "Formal Tests for Heteroskedasticity",
+    # H
+    "Heteroskedasticity and Weighted Least Squares",
+    "Building the Case / Consequences",
+    "Visual Diagnostics; Formal Tests",
+    "When Does Heteroskedasticity Arise?",
+    "Gauss-Markov Assumptions; Recall the G-M Theorem",
+    "Common Weighting Schemes",
+    # I
+    "Matrix Properties and Types",
+    "Gauss-Markov Assumptions",
+    "Understanding Linear Regression",
+    "Model Fit, Uncertainty, and Inference",
+    "The Inner Product",
+    "Dummy Variables and Categorical Predictors",
+    "Interaction effects",
+    "Deriving the OLS Estimator; Anatomy of lm",
+    "Intercept Shifts",
+    "Common Weighting Schemes",
+    "glm() vs. gls() vs. lm() (callout)",
+    # K
+    "Properties of k_i",
+    # L
+    "The Law of Cosines",
+    "Plot 4: Influence",
+    "Introduction; Vectors",
+    "Gauss-Markov Assumptions; Recall the G-M Theorem",
+    "Gauss-Markov Assumptions",
+    "lm; An Example with Spotify Data",
+    "Anatomy of lm",
+    # M
+    "Matrices",
+    "Matrix Multiplication",
+    "Matrices",
+    "Matrix Properties and Types",
+    "Matrix Properties and Types",
+    "Matrix Properties and Types",
+    "Matrix Properties and Types",
+    "Gauss-Markov Theorem; Recall the G-M Theorem",
+    "Data and Setup (rescaling)",
+    "The F-statistic and ANOVA",
+    "Common Weighting Schemes",
+    "Minimum Variance; GLS/WLS",
+    "Model Fit and Prediction",
+    "Gauss-Markov Assumptions",
+    "Data Generating Process (DGP)",
+    "From Bivariate to Multiple Regression",
+    "From Bivariate to Multiple Regression",
+    # N
+    "Types of Data; Gauss-Markov Assumptions",
+    "Plot 2: Normal Q-Q",
+    "Gauss-Markov Assumptions",
+    "The Norm of a Vector",
+    # O
+    "Deriving the OLS Estimator",
+    "Linear Algebra; Deriving Multiple Regression Coefficients",
+    "Properties of k_i; Unbiasedness; Minimum Variance",
+    "GLS/WLS",
+    "Similarity and Vector Products",
+    "Looking Forward: The Outer Product",
+    # P
+    "summary() — Comprehensive Model Summary",
+    "Interpretation of Coefficients in Multiple Regression",
+    "Dummy Variables and Categorical Predictors",
+    "SRF vs. PRF; Data Generating Process",
+    "predict() — Generate Predictions; Estimation",
+    "Common Weighting Schemes",
+    "Common Weighting Schemes",
+    # R
+    "R²: The Coefficient of Determination",
+    "The Relationship Between R² and Correlation",
+    "Dummy Variables and Categorical Predictors",
+    "Decomposing the Variance",
+    "Decomposing the Variance",
+    "Residuals ($residuals)",
+    "Diagnostic Plots; Visual Diagnostics",
+    "Modeling Variation (rho decomposition)",
+    "Robust Standard Errors",
+    # S
+    "SRF vs. PRF; Data Generating Process",
+    "Simulation: Demonstrating Unbiasedness",
+    "Common Weighting Schemes",
+    "Plot 3: Scale-Location",
+    "Deriving the OLS Estimator",
+    "An Example with Spotify Data",
+    "summary(); Gauss-Markov Assumptions",
+    "Deriving the OLS Estimator",
+    "Common Weighting Schemes",
+    # T
+    "summary() — Comprehensive Model Summary",
+    "Decomposing the Variance",
+    "Matrix Properties and Types",
+    "Data and Setup; Predicted Margins",
+    # U
+    "Unbiasedness",
+    "Simulation: Demonstrating Unbiasedness",
+    # V
+    "Types of Data; Gauss-Markov Assumptions",
+    "Gauss-Markov Theorem; Recall the G-M Theorem",
+    "Gauss-Markov Theorem; Recall the G-M Theorem",
+    "WLS Correction (variance function estimation)",
+    "Interpretation of Coefficients; Recall the G-M Theorem",
+    "Vectors",
+    # W
+    "GLS/WLS; Modeling Variation",
+    "WLS Correction",
+    "Dummy Variables and Categorical Predictors",
+    "Robust Standard Errors",
+    "Formal Tests for Heteroskedasticity",
+    # Z
+    "Gauss-Markov Assumptions"
+  ),
+  stringsAsFactors = FALSE
+)
+
+# Chapter name mapping
+ch_names <- c(
+  "Ch. 1" = "Simple Regression",
+  "Ch. 2" = "Gauss-Markov & BLUE",
+  "Ch. 3" = "Estimation in R",
+  "Ch. 4" = "Matrix Algebra",
+  "Ch. 5" = "Inference & Variables",
+  "Ch. 6" = "Heteroskedasticity & WLS"
+)
+
+# Sort alphabetically
+index_entries <- index_entries[order(index_entries$Term), ]
+
+# Build the index with letter headings
+current_letter <- ""
+for (i in seq_len(nrow(index_entries))) {
+  first_letter <- toupper(substr(index_entries$Term[i], 1, 1))
+  if (first_letter != current_letter) {
+    current_letter <- first_letter
+    cat(paste0("\n### ", current_letter, "\n\n"))
+  }
+  cat(paste0("**", index_entries$Term[i], "**",
+             " — ", index_entries$Chapter[i],
+             ": *", index_entries$Section[i], "*\n\n"))
+}
+```

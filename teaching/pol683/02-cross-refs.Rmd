@@ -1,0 +1,1129 @@
+# Matrix Algebra
+
+This review focuses on matrix algebra. Please consult the following text -- it's great -- and I'll follow it closely here.
+This course closely tracks chapters 3 and 4, and I \emph{strongly encourage you to read these chapters in the not-too-distant future.} In several places below, I refer you directly to this text.
+
+
+Gill, Jeff. 2006. **Essential Mathematics for Political and Social Research}, Cambridge University Press.**\\
+
+
+As a secondary source, please consult. \\
+
+\noindent \textbf{Moore, Will and David Siegel. 2013. \emph{A Mathematics Course for Political and Social
+Research}. Princeton, NJ: Princeton University Press.}\\
+
+\noindent\textbf{Statistical Software}\\
+There are many statistical software packages available. In this program, faculty typically rely on \texttt{R} and/or \texttt{stata}. In my courses, I use \texttt{R} and will ask you to do the same. \texttt{R} is a free statistical program available for Mac, Windows, and Linux. \texttt{R} may be downloaded from the CRAN website \url{http://www.r-project.org}. The CRAN site also includes a variety of user's manuals, which I suggest you consult soon (if you are unfamiliar with the \texttt{R} language). I also frequently read the \texttt{R-bloggers}, which often has useful hints and tricks.
+
+In POL 682 and POL 683 I will assume that you know the ``basics,'' such as opening a dataset, accessing variables, and creating new variables. Throughout this tutorial, I briefly describe some useful \texttt{R} functions applied to matrix and vector functions. At the end of the document, I also have prepared a brief \texttt{R} primer.
+
+\section*{Introduction}
+Much of quantitative political science -- and the social sciences, more generally -- aims to quantify the relationships between multiple variables. For instance, say we are interested in predicting the probability of voting, $pr(Vote)$, given one's party identification ($X_{PID}$) and political ideology ($X_{Ideology}$). Let's just assume we observe these variables in the form of a survey, in which people report whether they voted, their party identification (on a seven point scale from 1, Strong Democrat, to 7, Strong Republican), and their ideology on a seven point scale from 1(Strong Liberal) to 7(Strong Conservative). There are a large number of ways that we might go about addressing this question. For instance, we might just count up the number of people who vote who are Republican, the number who are conservative, and so forth. From this, we could calculate a number of statistics, such as the proportion of people who vote who are Democrat.
+
+Regardless of how we go about addressing this issue, we must begin by understanding the data itself. The data, expressed in a spreadsheet or some other data form, can be envisioned in \emph{matrix form}. Each row of the data corresponds to a respondent (so, if there $n=1000$ respondents, there are 1000 rows). Each column corresponds to the observed response -- here, ideology, pid, and voting.
+
+$$
+\begin{bmatrix}
+Vote&PID&Ideology \\\hline
+a_{11}&a_{12}&a_{13} \\
+a_{21}&a_{22}&a_{23} \\
+\vdots & \vdots & \vdots\\
+a_{n1}&a_{n2}&a_{n3}\\
+\end{bmatrix}
+$$
+
+In this case, we have an $n \times 3$ matrix. What's more, we could generate a simple linear expression, in which $y_{voting}=b_0+b_1 x_{Ideology}+b_2 x_{PID}$. Let's spend a little time considering what these components entail. 
+
+The problem is there are three unknown quantities that we need to find, $b_0, b_1, b_2$.
+
+ \[\begin{bmatrix}
+y_{1}= & b_0+ b_1 x_{Ideology,1}+b_2 x_{PID,1}\\
+y_{2}= & b_0+ b_1 x_{Ideology,2}+b_2 x_{PID,2}\\
+y_{3}= &  b_0+ b_1 x_{Ideology,3}+b_2 x_{PID,3}\\
+y_{4}= &  b_0+ b_1 x_{Ideology,4}+b_2 x_{PID,4}\\
+\vdots\\
+y_{n}= &  b_0+ b_1 x_{Ideology,n}+b_2 x_{PID,n}\\
+\end{bmatrix}\]
+
+
+In this case, we have a number of equations -- one for each value of the dependent and independent variables. We have fewer unknowns. But, we need to develop the tools to solve this system of equations. In other words, what consistutes a reasonably good guess of $b_0, b_1, b_2$? In fact, there are an infinite number of potential values for $b_0, b_1, b_2$. But, we'd like the one that most accurately predicts $y$. After all, we would like to come up with a reasonable prediction of y given our covariates, here ideology and party id. Put another way, we expect that our prediction of $y$ knowing these covariates is more accurate than our prediction of $y$, absent these covariates.
+
+This is just one reason why we need to explore the properties of matrices. Over the next couple days, we will explore linear algebra, and we'll develop some of the techniques needed to solve problems such as the one above. Some of this will seem a bit obscure; like much of math, it may not be immediately clear why we're exploring these techniques. Some of you may convince yourselves this is tangential to what you'll need to succeed in this program. This is incorrect -- as an instructor of 2 of the 4 required methods courses, I promise every aspect of what we'll look at will resurface. That said, don't become overly frustrated. Some of this may be foreign, and maybe it won't all make sense. That's okay and expected. With practice, I think you'll find this material isn't all that technical. Often these concepts are best understood through applications (and practice).
+
+Typically, when we represent any matrix, the first number corresponds to the row, the second to the column. If we called this matrix \textbf{A}, we could use the following notation $\textbf{A}_{Nx3}$. More generically, we might represent a $\textbf{A}_{NxN}$ matrix as:
+
+$$
+\begin{bmatrix}
+a_{11}&a_{12}&\cdots &a_{1n} \\
+a_{21}&a_{22}&\cdots &a_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+a_{n1}&a_{n2}&\cdots &a_{nn}\\
+\end{bmatrix}
+$$
+
+It is worthwhile to ``decompose'' what constitutes this matrix.\footnote{I'm not using ``decompose'' in the traditional sense of matrix decomposition; instead, I just mean that a matrix is made up of row and column vectors.} We can think of a matrix as being made up of a series of vectors. A \textit{vector} encodes pieces of information using a string of numbers. Returning to our running example, there are three \textbf{column vectors}, corresponding to the variable. There are 1000 \textbf{row vectors}, which map each individual's vote propensity, PID in a three dimensional space. Vectors are typically denoted with lowercase letters $\textbf{a}$, or as $\vv{a}$. The \textit{length} of a vector is simply how many elements it encodes. For instance, each row vector is of length 3. Another way to write this is  $\textbf{a} \in \R^{3}$, which denotes that the vector is a three dimensional real number.
+
+\section*{Vectors}
+Single numbers are called scalars; vectors are different. Vectors include multiple elements. More formally, a scalar only provides a single piece of information, magnitude or strength. Vectors exist in $\R^{k}$ and encode ``strength'' (its norm) as well as direction or location. Think of plotting a straight line in a two dimensional space, starting at the origin. The vector encodes the magnitude -- how long is the line -- it also encodes the direction (where it the line going). So, a vector is made up of multiple elements. It's most easy to envision a vector geometrically. Let's see this on the board.
+
+
+Assume $\textbf{a}=[3,2,1]$ and  $\textbf{b}=[1,1,1]$.  Or, more simply, let's deal in  $\R^{2}$. Consider two vectors: $\textbf{a}=[9,2]$ and  $\textbf{b}=[1,1]$. These are just two locations in a two dimensional space. The vectors traverse different paths, and they are have different magnitudes (one is longer, right?). A natural question is then, what is the distance between these vectors? If $\textbf{a}=[x_1,y_1]$ and $\textbf{b}=[x_2,y_2]$, then we can defind the Euclidean distance between these vectors as\\
+
+\begin{center}
+\shadowbox{$Distance(a,b)_{Euclidean}=\sqrt{(x_1-x_2)^2+(y_1-y_2)^2}$}. 
+\end{center}
+
+This is really just an extension of what you likely learned in high-school using the Pythogorean Theorem -- this is why it's useful to envision things geometrically, rather than simply trying to remember a bunch of formula. Let's see what's going on here. Drop point from (9,2) that forms a right triangle. The line that connects \textbf{a} and \textbf{b} is the hypotenuse, and can be solved by $c^2=a^2+b^2$. Plug in the differences with respect to $x$ then $y$ to find ther hypotenuse.  
+
+This is related to another important characteristic: The \textbf{norm} of a vector. This is measure of distance from the beginning point to the ending point of a vector. Think of it as the length of a line starting at the origin -- i.e., it's most useful to think of a vector and moving it so that the beginning point is (0,0). The norm is a measure of strength or magnitude. I hesitate to use ``length'' since sometimes that's reserved for the dimension of the vector, but it more or less is the length. It's the length of that vector is how far the point is from 0,0. Again, just envision the point defined by the vector and the distance of that point from the origin. Notice, this is really just the same thing as the distance formula if we knew two vectors, the one we're interested in -- call it a -- and the zero vector, defined by 0,0. Then, simply define the norm as:\\
+
+\begin{center}
+\shadowbox{$\|a\|=\sqrt{x_1^2+y_1^2}$}
+\end{center}
+
+If we know the x,y coordinates for the beginning and end point of this vector, we can move it anywhere and the norm will be the same -- it doesn't change lengths, only it's relative location. It should be fairly intuitive, since the length doesn't change, only it's general location in space. Also,\\
+
+\begin{center}
+\shadowbox{$Distance(a,b)_{Euclidean}=\sqrt{\|a\|^{2}+\|b\|^{2}}$}
+\end{center}
+
+This should make intuitive sense. We can find distance using two norms, since the norm is just the same vector, beginning at the origin.
+
+From this, we can generate further operations which have a relatively clear geometric basis. Vector addition and subraction simply involves adding (or subtracting) each element. So $\textbf{a}-\textbf{b}=[3-1, 2-1, 1-1]=[2,1,0]$ or $\textbf{a}+\textbf{b}=[3+1, 2+1, 1+1]=[2,1,0]$. In this example, the vectors are said to be \textbf{conformable}, because they have the same number of elements. \textit{With this in mind, we cannot subtract or add vectors of different lengths}, for example, if $\textbf{a}=[3,2]$ and  $\textbf{b}=[1,1,1]$. In this case, the vectors are \textit{non-conformable}. It's useful to remember that order generally doesn't matter for addition, but it will for subtraction.
+
+We can multiply or divide a vector by a scalar, i.e., a single number. For instance, $2 \times \textbf{a}=[3,2,1]=[6,4,2]$. From Gill (2006, p.86), let's then explore the basic properties of vector algebra.
+
+\begin{framed}
+\textbf{Commutative}=\textbf{a}+\textbf{b}=(\textbf{b}+\textbf{a})
+
+\textbf{Additive}=(\textbf{a}+\textbf{b})+\textbf{c}=\textbf{a}+(\textbf{b}+\textbf{c})
+
+\noindent\emph{The order of vector addition doesn't matter.}
+
+\textbf{Distributive I}=c(\textbf{a}+\textbf{b})=c\textbf{a}+c\textbf{b}
+
+\textbf{Distributive II}=(c+d)\textbf{a}= c\textbf{a}+c\textbf{b}
+
+\noindent\emph{Adding and then multiplying by a scalar is the same as multiplying by a scalar and then adding.}
+
+\textbf{Zero}=\textbf{a}+0=\textbf{a}=\textbf{a}-\textbf{a}=0
+
+\textbf{Zero Multiplication}=0\textbf{a}=0
+
+\textbf{Unit}=1\textbf{a}=\textbf{a}
+\end{framed}
+
+
+Let's just briefly explore this in \texttt{R}. We start by defining two vectors. \texttt{dist} calculates the Euclidean distance; the function calculates the norm. The function call is fairly basic. All I'm doing here is passing one object to the function -- called \texttt{my.vector}. I am then summing the squared elements of \texttt{my.vector} and returning that vector. Finally, I calculate the distance of the vector norm.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{a}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{2}\hlstd{)}
+\hlstd{b}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{3}\hlstd{)}
+\hlkwd{dist}\hlstd{(}\hlkwd{rbind}\hlstd{(a,b))} \hlcom{##Euclidean distance }
+\end{alltt}
+\begin{verbatim}
+##          a
+## b 2.236068
+\end{verbatim}
+\begin{alltt}
+\hlstd{a.vector.norm} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{my.vector}\hlstd{)} \hlkwd{sqrt}\hlstd{(}\hlkwd{sum}\hlstd{(my.vector}\hlopt{^}\hlnum{2}\hlstd{))}
+\hlkwd{a.vector.norm}\hlstd{(a)}
+\end{alltt}
+\begin{verbatim}
+## [1] 3.605551
+\end{verbatim}
+\begin{alltt}
+\hlkwd{a.vector.norm}\hlstd{(a}\hlopt{/}\hlkwd{a.vector.norm}\hlstd{(a))}
+\end{alltt}
+\begin{verbatim}
+## [1] 1
+\end{verbatim}
+\begin{alltt}
+\hlkwd{dist}\hlstd{(}\hlkwd{rbind}\hlstd{(}\hlkwd{a.vector.norm}\hlstd{(a),} \hlkwd{a.vector.norm}\hlstd{(b)))}
+\end{alltt}
+\begin{verbatim}
+##           1
+## 2 0.4432736
+\end{verbatim}
+\begin{alltt}
+\hlcom{##The Euclidean distance calculated from vector norms}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+
+Now, let's explore this in $\R^3$. Also, let's perform some simple operations on these vectors.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{a}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{1}\hlstd{)}
+\hlstd{b}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{)}
+\hlstd{a}\hlopt{+}\hlstd{b}
+\end{alltt}
+\begin{verbatim}
+## [1] 4 3 2
+\end{verbatim}
+\begin{alltt}
+\hlstd{a}\hlopt{+}\hlstd{b}
+\end{alltt}
+\begin{verbatim}
+## [1] 4 3 2
+\end{verbatim}
+\begin{alltt}
+\hlstd{d}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{)} \hlcom{# Oops, R2}
+\hlstd{a}\hlopt{+}\hlstd{d}
+\end{alltt}
+
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in a + d: longer object length is not a multiple of shorter object length}}\begin{verbatim}
+## [1] 4 3 2
+\end{verbatim}
+\begin{alltt}
+\hlnum{3}\hlopt{*}\hlstd{(a}\hlopt{+}\hlstd{b)}
+\end{alltt}
+\begin{verbatim}
+## [1] 12  9  6
+\end{verbatim}
+\begin{alltt}
+\hlnum{3}\hlopt{*}\hlstd{a}\hlopt{+}\hlnum{3}\hlopt{*}\hlstd{b}
+\end{alltt}
+\begin{verbatim}
+## [1] 12  9  6
+\end{verbatim}
+\begin{alltt}
+\hlstd{(}\hlnum{3}\hlopt{-}\hlnum{1}\hlstd{)}\hlopt{*}\hlstd{a}
+\end{alltt}
+\begin{verbatim}
+## [1] 6 4 2
+\end{verbatim}
+\begin{alltt}
+\hlnum{3}\hlopt{*}\hlstd{a}\hlopt{-}\hlnum{1}\hlopt{*}\hlstd{a}
+\end{alltt}
+\begin{verbatim}
+## [1] 6 4 2
+\end{verbatim}
+\begin{alltt}
+\hlstd{a}\hlopt{*}\hlnum{0}
+\end{alltt}
+\begin{verbatim}
+## [1] 0 0 0
+\end{verbatim}
+\begin{alltt}
+\hlstd{a}\hlopt{*}\hlnum{1}
+\end{alltt}
+\begin{verbatim}
+## [1] 3 2 1
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+The \texttt{c} in \texttt{R} just means concatenate and the $\texttt{<-}$ symbol just assigns the object (a and b and d) to these numbers. The above syntax complete much of what we've discussed. 
+
+Adding two vectors, $\textbf{a}+\textbf{b}$ completes the third side of the triangle. So, knowing the location of a and b in $\R^{2}$, then the sum, $\textbf{a}+\textbf{b}$, forms the third side. 
+
+We can extend this further to higher dimensions -- i.e., vectors that reside in a higher dimensional space,  $\R^{N}$, have more than two components, etc. Let's consider  $\R^{3}$; vectors with three components. If we were to plot this, we would have  x, y, and z, axes. Again, let's just consider two vectors,  $\textbf{a}, \textbf{b}$, with three components.\\
+
+\begin{center}
+\shadowbox{$Distance(a,b)_{Euclidean}=\sqrt{(x_1-x_2)^2+(y_1-y_2)^2+(z_1-z_2)^2}$}
+\end{center}
+
+This is the Euclidean distance in $\R^3$. The norm is also just a slight modification from our previous calculation.\\
+
+\begin{center}
+\shadowbox{$\|a\|=\sqrt{x_1^2+y_1^2+z_1^2}$}
+\end{center}
+
+Also, notice that when we divide a vector by its magnitude -- its norm -- then the norm of that new matrix is 1. Just explore the R code above. Because of this property, we have a normed vector. Sometimes this is called a unit vector. This is often a useful thing to do in applied settings, because it standardizes the vector. Regardless of the components of the vector, a normed vector always has this property. These calculations are all above.
+
+\subsection*{Similarity}
+Although it is easy to multiply a string with a vector, there are several ways to multiply vectors. Let's define multiplication in a few ways, starting with the \textbf{inner product}, then the \textbf{cross product}, then the \textbf{outer product}.
+
+The inner product is a useful place to start (see Gill 2006). Suppose, \textbf{a}$=$[3,2,1] and \textbf{b}$=$[1,1,1]. To calculate the inner product -- or ``dot product'' -- we multiply each element and add, here $[3*1+2*1+1*1]=6$. The shorthand notation for this is then, $\sum_k=a_ib_i$, which reads ``multiply the ith element in a with the ith element in b and then sum from 1 to k, where k is the length of the vectors.'' (Gill, 2006, p. 87). \textit{It turns out that the inner product is related to another statistic: it is a measure of covariance, or how two vectors (aka, ``variables''), go together! It's the mean centered inner product.} Also, the \emph{correlation} is the ``standardized'' covariance; here, it is the mean centered inner product over the product of the norm of mean centered x and the norm of mean centered y.\\
+
+\begin{center}
+\shadowbox{$cov(x,y)=E(x-\bar{x})(y-\bar{y}))={{\sum(x-\bar{x})(y-\bar{y})}\over{n-1}}={{inner.product(x-\bar{x}, y-\bar{y})}\over{n-1}}$}\\
+\end{center}
+
+\begin{center}
+\shadowbox{$r_{x,y}={{cov(x,y)}\over{sd(x)sd(y)}}={{inner.product(x-\bar{x}, y-\bar{y})}\over{\|x-\bar{x}\|\|y-\bar{y}\|}}$}
+\end{center}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{a}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{1}\hlstd{)}
+\hlstd{b}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{9}\hlstd{)}
+\hlkwd{cov}\hlstd{(a,b)}  \hlcom{# E[(x-e(x))(y-e(y))]}
+\end{alltt}
+\begin{verbatim}
+## [1] -4
+\end{verbatim}
+\begin{alltt}
+\hlkwd{sum}\hlstd{((a}\hlopt{-}\hlkwd{mean}\hlstd{(a))}\hlopt{*}\hlstd{(b}\hlopt{-}\hlkwd{mean}\hlstd{(b)))}\hlopt{/}\hlnum{2} \hlcom{# n-1}
+\end{alltt}
+\begin{verbatim}
+## [1] -4
+\end{verbatim}
+\begin{alltt}
+\hlstd{(}\hlkwd{sum}\hlstd{((a}\hlopt{-}\hlkwd{mean}\hlstd{(a))}\hlopt{*}\hlstd{(b}\hlopt{-}\hlkwd{mean}\hlstd{(b))))}\hlopt{/}\hlstd{(}\hlkwd{a.vector.norm}\hlstd{((a}\hlopt{-}\hlkwd{mean}\hlstd{(a)))}\hlopt{*}\hlkwd{a.vector.norm}\hlstd{((b}\hlopt{-}\hlkwd{mean}\hlstd{(b))))}
+\end{alltt}
+\begin{verbatim}
+## [1] -0.9897433
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cor}\hlstd{(a,b)}
+\end{alltt}
+\begin{verbatim}
+## [1] -0.9897433
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+Geometrically, if two vectors are ``orthogonal'' (or independent), this inner product will be zero, noted as $\textbf{a} \perp \textbf{b}$. Maybe this is useful place to start. Or, put another, way, the covariance/correlation will be zero. Let's see this using the ``law of cosines.''
+
+If you know two sides of a triangle, as well as the angle where these two sides meet, then you can calculate the third side of the triangle using this formula, $c^2=a^2+b^2-2 a b cos(\theta)$.\footnote{$\theta$ must be greater than 0 and less than $\pi$. Recall the circumference of a circle is $2\pi r$. Assume a ``unit circle,'' where $r=1$. Then, we know that a triangle can only be formed if $\theta$ is less than 180 degrees, which in radians is $\pi$.} Again, it's worthwhile staring at this a bit -- we can always find the unknown side of the triangle by knowing the angle where a and b meet. 
+
+Now, how does this relate to the ``inner product''? If \textbf{a}, and \textbf{b} are independent vectors, and we calculate their inner product, this really just the same thing as calculating this:
+
+\begin{center}
+\shadowbox{$inner.product(a,b)=\|a\|\|b\|cos(\theta$)}
+\end{center}
+
+The inner product of \textbf{a} and \textbf{b} is a function of the vector norms and the angle in which they're related.  Put another way, the only way that the inner product of the two non-zero vectors will equal zero \emph{is if cos($\theta)=$0}. This only occurs when $\theta=\pi/2$. Thus, we only can have two independent, or orthogonal vectors, when the angle at which they connect is 90 degrees, or in radians $\pi/2$. Similarly, 
+
+\begin{center}
+\shadowbox{$\|a-b\|=\|a\|^2+\|b\|^2+cos(\theta$}
+\end{center}
+
+And rearrange the terms, \\
+
+\begin{center}
+\shadowbox{$cos(\theta)={{inner.product(a,b)}\over {\|a\|\|b\|}}$}
+\end{center}
+
+\begin{center}
+\shadowbox{$\theta={{arccos(inner.product(a,b)}\over{\|a\|\|b\|}}$}
+\end{center}
+
+But what this also means is that the inner product generally viewed as a measure of association. Hold onto this idea as you proceed through our program. Note the relationship between inner product is the covariance between two variables. If that covariance is zero, geometrically that means a right angle is formed. 
+
+Just a quick digression: It can be useful to ask the question: ``why should I care''? The vector norm is a measure of magnitude, strength, consistency, length, etc. We could view it is an indicator of cohesion. Gill (2006) cites Castevaans (1970). I won't rehash his argument, but say we have a legislative vote. Conservatives vote yea/nea 2, 100, whereas liberals vote 72, 33. We could calculate the normed values, which gives a measure of cohesion. We could also calculate the value $\theta$ and compare it to other votes.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{conservatives}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,}\hlnum{100}\hlstd{)}
+\hlstd{liberals}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{72}\hlstd{,}\hlnum{33}\hlstd{)}
+\hlkwd{a.vector.norm}\hlstd{(conservatives)}
+\end{alltt}
+\begin{verbatim}
+## [1] 100.02
+\end{verbatim}
+\begin{alltt}
+\hlkwd{a.vector.norm}\hlstd{(liberals)}
+\end{alltt}
+\begin{verbatim}
+## [1] 79.20227
+\end{verbatim}
+\begin{alltt}
+\hlstd{prod}\hlkwb{<-}\hlkwd{sum}\hlstd{((conservatives}\hlopt{*}\hlstd{liberals}\hlopt{/}\hlstd{(}\hlkwd{a.vector.norm}\hlstd{(conservatives)}\hlopt{*}\hlkwd{a.vector.norm}\hlstd{(liberals))))}
+\hlkwd{cat}\hlstd{(}\hlstr{"theta is:"}\hlstd{,} \hlkwd{acos}\hlstd{(prod))} \hlcom{# arccos is the inverse of cosine}
+\end{alltt}
+\begin{verbatim}
+## theta is: 1.121037
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Again, from Gill (2006), here are the ``inner product rules''
+
+\begin{framed}
+\textbf{Commutative}=\textbf{a} x \textbf{b}=\textbf{b} x \textbf{a}\\
+
+\textbf{Associative}=d(\textbf{a}+\textbf{b})=(d\textbf{a}) x \textbf{b}=\textbf{a} x d(\textbf{b})\\
+
+\textbf{Distributive}=\textbf{c}(\textbf{a}+\textbf{b})=\textbf{c}\textbf{a}+\textbf{c}\textbf{b}\\
+
+\textbf{Zero}=\textbf{a}0=0\\
+
+\textbf{Unit}=1\textbf{a}=$\sum a_i$
+\end{framed}
+
+
+\section*{The Cross Product}
+The cross product is another common matrix multiplication operation. There are several steps to follow:\\
+(1) Stack the vectors.\\
+(2) Pick a row or column.\\
+(3) Calculate the determinant on the smaller, $2 \times 2$ submatrix involved in by deleting the $i$th entry.\\
+
+Say we have \textbf{a}$=$[3,2,1] and \textbf{b}$=$[1,4,7]
+
+$$
+\begin{bmatrix}
+3&2&1\\
+1&4&7\\
+\end{bmatrix}
+$$
+
+The cross product is, [2*7-4*1, 1*1-3*7, 3*4-2*1]. The only ``trick'' is that if the entry is an even numbered location we flip the order of subtraction. So, we get [10,-20,10]. The cross product is orthogonal to both the original vectors (Gill 2006). We'll soon see that the cross-product is useful to calculate the inverse of a matrix. The way we calculate it is to find the determinant (see below).
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{a}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{3}\hlstd{)}
+\hlstd{b}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{7}\hlstd{)}
+\hlstd{c}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{10}\hlstd{,}\hlopt{-}\hlnum{20}\hlstd{,}\hlnum{10}\hlstd{)}
+\hlkwd{sum}\hlstd{(a}\hlopt{*}\hlstd{c)}
+\end{alltt}
+\begin{verbatim}
+## [1] 20
+\end{verbatim}
+\begin{alltt}
+\hlkwd{sum}\hlstd{(b}\hlopt{*}\hlstd{c)}
+\end{alltt}
+\begin{verbatim}
+## [1] 0
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\section*{The Outer Product}
+The outer product involves taking one vector -- transposing it -- and then multiplying that vector by the second vector. 
+$$
+\begin{bmatrix}
+3 \\
+2\\
+1\\
+\end{bmatrix}
+\begin{bmatrix}
+1&4&7\\
+\end{bmatrix}
+$$
+
+
+If we multiply these by taking the ith row and multiplying by the jth column, then adding, we get:
+
+$$
+\begin{bmatrix}
+3&12&21\\
+2&8&14\\
+1&4&2\\
+\end{bmatrix}
+$$
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{a}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{1}\hlstd{)}
+\hlstd{b}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{7}\hlstd{)}
+\hlstd{a}\hlopt{%*%}\hlkwd{t}\hlstd{(b)}
+\end{alltt}
+\begin{verbatim}
+##      [,1] [,2] [,3]
+## [1,]    3   12   21
+## [2,]    2    8   14
+## [3,]    1    4    7
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+\section*{Matrices}
+As noted, we can combine row or column vectors in a matrix. For an $i \times j$ matrix, typically the first number corresponds to the number of rows, the second number is the number of columns. Let's also follow the convention that vectors are written as lower-case bold letters, matrices are written in upper-case bold letters. Like vectors, it's important to establish different types of matrices, their properties, and matrix operations.
+
+First, two matrices are equal, $\textbf{A}=\textbf{B}$, for $i=j,\forall i,j$. All the elements of each matrix are identical. A \textbf{square} matrix has an equal number of rows and columns. A \textbf{symmetric} matric has the same off-diagonal matrix. A \textbf{skew-symmetric} is a symmetric matrix, with the notable difference that the signs of the off-diagonals change -- i.e., the entries are the same, but the sign changes.
+
+Thinking back to the outer-product, the transpose of a matrix is a matrix where we change the rows to columns, or columns to rows. This is denoted $\textbf{A}^T$ or $\textbf{A}^\prime$.
+
+Squaring a matrix is the same as multiplying it by itself, $\textbf{A}^2=\textbf{A} \textbf{A}$. I know this seems like an obvious statement -- it is -- but the mechanics involved in doing this is different than multiplying two scalars.
+
+An \textbf{idempotent} matrix means that if we multiply a matrix by itself, this product is the original matrix, or 
+$\textbf{A}^2=\textbf{A} \textbf{A}= \textbf{A}$.
+
+
+An \textbf{identity} matrix, \textbf{I} is analagous to multiplying a scalar by 1. So, $\textbf{A}I= \textbf{A}$. The identity matrix has zeros on the off diagonal, and 1s on the diagonal. The \textbf{trace} of a matrix is the sum of all the diagonal elements of a matrix. Thus, the $tr(I)$ corresponds to the number of rows in the matrix.
+
+\emph{How do we add or subtract matrices}? First, they must be conformable -- i.e., the same dimensions. To add, or subtract, just add (or subtract) the $i$ and $j$ elements.
+
+$$
+\begin{bmatrix}
+a_{11}&a_{12}&\cdots &a_{1n} \\
+a_{21}&a_{22}&\cdots &a_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+a_{n1}&a_{n2}&\cdots &a_{nn}
+\end{bmatrix}+
+\begin{bmatrix}
+b_{11}&b_{12}&\cdots &b_{1n} \\
+b_{21}&b_{22}&\cdots &b_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+b_{n1}&b_{n2}&\cdots &b_{nn}
+\end{bmatrix}=
+\begin{bmatrix}
+a_{11}+b_{11}&a_{12}+b_{12}&\cdots &a_{1n}+b_{1n} \\
+a_{21}b_{21}&a_{22}+b_{22}&\cdots &a_{2n}+b_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+a_{n1}+b_{n2}&a_{n2}+b_{n2}&\cdots &a_{nn}+b_{n}\\
+\end{bmatrix}
+$$
+
+A matrix multiplied by a scalar is every element multiplied by that scalar.
+
+Again, from Gill (2006), here are the properties of conformable matrices
+
+\begin{framed}
+\textbf{Commutative}=\textbf{X} + \textbf{Y}=\textbf{Y} + \textbf{X}\\
+
+\textbf{Additive Associative}=(\textbf{X}+\textbf{Y})+\textbf{Z}=\textbf{X} + (\textbf{Y}+\textbf{Z}) \\
+
+\textbf{Distributive}=\textbf{c}(\textbf{X}+\textbf{Y})=\textbf{c}\textbf{X}+\textbf{c}\textbf{Y}\\
+
+\textbf{Scalar Distributive}=(c+t)\textbf{X}=s\textbf{X}+s\textbf{Y}\\
+
+\textbf{Zero}=\textbf{A}+0=\textbf{A}
+\end{framed}
+
+
+\section*{Matrix Multiplication and Inversion}
+We need to elaborate on this general algebra to now \emph{multiply} two matrices, as well as \emph{invert} two matrices. A critical component that makes matrix multiplication different from scalar multiplication is that order absolutely matters. It is entirely conceivable that $\textbf{A}\textbf{B}$ differs from $\textbf{B}\textbf{A}$. It is also possible that $\textbf{A}\textbf{B}$ can be multiplied but $\textbf{B}\textbf{A}$ cannot!
+
+\emph{Why}? To multiply two matrices we have to multiply and add the ith row with the jth column.
+
+$$
+\begin{bmatrix}
+1&3 \\
+2&4\\
+\end{bmatrix}
+\begin{bmatrix}
+3&5 \\
+2&4\\
+\end{bmatrix}=
+\begin{bmatrix}
+1*3+3*2&1*5+3*4 \\
+2*3+4*2&2*5+2*4\\
+\end{bmatrix}
+$$
+
+So, if we multiply two 2x2 matrices, we end up with a 2x2 matrix. We can tell if two matrices are conformable for multiplication if the first matrix has the same number of columns as  rows in the second matrix. We can also determine the dimensions of the resulting matrix by taking the rows of the first matrix and columns of the second. 
+
+For example, if we multiply a 2x2 matrix with a 3x2 matrix, this is not conformable. If we switch the order, 3x2 multiplied by 2x2, we are left with a 2x2 matrix. If we multiply a 9x2 with a 2x11, we end up with a 9x11. This is just one reason why order matters?
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{a}\hlkwb{<-}\hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{),} \hlkwc{nrow}\hlstd{=}\hlnum{2}\hlstd{)}
+\hlstd{b}\hlkwb{<-}\hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{4}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{7}\hlstd{),} \hlkwc{nrow}\hlstd{=}\hlnum{2}\hlstd{)}
+\hlstd{a}\hlopt{-}\hlstd{b}
+\end{alltt}
+\begin{verbatim}
+##      [,1] [,2]
+## [1,]    0   -1
+## [2,]   -2   -5
+\end{verbatim}
+\begin{alltt}
+\hlstd{a}\hlopt{+}\hlstd{b}
+\end{alltt}
+\begin{verbatim}
+##      [,1] [,2]
+## [1,]    6    3
+## [2,]    6    9
+\end{verbatim}
+\begin{alltt}
+\hlstd{a}\hlopt{%*%}\hlstd{b}
+\end{alltt}
+\begin{verbatim}
+##      [,1] [,2]
+## [1,]   13   13
+## [2,]   14   18
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+We can always permute rows and columns by using a \textbf{permutation} matrix. For instance, perform this multiplication
+
+$$
+\begin{bmatrix}
+0&1\\
+1&0
+\end{bmatrix} \textbf{A}
+$$
+
+Note, that the rows switch. Row and column permutations are important because they help us \emph{invert} a matrix. We can always take an identity matrix, and if we permute a row or column then that will permute the row or column in the postmultiplied matrix. 
+
+In scalar form, when we multiply a scalar by it's inverse, it's 1, $3 \times 1/3=1$. The process is not as straightforward with matrices. But, we want to find a matrix $\textbf{A}^{-1}$, such that $\textbf{A}\textbf{A}^{-1}=1$. The properties of this not-yet-established inverse matrix is, $(\textbf{A}^{-1})^{-1}=A$, $\textbf{AB}^{-1}=\textbf{B}^{-1}\textbf{A}^{-1}$, $(\textbf{A})^{-1}=(\textbf{A}^-1)^{T}$, $(\textbf{A}^{T})^{T}=\textbf{A}$, $(\textbf{AB})^T=\textbf{B}^T\textbf{A}^T$, $(\textbf{A}+\textbf{B})^{T}=\textbf{A}^T+\textbf{B}^T$.
+
+In some cases, a matrix may not be invertable. We call these \emph{singular} matrices. This means there is no unique matrix $\textbf{A}^{-1}$, such that $\textbf{A}\textbf{A}^{-1}=1$. Take a really simple example:
+
+$$
+J=\begin{bmatrix}
+2&0\\
+2&0\\
+\end{bmatrix} 
+$$
+
+This matrix does not have an inverse, here $\textbf{J}^{-1}$ does not exist. We don't even need to know much math to show why. We don't know the inverse, but let's assume the following.
+
+$$
+J^{-1}=\begin{bmatrix}
+w&x\\
+y&z\\
+\end{bmatrix} 
+$$
+
+We don't know x,y,w, and z, but we assume there is some value that satisfies the properties of an inverted matrix. Multiply the two, which gives four equations:
+
+$$
+\begin{aligned}
+2w+0y=1\\
+2w+0y=0\\
+2x+0z=0\\
+2x+0z=1\\
+\end{aligned}
+$$
+
+Try to solve for any of the unknowns. For instance, $w=1/2$, but also $w=0$; there is not a unique value of $w$ that solves this equation. Singular matrices are not uncommon in applied research settings. In fact, we encounter them in any of the following circumstances:
+
+\begin{framed}
+\emph{When matrices may not be inverted:}\\
+
+(1) If all elements of a row or column equal zero.\\
+
+(2) If two rows or columns are identical.\\
+
+(3) If a row or columns are proportional.\\
+
+(4) If one row or columns can be written as a perfect linear combination of another row or column.
+\end{framed}
+
+Assuming we meet these requirements, now let us establish how to find the inverse of a matrix. 
+
+\section*{Gauss Jordan Elimination}
+
+What we want to do is establish a method that gives us the inverse. The first thing we'll do is create a \textit{pivot} matrix. This is done by row and column addition/permutation. A pivot matrix means that zeros reside on the lower diagonal and a non-zero element on the diagonal. Let's take a simple 3x3 matrix. 
+
+We'll create an \textit{augmented} matrix by simply attaching the identify matrix to our 3x3 matrix. Now, what we first want to do is eliminate the 6 in the \{2,1\} position. We can do this by multiplying the first row by -6 and adding this to the second row.
+
+$$
+\textbf{A}=\begin{bmatrix}
+1 & 2 |& 1 & 0\\
+6 & 1 |& 0 & 1\\
+\end{bmatrix}
+$$
+
+Then, we get:
+
+$$
+\begin{bmatrix}
+1 & 2 &  |& 1 & 0\\
+0 & -11& |& -6 & 1\\
+\end{bmatrix}
+$$
+
+Now, we, need to eliminate the 2 in the \{2,1\} position. Do this by multiplying the second row by 2/11 and then add to the first row. 
+
+$$
+\begin{bmatrix}
+1 &  0  &|& -1/11 & 2/11\\
+0 & -11 &|& -6 &    1\\
+\end{bmatrix}
+$$
+
+We want the left hand side to be the identity matrix. So now multiply the second row by -1/11. Notice what's happened:
+
+$$
+\begin{bmatrix}
+1 &  0  |& -1/11 & 2/11\\
+0 &  1|&    6/11 & -1/11\\
+\end{bmatrix}
+$$
+
+We now have $\textbf{I}|\textbf{A}^{-1}$. Let's just check in \texttt{R}.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{t}\hlkwb{<-}\hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{6}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{1}\hlstd{),} \hlkwc{nrow}\hlstd{=}\hlnum{2}\hlstd{)}
+\hlkwd{solve}\hlstd{(t)}
+\end{alltt}
+\begin{verbatim}
+##             [,1]        [,2]
+## [1,] -0.09090909  0.18181818
+## [2,]  0.54545455 -0.09090909
+\end{verbatim}
+\begin{alltt}
+\hlstd{t}\hlopt{%*%}\hlkwd{solve}\hlstd{(t)} \hlcom{#Identity.}
+\end{alltt}
+\begin{verbatim}
+##      [,1]          [,2]
+## [1,]    1 -2.775558e-17
+## [2,]    0  1.000000e+00
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+There are other steps we might follow to invert a matrix, but this (to me), is the most intuitive. It also doesn't require a lot of memorization in terms of particular formula and conversion of matrices into particular types. All we need to do is (1) Create the augmented matrix, (2) through row and column operations generate a pivot matrix, and (3) from the pivot, generate the identity matrix on the left. This will give the inverse on the right.
+
+Let's take it a step further -- since at this point it may not be clear even why we need the inverse. Oftentimes in the social sciences we're interested in solving a system of equations.  Recall this,
+
+ \[\begin{bmatrix}
+y_{1}= & b_0+ b_1 x_{Ideology,1}+b_2 x_{PID,1}\\
+y_{2}= & b_0+ b_1 x_{Ideology,2}+b_2 x_{PID,2}\\
+y_{3}= &  b_0+ b_1 x_{Ideology,3}+b_2 x_{PID,3}\\
+y_{4}= &  b_0+ b_1 x_{Ideology,4}+b_2 x_{PID,4}\\
+\vdots\\
+y_{n}= &  b_0+ b_1 x_{Ideology,n}+b_2 x_{PID,n}\\
+\end{bmatrix}\]
+
+Ideology, Party Identification, and Voting are variables; we want to solve this sytem with respect to the fixed parameters -- i.e., what is a suitable value for $b_0, b_1$ and $b_2$? Again, to simplify, assume:
+
+$$
+\begin{bmatrix}
+1&2\\
+3&4\\
+\end{bmatrix}
+\begin{bmatrix}
+b_1\\
+b_2\\
+\end{bmatrix}=
+\begin{bmatrix}
+2\\
+0\\
+\end{bmatrix}
+$$
+
+We really have two equations here, right? Let's invert the matrix of variables.
+
+$$
+\begin{bmatrix}
+-2&1\\
+1.5&-0.5\\
+\end{bmatrix}
+$$
+
+Now, multiply the inverse by $y$
+
+$$
+\begin{bmatrix}
+-2&1\\
+1.5&-0.5\\
+\end{bmatrix}
+\begin{bmatrix}
+2\\
+0\\
+\end{bmatrix}
+=
+\begin{bmatrix}
+-4\\
+3\\
+\end{bmatrix}
+$$
+
+Which appears correct if we just plug in the values. 
+
+\section*{Projections}
+I find it intuitive to think of matrices as combined vectors. With this in mind, it's useful to think about how one vector is projected onto another vector. Recall the ``norm'' is just the distance of a vector to the origin. Plot the vector in $\R^2$ for instance, then drop a line to the x (or y axis) that forms a right angle. We then have a right angle and the hypotenuse is the same as the norm.
+
+Assume two vectors, \textbf{a} and \textbf{b}, each with a distinct location in two dimensional space.  We can find the projection of vector \textbf{a} on \textbf{b} (in words): Drop a line from \textbf{a} to some place on the line  \textbf{b}, which will form a right angle. The distance from the origin to this point, $p$, is the projection of $a$ onto $b$. Because a right-angle is formed, this is called an ``orthogonal projection.''\\
+
+\begin{center}
+\shadowbox{projection \textbf{a} $\rightarrow \textbf{b}={{inner.product(b,a)}\over{\|\textbf{b}\|}}{\textbf{b}\over{\|\textbf{b}\|}}$}
+\end{center}
+
+Don't be too concerned about memorizing this formula, but do be familiar with what it says. On the right we just have the normed vector of $\textbf{b}$. Think of it as the standardized measure of how far \textbf{b} is from the origin. On the right, we know what the inner product is -- it's a general measure of association. So, if the two vectors are orthogonal -- i.e., unrelated -- then the projection must be 0. And, again, we're just standardizing this value by the scalar value of the norm of $\textbf{b}$ (Gill 2006, 135).
+
+It's useful to note the inverse of orthogonality, which is collinearity. What if $\textbf{b}$ is a scalar multiple of \textbf{a}? In other words, we perfectly know what  \textbf{b} is by multiplying  \textbf{a} by some value. Geometrically, this idea of ``projection'' is uninformative, because both vectors reside on the same line.
+
+We'll deal with the concept of linear projections in POL 682. It's useful to understand how it relates to the general ideas here. Also, you should graphically recognize what is meant by ``collinearity.'' This is a common issue in applied statistics -- one variable can be represented as some linear composite of some other variable. Students often think of this as a simple correlation between two variables. Generally, this is fine, but when we are in $\R^{+2}$, then it's not quite enough. Instead, envisioning these as vectors, what it means is one vector is a perfect composite of other vectors, meanining it resides on the same line. 
+
+\section*{Summarizing Matrices}
+A matrix encodes a lot of information; there are several statistics that convey important bits of information about a matrix. The first is the trace:
+
+\begin{center}
+\shadowbox{$tr(\textbf{A})=\sum_{i=1}^k x_{ii}$}
+\end{center}
+
+If we have a square matrix, the number of rows equal the number of columns. This is captured by $k$. What this says, is simply sum across the diagonal. Again, if we square a matrix, we multiply it by its transpose, $AA^{T}$, meaning that the diagonal elements of this matrix \emph{are simply the square of every value and the off-diagonals are the products of every $i$th value with every $j$th value.} As such, the $tr(AA^{T})$ is the ``sum of squares.'' We use the ``sum of squares'' frequently in statistics, particularly pertaining to the ``errors'' in linear regression. This calculation is simply the trace of the product of the same matrix -- really, $AA^{T}$ (Gill 2006, 140). Following Gill (2006, 150), here are some trace rules:
+
+\begin{framed}
+\textbf{Identity Trace}: $tr(\textbf{I})=n$\\
+
+\textbf{Zero Trace}: $tr(0)=0$\\
+
+\textbf{Scalar-Matrix Trace}: $tr(s\textbf{A})=s tr(\textbf{A})$\\
+
+\textbf{Additive Trace}: $tr(\textbf{A}+\textbf{B})=tr(\textbf{A})+tr(\textbf{B})$\\
+
+\textbf{Multiplicative Trace}: $tr(\textbf{A}\textbf{B})=tr(\textbf{B}\textbf{A})$\\
+
+\textbf{Transposition Trace}: $tr(\textbf{A}^T)=tr(\textbf{A})$
+\end{framed}
+
+\section*{Determinants}
+
+The determinant is also a useful statistic -- because it also captures the structure of a matrix, it is often used in other calculations. For instance, we can find the inverse by using determinants, and their logical extensions (below).
+
+$$
+|\textbf{A}|=\begin{vmatrix}
+w&x\\
+y&z\\
+\end{vmatrix}
+$$
+
+$=wz-xy$. It's the product of the diagonal minus the product of the off-diagonal. The determinant of a larger square matrix is more involved. 
+
+$$
+|\textbf{A}|=\begin{vmatrix}
+a_{11}&a_{12}& a_{13}\\
+a_{21}&a_{22}& a_{23}\\
+a_{31}&a_{32}& a_{33}\\
+\end{vmatrix}
+$$
+
+To find the determinant here, follow these steps: (1) Choose a row or column, (2) Calculate the ``minor'' by removing the row and column corresponding to the \{i,j\} entry, (3) Calculate the ``cofactor'' for every $x_{ij}$ element that was removed, then (4) sum.\\
+
+\begin{center}
+\shadowbox{$|\textbf{A}|=\sum_{i=1}^n (-1)^{i+j} x_{ij} |\textbf{A}_{ij}|$}
+\end{center}
+
+It's not that bad; it's just a few steps. Let's take the above matrix and give it some actual values.
+
+$$
+|\textbf{A}|=\begin{vmatrix}
+3&1&0\\
+2&2&1\\
+1&3&5\\
+\end{vmatrix}
+$$
+
+Let's just operate on the first row, so let's start with \{1,1\}. If we delete the first row and the first column, we're left with the following 2x2 matrix:
+
+$$
+|\textbf{A}|=\begin{vmatrix}
+2&1\\
+3&5\\
+\end{vmatrix}
+$$
+
+This is the minor of $minor(a_{11})=1$. So, the minor is just the 2x2 submatrix obtained by deleting the $i$th row and $j$th column. If we continue along with top row, we obtain 2 remaining minors. The ``cofactor'' is just the minor element signed according to its location in the matrix, $cofactor(a_{11})=1(2\times 5-3\times 1) ; cofactor(a_{12})=-1(2\times 1-1\times 1); cofactor(a_{13})=1(2\times 3-2\times 1)$. Then multiply the cofactor by the deleted $a_{ij}$ element and sum, so $3*1+1*-10*0*4=12$. It doesn't matter what row or column you pick.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{t}\hlkwb{<-}\hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{3}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{,}\hlnum{5}\hlstd{),} \hlkwc{nrow}\hlstd{=}\hlnum{3}\hlstd{)}
+\hlkwd{det}\hlstd{(t)}
+\end{alltt}
+\begin{verbatim}
+## [1] 12
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Another method to calculate the inverse of a matrix is \\
+
+\begin{center}
+\shadowbox{$\textbf{A}^{-1}={{1}\over{|A|}}adj(A)$}
+\end{center}
+
+The adjoint matrix is just the transpose of the cofactor matrix.
+
+$$
+cofactor(\textbf{A})=\begin{vmatrix}
+7&-9&4\\
+-5&15&-8\\
+1&-3&4\\
+\end{vmatrix}
+$$
+
+You've probably noticed a pattern here, in terms of what entries are positive and negative
+
+
+\section*{A Very Brief Introduction to \texttt{R}}
+
+Data in \texttt{R} be stored in multiple ways. The simplest place to start is a vector.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{t}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{4}\hlstd{)}
+\hlstd{t}
+\end{alltt}
+\begin{verbatim}
+## [1] 1 2 3 4
+\end{verbatim}
+\begin{alltt}
+\hlkwd{assign}\hlstd{(}\hlstr{"t"}\hlstd{,} \hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{2}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{4}\hlstd{))}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Instead of manually generating these numbers, the colon operator or sequence function may be used.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{t}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{)}
+\hlstd{t}
+\end{alltt}
+\begin{verbatim}
+## [1] 1 2 3 4
+\end{verbatim}
+\begin{alltt}
+\hlstd{t}\hlkwb{<-}\hlkwd{seq}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{4}\hlstd{,} \hlkwc{by}\hlstd{=}\hlnum{1}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+In all cases, you've assigned $t$ to the numeric vector including observations 1,2,3,4
+
+\texttt{R} reserves \texttt{NA} for missing values, so
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{t}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{3}\hlstd{,} \hlnum{NA}\hlstd{)}
+\hlstd{t}
+\end{alltt}
+\begin{verbatim}
+## [1]  1  2  3 NA
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+If you try to perform a numeric operation on $t$ it will return an error (as it should).
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{mean}\hlstd{(t)}
+\end{alltt}
+\begin{verbatim}
+## [1] NA
+\end{verbatim}
+\begin{alltt}
+\hlcom{#Many functions in R include a built in way to ignore missing observations.}
+\hlkwd{mean}\hlstd{(t,} \hlkwc{na.rm}\hlstd{=}\hlnum{TRUE}\hlstd{)}
+\end{alltt}
+\begin{verbatim}
+## [1] 2
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Vectors may also be characters
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{t}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlstr{"one"}\hlstd{,} \hlstr{"two"}\hlstd{,} \hlstr{"three"}\hlstd{,} \hlstr{"four"}\hlstd{)}
+\hlkwd{mean}\hlstd{(t)} \hlcom{# Nope}
+\end{alltt}
+
+
+{\ttfamily\noindent\color{warningcolor}{\#\# Warning in mean.default(t): argument is not numeric or logical: returning NA}}\begin{verbatim}
+## [1] NA
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Vectors are only one type of object in R, there are also matrices, factors, lists and dataframes.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{t}\hlkwb{<-}\hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{10}\hlstd{),} \hlkwc{nrow}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{ncol}\hlstd{=}\hlnum{5}\hlstd{)} \hlcom{#Here, I have generated a a vector from 1-10 and then declared this to be transformed into a 2 x 5 matrix}
+\hlstd{t}\hlkwb{<-}\hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{10}\hlstd{),} \hlkwc{nrow}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{ncol}\hlstd{=}\hlnum{5}\hlstd{)} \hlcom{#Here, I have generated a a vector from 1-10 and then declared this to be transformed into a 2 x 5 matrix}
+\hlstd{t}
+\end{alltt}
+\begin{verbatim}
+##      [,1] [,2] [,3] [,4] [,5]
+## [1,]    1    3    5    7    9
+## [2,]    2    4    6    8   10
+\end{verbatim}
+\begin{alltt}
+\hlkwd{t}\hlstd{(t)} \hlcom{#This will show the transpose, putting the rows on the columns}
+\end{alltt}
+\begin{verbatim}
+##      [,1] [,2]
+## [1,]    1    2
+## [2,]    3    4
+## [3,]    5    6
+## [4,]    7    8
+## [5,]    9   10
+\end{verbatim}
+\begin{alltt}
+\hlcom{#We can always display the type of R object by using the class function}
+\hlkwd{class}\hlstd{(t)}
+\end{alltt}
+\begin{verbatim}
+## [1] "matrix"
+\end{verbatim}
+\begin{alltt}
+\hlcom{#Factors may be used to describe categorical data}
+\hlstd{t}\hlkwb{<-}\hlkwd{as.factor}\hlstd{(}\hlkwd{c}\hlstd{(}\hlstr{"one"}\hlstd{,} \hlstr{"two"}\hlstd{,} \hlstr{"three"}\hlstd{,} \hlstr{"four"}\hlstd{))} \hlcom{#This is particularly useful in regression with dummy variables, because R will automatically generate dummies if the object is a factor}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Lists store multiple objects.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{t}\hlkwb{<-}\hlkwd{list}\hlstd{(}\hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{10}\hlstd{),} \hlkwc{nrow}\hlstd{=}\hlnum{2}\hlstd{,} \hlkwc{ncol}\hlstd{=}\hlnum{5}\hlstd{),} \hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{5}\hlstd{))} \hlcom{#Object 1 [[1]] is a matrix, the second object is a vector}
+\hlkwd{print}\hlstd{(t)}
+\end{alltt}
+\begin{verbatim}
+## [[1]]
+##      [,1] [,2] [,3] [,4] [,5]
+## [1,]    1    3    5    7    9
+## [2,]    2    4    6    8   10
+## 
+## [[2]]
+## [1] 1 2 3 4 5
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Data frames are matrices, that allow variables to come in numeric, factor, and character forms. Typically, all the statistical functions we will use operate on data frames, though this format is not always the most efficient.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{t}\hlkwb{<-}\hlkwd{as.data.frame}\hlstd{(t[[}\hlnum{1}\hlstd{]])}
+\hlcom{#We can label the columns}
+\hlkwd{names}\hlstd{(t)}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlstr{"This"}\hlstd{,} \hlstr{"Is"}\hlstd{,} \hlstr{"A"}\hlstd{,} \hlstr{"Pointless"}\hlstd{,} \hlstr{"Label"}\hlstd{)}
+\hlstd{t}
+\end{alltt}
+\begin{verbatim}
+##   This Is A Pointless Label
+## 1    1  3 5         7     9
+## 2    2  4 6         8    10
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+
+We can always describe an object
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{dim}\hlstd{(t)} \hlcom{# For a matrix or dataframe}
+\end{alltt}
+\begin{verbatim}
+## [1] 2 5
+\end{verbatim}
+\begin{alltt}
+\hlkwd{length}\hlstd{(t[,}\hlnum{2}\hlstd{])} \hlcom{#For a vector}
+\end{alltt}
+\begin{verbatim}
+## [1] 2
+\end{verbatim}
+\begin{alltt}
+\hlcom{##Listing elements of an object}
+\hlstd{t[,}\hlnum{1}\hlstd{]}
+\end{alltt}
+\begin{verbatim}
+## [1] 1 2
+\end{verbatim}
+\begin{alltt}
+\hlcom{#Manipulating elements of an object}
+\hlstd{t[,}\hlnum{1}\hlstd{]}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,}\hlnum{2}\hlstd{)}
+\hlcom{#please see http://cran.r-project.org/doc/manuals/R-intro.pdf regarding how functions are created. They're quite useful and easy to program}
+\hlcom{#Combining matrices. We may occasionally wish to combine rows or columns of a matrix}
+\hlstd{t}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{4}\hlstd{)}
+\hlstd{e}\hlkwb{<-}\hlkwd{c}\hlstd{(}\hlnum{5}\hlopt{:}\hlnum{8}\hlstd{)}
+\hlkwd{rbind}\hlstd{(t,e)}
+\end{alltt}
+\begin{verbatim}
+##   [,1] [,2] [,3] [,4]
+## t    1    2    3    4
+## e    5    6    7    8
+\end{verbatim}
+\begin{alltt}
+\hlkwd{cbind}\hlstd{(t,e)}
+\end{alltt}
+\begin{verbatim}
+##      t e
+## [1,] 1 5
+## [2,] 2 6
+## [3,] 3 7
+## [4,] 4 8
+\end{verbatim}
+\end{kframe}
+\end{knitrout}
+
+Our objects are stored in a workspace, which we can change by \texttt{setwd}
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{ls}\hlstd{()} \hlcom{#We've generate a whole bunch of objects, they are automatically saved in the workspace, and elements of that object may be accessed}
+\end{alltt}
+\begin{verbatim}
+##  [1] "a"             "a.vector.norm" "b"             "c"            
+##  [5] "conservatives" "d"             "e"             "liberals"     
+##  [9] "prod"          "t"
+\end{verbatim}
+\begin{alltt}
+\hlkwd{rm}\hlstd{(}\hlkwc{list}\hlstd{=}\hlkwd{ls}\hlstd{())} \hlcom{#And now they're gone. We could enter objects into the list, e.g,. rm(list=ls("x")). Now only x is removed from the workspace}
+\hlkwd{ls}\hlstd{()} \hlcom{#see}
+\end{alltt}
+\begin{verbatim}
+## character(0)
+\end{verbatim}
+\begin{alltt}
+\hlkwd{setwd}\hlstd{(}\hlstr{""}\hlstd{)}
+\end{alltt}
+
+
+{\ttfamily\noindent\bfseries\color{errorcolor}{\#\# Error in setwd("{}"{}): cannot change working directory}}\end{kframe}
+\end{knitrout}
+
+\section*{Data Management}
+
+As a general programming language, \texttt{R} can be used for a variety of things. Much of your training in our program will involved statistical modeling, and I think you'll find that \texttt{R} is a flexible tool to estimated a variety of statistical models. Somethingf that you likely will not encounter much in your coursework -- but which is incredibly important -- is ``data management.'' You'll likely find that there really aren't many instances where one can identify a research question, and then find a well-formatted, easy-to-follow dataset that lends itself to statistical analysis. Much of the research process involves locating, assembling, and cleaning data. Due to the massive size of many datasets, it's important to learn good practices regarding data assembly and management. There are a number of invaluable resources through our library, but I would strongly encourage you to check out the following:\url{http://r4ds.had.co.nz}, \texttt{R for Data Science}. This is a text written by Hadley Wickham. It's very intuitive, easy-to-follow and includes a variety of examples. 
+
+\end{document}
+
+
+
+
+# Cross-references {#cross}
+
+Cross-references make it easier for your readers to find and link to elements in your book.
+
+## Chapters and sub-chapters
+
+There are two steps to cross-reference any heading:
+
+1. Label the heading: `# Hello world {#nice-label}`. 
+    - Leave the label off if you like the automated heading generated based on your heading title: for example, `# Hello world` = `# Hello world {#hello-world}`.
+    - To label an un-numbered heading, use: `# Hello world {-#nice-label}` or `{# Hello world .unnumbered}`.
+
+1. Next, reference the labeled heading anywhere in the text using `\@ref(nice-label)`; for example, please see Chapter \@ref(cross). 
+    - If you prefer text as the link instead of a numbered reference use: [any text you want can go here](#cross).
+
+## Captioned figures and tables
+
+Figures and tables *with captions* can also be cross-referenced from elsewhere in your book using `\@ref(fig:chunk-label)` and `\@ref(tab:chunk-label)`, respectively.
+
+See Figure \@ref(fig:nice-fig).
+
+```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center', fig.alt='Plot with connected points showing that vapor pressure of mercury increases exponentially as temperature increases.'}
+par(mar = c(4, 4, .1, .1))
+plot(pressure, type = 'b', pch = 19)
+```
+
+Don't miss Table \@ref(tab:nice-tab).
+
+```{r nice-tab, tidy=FALSE}
+knitr::kable(
+  head(pressure, 10), caption = 'Here is a nice table!',
+  booktabs = TRUE
+)
+```

@@ -1,0 +1,29 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+import AvpLayout from "@/layouts/AvpLayout.astro";
+import Understanding from "@/modules/avp/understanding/UnderstandingPage.jsx";
+import { loadContent } from "@/modules/avp/shared/lib/content.js";
+
+const DIR = path.join(process.cwd(), "public", "data");
+const read = (p) => JSON.parse(fs.readFileSync(path.join(DIR, p), "utf8"));
+
+const { sections } = loadContent("understanding");
+const county = read("county/summary.json");
+const analysis = read("party/transition_analysis.json");
+const st = read("transitions/status/county/summary.json");
+const party = read("transitions/party/county/summary.json");
+const churn = read("transitions/churn/county/summary.json");
+---
+
+<AvpLayout title="Understanding the Voter File" module="understanding">
+  <Understanding
+    client:only="react"
+    sections={sections}
+    county={county}
+    analysis={analysis}
+    st={st}
+    party={party}
+    churn={churn}
+  />
+</AvpLayout>

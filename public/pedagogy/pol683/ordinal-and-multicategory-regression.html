@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 7 Ordinal and Multicategory Regression | A Course on Regression, Causal Inference, and Data Visualization</title>
+  <meta name="description" content="These notes accompany POL 683" />
+  <meta name="generator" content="bookdown 0.40 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 7 Ordinal and Multicategory Regression | A Course on Regression, Causal Inference, and Data Visualization" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="These notes accompany POL 683" />
+<meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 7 Ordinal and Multicategory Regression | A Course on Regression, Causal Inference, and Data Visualization" />
+  
+  <meta name="twitter:description" content="These notes accompany POL 683" />
+  
+
+<meta name="author" content="Christopher Weber" />
+
+
+<meta name="date" content="2024-12-02" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="an-introduction-to-causal-inference.html"/>
+<link rel="next" href="comments-on-model-fit-and-interpretation.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.10.4/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+<div id="cw-site-bar" style="position:sticky;top:0;z-index:99999;display:flex;gap:16px;align-items:center;justify-content:space-between;padding:8px 16px;background:#0a0a0a;color:#f5f5f4;font:600 13px/1.3 system-ui,sans-serif;border-bottom:1px solid rgba(255,255,255,.12)"><a href="/pedagogy/" style="color:#f5f5f4;text-decoration:none">← Teaching resources</a><a href="/" style="color:rgba(245,245,244,.7);text-decoration:none">christopher-weber.com</a></div>
+
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">POL 683</a></li>
+
+<li class="divider"></li>
+<li><a href="index.html#section" id="toc-section"></a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Preface</a></li>
+</ul></li>
+<li class="chapter" data-level="1" data-path="syllabus.html"><a href="syllabus.html"><i class="fa fa-check"></i><b>1</b> Syllabus</a>
+<ul>
+<li class="chapter" data-level="" data-path="syllabus.html"><a href="syllabus.html#pol-683-advanced-regression-analysis"><i class="fa fa-check"></i>POL 683: Advanced Regression Analysis</a>
+<ul>
+<li class="chapter" data-level="" data-path="syllabus.html"><a href="syllabus.html#fall-2024"><i class="fa fa-check"></i>Fall 2024</a></li>
+</ul></li>
+<li class="chapter" data-level="1.1" data-path="syllabus.html"><a href="syllabus.html#course-description"><i class="fa fa-check"></i><b>1.1</b> Course Description</a></li>
+<li class="chapter" data-level="1.2" data-path="syllabus.html"><a href="syllabus.html#learning-objectives"><i class="fa fa-check"></i><b>1.2</b> Learning Objectives</a></li>
+<li class="chapter" data-level="1.3" data-path="syllabus.html"><a href="syllabus.html#grades"><i class="fa fa-check"></i><b>1.3</b> Grades</a></li>
+<li class="chapter" data-level="1.4" data-path="syllabus.html"><a href="syllabus.html#course-outline"><i class="fa fa-check"></i><b>1.4</b> Course Outline</a>
+<ul>
+<li class="chapter" data-level="1.4.1" data-path="syllabus.html"><a href="syllabus.html#building-a-statistical-model"><i class="fa fa-check"></i><b>1.4.1</b> Building a Statistical Model</a></li>
+<li class="chapter" data-level="1.4.2" data-path="syllabus.html"><a href="syllabus.html#estimation-and-model-fit"><i class="fa fa-check"></i><b>1.4.2</b> Estimation and Model Fit</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html"><i class="fa fa-check"></i><b>2</b> An Introduction to the Course</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#a-brief-review-dags-and-statistical-inference"><i class="fa fa-check"></i><b>2.1</b> A Brief Review, DAGs, and Statistical Inference</a></li>
+<li class="chapter" data-level="2.2" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#a-review"><i class="fa fa-check"></i><b>2.2</b> A Review</a>
+<ul>
+<li class="chapter" data-level="" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#an-introduction-to-the-directed-acyclic-graph-dag"><i class="fa fa-check"></i>An Introduction to the Directed Acyclic Graph (DAG)</a></li>
+<li class="chapter" data-level="2.2.1" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#a-simple-dag"><i class="fa fa-check"></i><b>2.2.1</b> A Simple DAG</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#an-example-smoking-and-cancer"><i class="fa fa-check"></i><b>2.3</b> An Example: Smoking and Cancer</a></li>
+<li class="chapter" data-level="2.4" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#the-logic-of-inference"><i class="fa fa-check"></i><b>2.4</b> The Logic of Inference</a></li>
+<li class="chapter" data-level="2.5" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#conditional-probabilities-continued-bayes-rule"><i class="fa fa-check"></i><b>2.5</b> Conditional Probabilities, Continued: Bayes’ Rule</a></li>
+<li class="chapter" data-level="2.6" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#two-traditions"><i class="fa fa-check"></i><b>2.6</b> Two Traditions</a></li>
+<li class="chapter" data-level="2.7" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#bernoulli-trials"><i class="fa fa-check"></i><b>2.7</b> Bernoulli Trials</a></li>
+<li class="chapter" data-level="2.8" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#when-theta-is-unknown"><i class="fa fa-check"></i><b>2.8</b> When <span class="math inline">\(\theta\)</span> is unknown</a></li>
+<li class="chapter" data-level="2.9" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#simulation-and-the-likelihood-function"><i class="fa fa-check"></i><b>2.9</b> Simulation and the Likelihood Function</a></li>
+<li class="chapter" data-level="2.10" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#appendix"><i class="fa fa-check"></i><b>2.10</b> Appendix</a>
+<ul>
+<li class="chapter" data-level="2.10.1" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#a-quick-review"><i class="fa fa-check"></i><b>2.10.1</b> A Quick Review</a></li>
+<li class="chapter" data-level="2.10.2" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#properties-of-estimators"><i class="fa fa-check"></i><b>2.10.2</b> Properties of Estimators</a></li>
+<li class="chapter" data-level="2.10.3" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#finite-sample-properties"><i class="fa fa-check"></i><b>2.10.3</b> Finite Sample Properties</a></li>
+<li class="chapter" data-level="2.10.4" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#asymptotic-properties"><i class="fa fa-check"></i><b>2.10.4</b> Asymptotic Properties</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="matrix-algebra.html"><a href="matrix-algebra.html"><i class="fa fa-check"></i><b>3</b> Matrix Algebra</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="matrix-algebra.html"><a href="matrix-algebra.html#introduction"><i class="fa fa-check"></i><b>3.1</b> Introduction</a></li>
+<li class="chapter" data-level="3.2" data-path="matrix-algebra.html"><a href="matrix-algebra.html#vectors"><i class="fa fa-check"></i><b>3.2</b> Vectors</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="matrix-algebra.html"><a href="matrix-algebra.html#similarity"><i class="fa fa-check"></i><b>3.2.1</b> Similarity</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="matrix-algebra.html"><a href="matrix-algebra.html#the-cross-product"><i class="fa fa-check"></i><b>3.3</b> The Cross Product</a></li>
+<li class="chapter" data-level="3.4" data-path="matrix-algebra.html"><a href="matrix-algebra.html#the-outer-product"><i class="fa fa-check"></i><b>3.4</b> The Outer Product</a></li>
+<li class="chapter" data-level="3.5" data-path="matrix-algebra.html"><a href="matrix-algebra.html#matrices"><i class="fa fa-check"></i><b>3.5</b> Matrices</a>
+<ul>
+<li class="chapter" data-level="3.5.1" data-path="matrix-algebra.html"><a href="matrix-algebra.html#gauss-jordan-elimination"><i class="fa fa-check"></i><b>3.5.1</b> Gauss Jordan Elimination</a></li>
+</ul></li>
+<li class="chapter" data-level="3.6" data-path="matrix-algebra.html"><a href="matrix-algebra.html#projections"><i class="fa fa-check"></i><b>3.6</b> Projections</a></li>
+<li class="chapter" data-level="3.7" data-path="matrix-algebra.html"><a href="matrix-algebra.html#summarizing-matrices"><i class="fa fa-check"></i><b>3.7</b> Summarizing Matrices</a>
+<ul>
+<li class="chapter" data-level="3.7.1" data-path="matrix-algebra.html"><a href="matrix-algebra.html#determinants"><i class="fa fa-check"></i><b>3.7.1</b> Determinants</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html"><i class="fa fa-check"></i><b>4</b> Binary Dependent Variables</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#public-policy"><i class="fa fa-check"></i><b>4.1</b> Public Policy</a>
+<ul>
+<li class="chapter" data-level="4.1.1" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#the-log-likelihood"><i class="fa fa-check"></i><b>4.1.1</b> The Log Likelihood</a></li>
+<li class="chapter" data-level="4.1.2" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#the-prior"><i class="fa fa-check"></i><b>4.1.2</b> The Prior</a></li>
+</ul></li>
+<li class="chapter" data-level="4.2" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#maximum-likelihood"><i class="fa fa-check"></i><b>4.2</b> Maximum Likelihood</a></li>
+<li class="chapter" data-level="4.3" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#the-linear-probability-model"><i class="fa fa-check"></i><b>4.3</b> The Linear Probability Model</a></li>
+<li class="chapter" data-level="4.4" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#binary-regression-and-the-latent-variable-formulation"><i class="fa fa-check"></i><b>4.4</b> Binary Regression and the Latent Variable Formulation</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#scale-indeterminacy"><i class="fa fa-check"></i><b>4.4.1</b> Scale Indeterminacy</a></li>
+<li class="chapter" data-level="4.4.2" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#the-nonlinear-regression"><i class="fa fa-check"></i><b>4.4.2</b> The Nonlinear Regression</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#estimating-the-binary-regression-model"><i class="fa fa-check"></i><b>4.5</b> Estimating the Binary Regression Model</a></li>
+<li class="chapter" data-level="4.6" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#analytical-methods"><i class="fa fa-check"></i><b>4.6</b> Analytical Methods</a></li>
+<li class="chapter" data-level="4.7" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#numerical-methods"><i class="fa fa-check"></i><b>4.7</b> Numerical Methods</a>
+<ul>
+<li class="chapter" data-level="4.7.1" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#grid-approximation"><i class="fa fa-check"></i><b>4.7.1</b> Grid Approximation</a></li>
+<li class="chapter" data-level="4.7.2" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#additional-methods"><i class="fa fa-check"></i><b>4.7.2</b> Additional Methods</a></li>
+<li class="chapter" data-level="4.7.3" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#newton-raphson-approximation"><i class="fa fa-check"></i><b>4.7.3</b> Newton-Raphson Approximation</a></li>
+<li class="chapter" data-level="4.7.4" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#example"><i class="fa fa-check"></i><b>4.7.4</b> Example</a></li>
+<li class="chapter" data-level="4.7.5" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#interpretation"><i class="fa fa-check"></i><b>4.7.5</b> Interpretation</a></li>
+</ul></li>
+<li class="chapter" data-level="4.8" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#several-approaches-to-parameter-interpretation"><i class="fa fa-check"></i><b>4.8</b> Several Approaches to Parameter Interpretation</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html"><i class="fa fa-check"></i><b>5</b> Simulation and Statistical Models</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#prediction-uncertainty"><i class="fa fa-check"></i><b>5.1</b> Prediction Uncertainty</a></li>
+<li class="chapter" data-level="5.2" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#marginal-effects"><i class="fa fa-check"></i><b>5.2</b> Marginal Effects</a></li>
+<li class="chapter" data-level="5.3" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#the-normal-distribution"><i class="fa fa-check"></i><b>5.3</b> The Normal Distribution</a></li>
+<li class="chapter" data-level="5.4" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#the-posterior-distribution"><i class="fa fa-check"></i><b>5.4</b> The Posterior Distribution</a></li>
+<li class="chapter" data-level="5.5" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#building-a-model"><i class="fa fa-check"></i><b>5.5</b> Building a Model</a></li>
+<li class="chapter" data-level="5.6" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#steps-to-building-a-model"><i class="fa fa-check"></i><b>5.6</b> Steps to Building a Model</a></li>
+<li class="chapter" data-level="5.7" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#the-dag"><i class="fa fa-check"></i><b>5.7</b> The DAG</a>
+<ul>
+<li class="chapter" data-level="5.7.1" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#conservatism-and-age"><i class="fa fa-check"></i><b>5.7.1</b> Conservatism and Age</a></li>
+</ul></li>
+<li class="chapter" data-level="5.8" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#the-confound"><i class="fa fa-check"></i><b>5.8</b> The Confound</a>
+<ul>
+<li class="chapter" data-level="5.8.1" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#the-fork"><i class="fa fa-check"></i><b>5.8.1</b> The Fork</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html"><i class="fa fa-check"></i><b>6</b> An Introduction to Causal Inference</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#causal-estimands-and-the-do-operator"><i class="fa fa-check"></i><b>6.1</b> Causal Estimands and the Do Operator</a></li>
+<li class="chapter" data-level="6.2" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#mediation-or-the-pipe"><i class="fa fa-check"></i><b>6.2</b> Mediation, or the Pipe</a></li>
+<li class="chapter" data-level="6.3" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#why-conditioning-on-post-treatment-variables-is-problematic"><i class="fa fa-check"></i><b>6.3</b> Why Conditioning on Post-Treatment Variables is Problematic</a>
+<ul>
+<li class="chapter" data-level="6.3.1" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#the-collider"><i class="fa fa-check"></i><b>6.3.1</b> The Collider</a></li>
+</ul></li>
+<li class="chapter" data-level="6.4" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#what-is-the-effect-of-age"><i class="fa fa-check"></i><b>6.4</b> What is the Effect of Age?</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#what-is-the-effect-of-knowledge-or-education"><i class="fa fa-check"></i><b>6.4.1</b> What is the effect of knowledge (or education)</a></li>
+<li class="chapter" data-level="6.4.2" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#return-of-the-do-operator"><i class="fa fa-check"></i><b>6.4.2</b> Return of the Do Operator</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="ordinal-and-multicategory-regression.html"><a href="ordinal-and-multicategory-regression.html"><i class="fa fa-check"></i><b>7</b> Ordinal and Multicategory Regression</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="ordinal-and-multicategory-regression.html"><a href="ordinal-and-multicategory-regression.html#ordinal-regression"><i class="fa fa-check"></i><b>7.1</b> Ordinal Regression</a></li>
+<li class="chapter" data-level="7.2" data-path="ordinal-and-multicategory-regression.html"><a href="ordinal-and-multicategory-regression.html#intuition"><i class="fa fa-check"></i><b>7.2</b> Intuition</a></li>
+<li class="chapter" data-level="7.3" data-path="ordinal-and-multicategory-regression.html"><a href="ordinal-and-multicategory-regression.html#the-latent-variable-approach"><i class="fa fa-check"></i><b>7.3</b> The Latent Variable Approach</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="ordinal-and-multicategory-regression.html"><a href="ordinal-and-multicategory-regression.html#the-likelihood"><i class="fa fa-check"></i><b>7.3.1</b> The Likelihood</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="ordinal-and-multicategory-regression.html"><a href="ordinal-and-multicategory-regression.html#nominal-models"><i class="fa fa-check"></i><b>7.4</b> Nominal Models</a></li>
+<li class="chapter" data-level="7.5" data-path="ordinal-and-multicategory-regression.html"><a href="ordinal-and-multicategory-regression.html#intuition-1"><i class="fa fa-check"></i><b>7.5</b> Intuition</a></li>
+<li class="chapter" data-level="7.6" data-path="ordinal-and-multicategory-regression.html"><a href="ordinal-and-multicategory-regression.html#the-likelihood-1"><i class="fa fa-check"></i><b>7.6</b> The Likelihood</a></li>
+<li class="chapter" data-level="7.7" data-path="ordinal-and-multicategory-regression.html"><a href="ordinal-and-multicategory-regression.html#interpretation-1"><i class="fa fa-check"></i><b>7.7</b> Interpretation</a></li>
+<li class="chapter" data-level="7.8" data-path="ordinal-and-multicategory-regression.html"><a href="ordinal-and-multicategory-regression.html#the-conditional-logit"><i class="fa fa-check"></i><b>7.8</b> The Conditional Logit</a></li>
+<li class="chapter" data-level="7.9" data-path="ordinal-and-multicategory-regression.html"><a href="ordinal-and-multicategory-regression.html#independence-of-irrelevant-alternatives"><i class="fa fa-check"></i><b>7.9</b> Independence of Irrelevant Alternatives</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="comments-on-model-fit-and-interpretation.html"><a href="comments-on-model-fit-and-interpretation.html"><i class="fa fa-check"></i><b>8</b> Comments On Model Fit and Interpretation</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="comments-on-model-fit-and-interpretation.html"><a href="comments-on-model-fit-and-interpretation.html#interpretation-2"><i class="fa fa-check"></i><b>8.1</b> Interpretation</a></li>
+<li class="chapter" data-level="8.2" data-path="comments-on-model-fit-and-interpretation.html"><a href="comments-on-model-fit-and-interpretation.html#frequentism-and-model-fit"><i class="fa fa-check"></i><b>8.2</b> Frequentism and Model Fit</a>
+<ul>
+<li class="chapter" data-level="8.2.1" data-path="comments-on-model-fit-and-interpretation.html"><a href="comments-on-model-fit-and-interpretation.html#counts-correctly-predicted"><i class="fa fa-check"></i><b>8.2.1</b> Counts correctly predicted</a></li>
+</ul></li>
+<li class="chapter" data-level="8.3" data-path="comments-on-model-fit-and-interpretation.html"><a href="comments-on-model-fit-and-interpretation.html#the-likelihood-ratio-test"><i class="fa fa-check"></i><b>8.3</b> The Likelihood Ratio Test</a></li>
+<li class="chapter" data-level="8.4" data-path="comments-on-model-fit-and-interpretation.html"><a href="comments-on-model-fit-and-interpretation.html#the-wald-test"><i class="fa fa-check"></i><b>8.4</b> The Wald Test</a></li>
+<li class="chapter" data-level="8.5" data-path="comments-on-model-fit-and-interpretation.html"><a href="comments-on-model-fit-and-interpretation.html#warning"><i class="fa fa-check"></i><b>8.5</b> Warning</a>
+<ul>
+<li class="chapter" data-level="8.5.1" data-path="comments-on-model-fit-and-interpretation.html"><a href="comments-on-model-fit-and-interpretation.html#single-point-estimates-of-fit"><i class="fa fa-check"></i><b>8.5.1</b> Single Point Estimates of Fit</a></li>
+</ul></li>
+<li class="chapter" data-level="8.6" data-path="comments-on-model-fit-and-interpretation.html"><a href="comments-on-model-fit-and-interpretation.html#information-measures"><i class="fa fa-check"></i><b>8.6</b> Information Measures</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="count-data.html"><a href="count-data.html"><i class="fa fa-check"></i><b>9</b> Count Data</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="count-data.html"><a href="count-data.html#introduction-1"><i class="fa fa-check"></i><b>9.1</b> Introduction</a></li>
+<li class="chapter" data-level="9.2" data-path="count-data.html"><a href="count-data.html#the-prm"><i class="fa fa-check"></i><b>9.2</b> The PRM</a>
+<ul>
+<li class="chapter" data-level="9.2.1" data-path="count-data.html"><a href="count-data.html#the-prm-likelihood"><i class="fa fa-check"></i><b>9.2.1</b> The PRM Likelihood</a></li>
+<li class="chapter" data-level="9.2.2" data-path="count-data.html"><a href="count-data.html#the-relationship-between-counts-and-binomial-draws"><i class="fa fa-check"></i><b>9.2.2</b> The Relationship Between Counts and Binomial Draws</a></li>
+<li class="chapter" data-level="9.2.3" data-path="count-data.html"><a href="count-data.html#the-generalized-linear-model"><i class="fa fa-check"></i><b>9.2.3</b> The Generalized Linear Model</a></li>
+<li class="chapter" data-level="9.2.4" data-path="count-data.html"><a href="count-data.html#a-useful-framework"><i class="fa fa-check"></i><b>9.2.4</b> A Useful Framework</a></li>
+<li class="chapter" data-level="9.2.5" data-path="count-data.html"><a href="count-data.html#expanding-further"><i class="fa fa-check"></i><b>9.2.5</b> Expanding Further</a></li>
+</ul></li>
+<li class="chapter" data-level="9.3" data-path="count-data.html"><a href="count-data.html#capturing-dispersion"><i class="fa fa-check"></i><b>9.3</b> Capturing Dispersion</a></li>
+<li class="chapter" data-level="9.4" data-path="count-data.html"><a href="count-data.html#truncated-counts"><i class="fa fa-check"></i><b>9.4</b> Truncated Counts</a></li>
+<li class="chapter" data-level="9.5" data-path="count-data.html"><a href="count-data.html#zero-inflation"><i class="fa fa-check"></i><b>9.5</b> Zero Inflation</a></li>
+<li class="chapter" data-level="9.6" data-path="count-data.html"><a href="count-data.html#hurdle-models"><i class="fa fa-check"></i><b>9.6</b> Hurdle Models</a></li>
+<li class="chapter" data-level="9.7" data-path="count-data.html"><a href="count-data.html#censoring-and-truncation"><i class="fa fa-check"></i><b>9.7</b> Censoring and Truncation</a></li>
+<li class="chapter" data-level="9.8" data-path="count-data.html"><a href="count-data.html#ignorability"><i class="fa fa-check"></i><b>9.8</b> Ignorability</a></li>
+<li class="chapter" data-level="9.9" data-path="count-data.html"><a href="count-data.html#distributions"><i class="fa fa-check"></i><b>9.9</b> Distributions</a></li>
+<li class="chapter" data-level="9.10" data-path="count-data.html"><a href="count-data.html#censored-regression"><i class="fa fa-check"></i><b>9.10</b> Censored Regression</a></li>
+<li class="chapter" data-level="9.11" data-path="count-data.html"><a href="count-data.html#duration-models"><i class="fa fa-check"></i><b>9.11</b> Duration Models</a></li>
+<li class="chapter" data-level="9.12" data-path="count-data.html"><a href="count-data.html#notes-on-terminology"><i class="fa fa-check"></i><b>9.12</b> Notes on Terminology</a></li>
+<li class="chapter" data-level="9.13" data-path="count-data.html"><a href="count-data.html#the-exponential-model"><i class="fa fa-check"></i><b>9.13</b> The Exponential Model</a></li>
+<li class="chapter" data-level="9.14" data-path="count-data.html"><a href="count-data.html#weibull-model"><i class="fa fa-check"></i><b>9.14</b> Weibull Model</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="building-examples.html"><a href="building-examples.html"><i class="fa fa-check"></i><b>10</b> Building Examples</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="building-examples.html"><a href="building-examples.html#the-poisson"><i class="fa fa-check"></i><b>10.1</b> The Poisson</a></li>
+<li class="chapter" data-level="10.2" data-path="building-examples.html"><a href="building-examples.html#the-data"><i class="fa fa-check"></i><b>10.2</b> The Data</a></li>
+<li class="chapter" data-level="10.3" data-path="building-examples.html"><a href="building-examples.html#poisson-quasi-poisson-zero-inflated"><i class="fa fa-check"></i><b>10.3</b> Poisson, Quasi-Poisson, Zero Inflated</a>
+<ul>
+<li class="chapter" data-level="10.3.1" data-path="building-examples.html"><a href="building-examples.html#graduate-productivity-in-biochemistry"><i class="fa fa-check"></i><b>10.3.1</b> Graduate Productivity in Biochemistry</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="panel-data.html"><a href="panel-data.html"><i class="fa fa-check"></i><b>11</b> Panel Data</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="panel-data.html"><a href="panel-data.html#time-series-and-panel-data"><i class="fa fa-check"></i><b>11.1</b> Time Series and Panel Data</a>
+<ul>
+<li class="chapter" data-level="11.1.1" data-path="panel-data.html"><a href="panel-data.html#building-the-random-effects-model"><i class="fa fa-check"></i><b>11.1.1</b> Building the Random Effects Model</a></li>
+<li class="chapter" data-level="11.1.2" data-path="panel-data.html"><a href="panel-data.html#the-random-coefficients-model"><i class="fa fa-check"></i><b>11.1.2</b> The Random Coefficients Model</a></li>
+</ul></li>
+<li class="chapter" data-level="11.2" data-path="panel-data.html"><a href="panel-data.html#practical-considerations"><i class="fa fa-check"></i><b>11.2</b> Practical Considerations</a>
+<ul>
+<li class="chapter" data-level="11.2.1" data-path="panel-data.html"><a href="panel-data.html#a-continuum"><i class="fa fa-check"></i><b>11.2.1</b> A Continuum</a></li>
+</ul></li>
+<li class="chapter" data-level="11.3" data-path="panel-data.html"><a href="panel-data.html#some-practical-advice"><i class="fa fa-check"></i><b>11.3</b> Some Practical Advice</a></li>
+<li class="chapter" data-level="11.4" data-path="panel-data.html"><a href="panel-data.html#estimation-using-the-textbflme4-package"><i class="fa fa-check"></i><b>11.4</b> Estimation Using the <span class="math inline">\(\textbf{lme4}\)</span> package</a></li>
+<li class="chapter" data-level="11.5" data-path="panel-data.html"><a href="panel-data.html#advanced-multilevel-models"><i class="fa fa-check"></i><b>11.5</b> Advanced Multilevel Models</a></li>
+<li class="chapter" data-level="11.6" data-path="panel-data.html"><a href="panel-data.html#summary"><i class="fa fa-check"></i><b>11.6</b> Summary</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="estimation.html"><a href="estimation.html"><i class="fa fa-check"></i><b>12</b> Estimation</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="estimation.html"><a href="estimation.html#background"><i class="fa fa-check"></i><b>12.1</b> Background</a></li>
+<li class="chapter" data-level="12.2" data-path="estimation.html"><a href="estimation.html#estimate-the-model-in-textttbrms"><i class="fa fa-check"></i><b>12.2</b> Estimate the Model in <span class="math inline">\(\texttt{brms}\)</span></a></li>
+<li class="chapter" data-level="12.3" data-path="estimation.html"><a href="estimation.html#predictions"><i class="fa fa-check"></i><b>12.3</b> Predictions</a></li>
+<li class="chapter" data-level="12.4" data-path="estimation.html"><a href="estimation.html#a-multinomial-model"><i class="fa fa-check"></i><b>12.4</b> A Multinomial Model</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">A Course on Regression, Causal Inference, and Data Visualization</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="ordinal-and-multicategory-regression" class="section level1 hasAnchor" number="7">
+<h1><span class="header-section-number">Chapter 7</span> Ordinal and Multicategory Regression<a href="ordinal-and-multicategory-regression.html#ordinal-and-multicategory-regression" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="ordinal-regression" class="section level2 hasAnchor" number="7.1">
+<h2><span class="header-section-number">7.1</span> Ordinal Regression<a href="ordinal-and-multicategory-regression.html#ordinal-regression" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Let’s transition now to the scenario in which we have an ordinal dependent variable. Unlike a continuous dependent variable, the distances between categories may be unequal. Although a question such as “How much do you agree or disagree with the following item’’ scored on a five point scale can be logically ordered, the intervals between categories are not equal. Can we assume that the numerical distance between strongly disagree to disagree is equal to disagree to slightly disagree?</p>
+<p>If we have ordered, non-interval level data, we again will violate the assumptions of the classical linear regression model. In what ways:</p>
+<ol style="list-style-type: decimal">
+<li><p>We have non-constant variance.</p></li>
+<li><p>Second, predictions may be non-sensical (i.e., we predict things outside of the observed bounds).</p></li>
+<li><p>If the category distances are theoretically quite different, the OLS model and the more appropriate ordinal probit or logit will diverge – ordered regression models.</p></li>
+</ol>
+<p>That said, there may be circumstances under which the models agree (though I would default to logit or probit). For instance, if the category distances are in fact equal then OLS and the ordinal models will agree. Second, if there are many categories, not much sparsity, and a relatively normal looking distribution of responses, the OLS and ordered models will agree.</p>
+<p>However, at this point there is little reason not to use an ordinal model. I’ll present many of the key concepts using the logisitic model, though this is just a matter of personal prefernece. the ordered probit model is nearly equivalent, just as it was in the binary case. Again, it’s just based on the distribution of the errors – normal or logit. The error PDFs and CDFs are again the same, and follow the formula from previous chapters. Using ordered logit or probit is often a matter of personal preference; theoretically, they only involve assumptions about the errors. I find the logit version marginally easier to interpret, as we can think of the latent variable in terms of <strong>odds ratios.</strong> For this reason, the ordered logit model is sometimes called the “proportional odds regression” because of its odds ratio interpretation.</p>
+</div>
+<div id="intuition" class="section level2 hasAnchor" number="7.2">
+<h2><span class="header-section-number">7.2</span> Intuition<a href="ordinal-and-multicategory-regression.html#intuition" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>We should only use an ordered parameterization when we have ordered data. Some data can be ordered, even if they are theoretically multidimensional. An example is party identification in the United States. This is often placed on a continuum, where Independents reside in the middle. Why is it justified to treat PID as ordinal?</p>
+<p>Occasionally, ordering is less justifiable. Here, an example is ideology. Many scholars have shown that it’s multidimensional, consisting of a social and economic dimension. Thus, someone may identify as conservative, while justifying their belief in a way that is unique relative to another conservative.</p>
+<p>Sometimes ordering is theoretically justifiable, but in practice it makes little sense. Long (1997) uses color as an example. Yes, we can order colors on a spectrum. But, if we had data on the color of cars purchased from a local dealership, it would be silly to order cars in this way. In short, the order should be theoretically and practically justifiable. If it is not, do not use an ordinal regression model.</p>
+</div>
+<div id="the-latent-variable-approach" class="section level2 hasAnchor" number="7.3">
+<h2><span class="header-section-number">7.3</span> The Latent Variable Approach<a href="ordinal-and-multicategory-regression.html#the-latent-variable-approach" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Much of this is simply a summarization of Long (1997), Chapter 5. The formula I present below is also similar, though I simply describe the model in a slightly different manner.</p>
+<p>Assume <span class="math inline">\(y_{latent}\)</span> is an unobserved variable which is mapped onto the probability of <span class="math inline">\(y_{obs} \in (1,2,3,...k)\)</span>. Instead of the variable being 0/1, it is not more than two categories that are ordered. For exposition, let’s briefly just assume we know <span class="math inline">\(y_{latent}\)</span> and want to map that to observing a particular category.</p>
+<p>Using the same logic from the binary regression model, assume that we observe the category based on its orientation to a series of cutpoints, where</p>
+<p><span class="math display">\[y_i=m: \tau_{k-1}\leq y_{latent} &lt; \tau_{k}\]</span></p>
+<p>The <span class="math inline">\(\tau\)</span> parameters represent a series of thresholds that map the latent variable onto the categorical variable. Again, it’s a (Long 1997, 123)</p>
+<p><span class="math display">\[y_{obs} =
+  \begin{array}{lr}
+    A, \tau_0=\infty \leq y_{latent}&lt;\tau_1\\
+    B, \tau_1\leq y_{latent}&lt;\tau_2\\
+    C, \tau_2\leq y_{latent}&lt;\tau_3\\
+    D, \tau_3\leq y_{latent}&lt;\tau_4\\
+    E, \tau_4\leq y_{latent}&lt;\tau_5=\infty
+  \end{array}
+\]</span></p>
+<p>Setting aside the <strong>structural model</strong> we have projected <span class="math inline">\(y_{latent}\)</span> onto <span class="math inline">\(y_{obs}\)</span> through a series of cutpoints. The <strong>structural model</strong> is</p>
+<p><span class="math display">\[y_{latent}=\beta_0 + \beta_1x_i +...\sum^{J}_{j =1} \beta_j x_{ij}+e_i\]</span></p>
+<p><span class="math display">\[y=X\beta+e\]</span></p>
+<p>Where each row vector of X is a 1 (for the intercept) and any <span class="math inline">\(j+1\)</span> predictors. So, again, though we do not observe<span class="math inline">\(y_{latent}\)</span>, we assume it is mapped onto what we do observe – a series of ordered categories – depending on a series of cutpoints. Then,</p>
+<p>So what we’re doing is defining <span class="math inline">\(K-1\)</span> cutpoints, the slicing up the latent distribution into discrete categories.</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y_{i}=1|X_i) &amp; = &amp; pr(\tau_0 \leq y_{i,latent}&lt;\tau_1)|X_i) \\
+             &amp; = &amp;  pr(\tau_0 \leq X_i b+e_i&lt;\tau_1)|X_i) \\
+             &amp; = &amp;  pr(\tau_0 - X_ib \leq e_i&lt;\tau_1-X_ib)|X_i) \\
+             &amp; = &amp;  pr(\tau_1-X_ib)|X_i)-pr(\tau_0 - X_ib|X_i) \\
+             &amp; = &amp;  F(\tau_1-X_ib)-F(\tau_0 - X_ib) \\
+\end{eqnarray*}\]</span></p>
+<p>If F denotes the CDF, then for the ordered probit:</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y_{i}=k|X_i) &amp; = &amp;\Phi(\tau_1-\alpha-\beta X) \\
+             &amp; = &amp;  \Phi(\tau_2-\alpha-\beta X)-\Phi(\tau_1-\alpha-\beta X) \\
+             &amp; = &amp;  \Phi(\tau_3-\alpha-\beta X)-\Phi(\tau_2-\alpha-\beta X)\\
+             &amp; = &amp;  1-\Phi(\tau_4-\alpha-\beta X)\\
+\end{eqnarray*}\]</span> The last row is simplified because the probability of the CDF evaluated from <span class="math inline">\(-\infty\)</span> to <span class="math inline">\(\infty\)</span> is 1, so the first term becomes 1. Any CDF is plausible, such as the logit, in which case we have,</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y_{i}=k|X_i) &amp; = &amp;Logit(\tau_1-\alpha-\beta X) \\
+                &amp; = &amp;  Logit(\tau_2-\alpha-\beta X)-Logit(\tau_1-\alpha-\beta X) \\
+                &amp; = &amp;  Logit(\tau_3-\alpha-\beta X)-Logit(\tau_2-\alpha-\beta X)\\
+             &amp; = &amp;  1-Logit(\tau_4-\alpha-\beta X)\\
+\end{eqnarray*}\]</span></p>
+<p>It’s customary to use <span class="math inline">\(F\)</span> generically to mean the CDF; and <span class="math inline">\(f\)</span> to denote the PDF. In practice, for the kind of models we’ll discuss, substitute <span class="math inline">\(F\)</span> and <span class="math inline">\(f\)</span> for the normal or logit densities.</p>
+<p>Graphically, we might think of the model as an effect of the independent variable on the latent variable and the latent variable mapped onto the observed variable through a series of cutpoints. Of course, in the graphical model we need to apply constraints to the error variance and we can only estimate <span class="math inline">\(k-1\)</span> thresholds and an intercept or <span class="math inline">\(k\)</span> thresholds and no intercept term.</p>
+<div id="the-likelihood" class="section level3 hasAnchor" number="7.3.1">
+<h3><span class="header-section-number">7.3.1</span> The Likelihood<a href="ordinal-and-multicategory-regression.html#the-likelihood" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Recall, that the probability of being in the <span class="math inline">\(k\)</span>th category for the <span class="math inline">\(i\)</span>th subject is,</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y_{i}=k|X_i) &amp; = &amp; F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+\end{eqnarray*}\]</span></p>
+<p>Thus, for each subject we need to calculate the joint parameter space. Things are a little different now, becauae we have a series of cutpoings, and we can theoretically predict a probability for each category for each subject. So, we need to calculate the joint probability for category membership, for each subject. This is</p>
+<p><span class="math display">\[pr(y_{i}=1|X_i)\times pr(y_{i}=2|X_i) \times pr(y_{i}=3|X_i) \times....pr(y_{i}=K|X_i)\]</span>.</p>
+<p>This is just the joint probability for category membership, for each subject, so</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y_{i}|X_i) &amp; = &amp; \prod_{k=1}^K F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+\end{eqnarray*}\]</span></p>
+<p>This only refers to the probability space for a single subject. Since the likelihood is <span class="math inline">\(\prod_{i=1}^N p_i\)</span>, we need to calculate the joint probability for each subject, which is,</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y|X) &amp; = &amp; \prod_{i=1}^N \prod_{k=1}^K F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+L(\beta \tau | y, X)&amp; = &amp; \prod_{i=1}^N \prod_{k=1}^K F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+\end{eqnarray*}\]</span></p>
+<p>Once again, it’s far easier to calculate the probabilities by taking the log of the likelihood.</p>
+<p><span class="math display">\[\begin{eqnarray*}
+Loglik(\beta \tau | y, X)&amp; = &amp; \sum_{i=1}^N \sum_{k=1}^K log[F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta)] \\
+\end{eqnarray*}\]</span></p>
+<p>It’s useful to pause for a moment and consider how this really is just an extension of the binary logit model. We have a series of cutpoints that map the latent variable onto the observed variable. The latent variable is also function of a set of independent variables. And just like the binary logit, we can think about things in stages <span class="math inline">\(x \rightarrow y_{latent} \rightarrow y_{obs}\)</span>. The only thing that is different is that instead of a single cutpoint – at 0 – we have a series of cutpoints.</p>
+<p>Notice now that each <span class="math inline">\(\tau\)</span> represents the likelihood of being in all categories through <span class="math inline">\(k\)</span>. Thus, <span class="math inline">\(\tau_1\)</span> represents the likelihood of category 1,<span class="math inline">\(\tau_2\)</span> represents categories 1 and 2, and so forth. They represent the cumulative likelihood of each category membership. They are cumulative logits (or probits). This is why we the differences then allow us to calculate the likelihood of particular category membership.</p>
+<p>Consider the ordered logit,</p>
+<p><span class="math display">\[log{{{pr(y\leq k|x)}\over{pr(y &gt; k |x)}}}=log{{{pr(y\leq k|x)}\over{pr(y &gt; k |x)}}}=\tau_k- X \beta\]</span></p>
+<p>This is important for intepretation.</p>
+<p><span class="math display">\[{{{pr(y\leq k|x)}\over{pr(y &gt; k |x)}}}=exp(\tau_k- X \beta)\]</span></p>
+<p>Which accompanies the interpretation of the odds as the <span class="math inline">\(pr(y\leq k|x)\)</span> to <span class="math inline">\(pr(y &gt; k|x)\)</span>. Interpreting the output in terms of the exponentiated log odds can make a lot of sense, but it is dependent upon the nature of your variable.</p>
+<p>For instance, say we are predicting the log odds from 1 through the <span class="math inline">\(k\)</span>th category membership, relative to all higher categories. Our dependent variable coded Strongly Agree, Agree, Disagree, and Strongly Disagree. If we use the linear prediction and the first threshold, that represents the log odds of being in the “Strongly Agree” category, relative to all other categories. If we use the linear prediction and the second threshold, that represents the log odds of being in the “Strongly Agree,” and “Disagree” category, relative to the “Disagree” and “Strongly Disagree” categories.</p>
+<p>If we estimate a simple model. Another strong assumption is lurking in this model, is that is the odds of being in each category given the independent variable is constant. This is the reason why the ordered logit is called the “proportional odds model.”</p>
+<p>**This is a common question that will come up if you use an ordered logit model. So, let’s consider it in a fair amount of detail. Let’s assume a simple case,</p>
+<p><span class="math display">\[\begin{eqnarray*}
+y&amp; \sim &amp; ordered\_ logit(\alpha+\beta_1 x, \tau) \\
+\end{eqnarray*}\]</span></p>
+<p>Let’s just say that <span class="math inline">\(\tau\)</span> is a vector of length 3. So, how many categories do we observe for <span class="math inline">\(y\)</span>?</p>
+<p>What this means is that, the <span class="math inline">\(\tau_1\)</span> represents the log-odds of being in category 1 (versus 2 through 4).</p>
+<p>If we express the cumulative probabilities as,</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y\leq 1|x)=F(\tau_1-\alpha-\beta x)
+\end{eqnarray*}\]</span></p>
+<p>Then <span class="math inline">\(\tau_2\)</span> represents the log-odds of being in category 1 or 2 (versus 3 and 4).</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y\leq 2|x)=F(\tau_2-\alpha-\beta x)
+\end{eqnarray*}\]</span></p>
+<p>More generally,</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y\leq k|x)=F(\tau_k-\alpha-\beta x)
+\end{eqnarray*}\]</span></p>
+<p>If we plot the prediction that <span class="math inline">\(y&lt;1\)</span>, <span class="math inline">\(y&lt;2\)</span> and so forth, we should observe that the lines are parallel. You can prove this to yourself by noting that the partial derivatives are the same,</p>
+<p><span class="math display">\[\begin{eqnarray*}
+{{\partial pr(y \leq 1|x)}\over{\partial x}}={{\partial pr(y \leq 2|x)}\over{\partial x}}={{\partial pr(y \leq 3|x)}\over{\partial x}}={{\partial pr(y \leq 4|x)}\over{\partial x}}
+\end{eqnarray*}\]</span></p>
+<p>The model is assuming that the regression lines are parallel, hence the parallel lines assumption. We can test for the feasibility of this model by estimating a series of parallel regression models. Let’s estimate three binary logit regression. In the first model, we coded the dependent variable 1 if the response is <strong>Strongly Agree</strong> 0 if it is any of the other categories. In the second model we code the response 1 if the response is <strong>Strongly Agree</strong> or <strong>Agree</strong> and 0 if in the other categories. Then in the third model code it 1 if <strong>Strongly Agree</strong>, <strong>Agree</strong> or <strong>Disagree</strong> and 0 if <strong>Strongly Disagree.</strong> Now you have three versions of the dependent variable. Estimate three logistic regressions, one for each dependent variable.</p>
+<div class="sourceCode" id="cb141"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb141-1"><a href="ordinal-and-multicategory-regression.html#cb141-1" tabindex="-1"></a><span class="co"># Install and load necessary libraries</span></span>
+<span id="cb141-2"><a href="ordinal-and-multicategory-regression.html#cb141-2" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb141-3"><a href="ordinal-and-multicategory-regression.html#cb141-3" tabindex="-1"></a></span>
+<span id="cb141-4"><a href="ordinal-and-multicategory-regression.html#cb141-4" tabindex="-1"></a><span class="co"># Create data for parallel lines using the logit function</span></span>
+<span id="cb141-5"><a href="ordinal-and-multicategory-regression.html#cb141-5" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">10</span>, <span class="dv">10</span>, <span class="at">length.out =</span> <span class="dv">100</span>)</span>
+<span id="cb141-6"><a href="ordinal-and-multicategory-regression.html#cb141-6" tabindex="-1"></a>logit <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="dv">1</span> <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(<span class="sc">-</span>x))</span>
+<span id="cb141-7"><a href="ordinal-and-multicategory-regression.html#cb141-7" tabindex="-1"></a></span>
+<span id="cb141-8"><a href="ordinal-and-multicategory-regression.html#cb141-8" tabindex="-1"></a><span class="co"># Create y values for three parallel lines with different intercepts</span></span>
+<span id="cb141-9"><a href="ordinal-and-multicategory-regression.html#cb141-9" tabindex="-1"></a>y1 <span class="ot">&lt;-</span> <span class="fu">logit</span>(x <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb141-10"><a href="ordinal-and-multicategory-regression.html#cb141-10" tabindex="-1"></a>y2 <span class="ot">&lt;-</span> <span class="fu">logit</span>(x <span class="sc">-</span> <span class="dv">3</span>)</span>
+<span id="cb141-11"><a href="ordinal-and-multicategory-regression.html#cb141-11" tabindex="-1"></a>y3 <span class="ot">&lt;-</span> <span class="fu">logit</span>(x <span class="sc">+</span> <span class="dv">5</span>)</span>
+<span id="cb141-12"><a href="ordinal-and-multicategory-regression.html#cb141-12" tabindex="-1"></a>y4 <span class="ot">&lt;-</span> <span class="fu">logit</span>(x <span class="sc">+</span> <span class="fl">6.6</span>)</span>
+<span id="cb141-13"><a href="ordinal-and-multicategory-regression.html#cb141-13" tabindex="-1"></a>y5 <span class="ot">&lt;-</span> <span class="fu">logit</span>(x <span class="sc">+</span> <span class="dv">9</span>)</span>
+<span id="cb141-14"><a href="ordinal-and-multicategory-regression.html#cb141-14" tabindex="-1"></a></span>
+<span id="cb141-15"><a href="ordinal-and-multicategory-regression.html#cb141-15" tabindex="-1"></a><span class="co"># Create a data frame</span></span>
+<span id="cb141-16"><a href="ordinal-and-multicategory-regression.html#cb141-16" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(x, y1, y2, y3)</span>
+<span id="cb141-17"><a href="ordinal-and-multicategory-regression.html#cb141-17" tabindex="-1"></a></span>
+<span id="cb141-18"><a href="ordinal-and-multicategory-regression.html#cb141-18" tabindex="-1"></a><span class="co"># Plot using Plotly</span></span>
+<span id="cb141-19"><a href="ordinal-and-multicategory-regression.html#cb141-19" tabindex="-1"></a>fig <span class="ot">&lt;-</span> <span class="fu">plot_ly</span>(data, <span class="at">x =</span> <span class="sc">~</span>x) <span class="sc">%&gt;%</span></span>
+<span id="cb141-20"><a href="ordinal-and-multicategory-regression.html#cb141-20" tabindex="-1"></a>  <span class="fu">add_trace</span>(<span class="at">y =</span> <span class="sc">~</span>y1, <span class="at">type =</span> <span class="st">&#39;scatter&#39;</span>, <span class="at">mode =</span> <span class="st">&#39;lines&#39;</span>, <span class="at">name =</span> <span class="st">&#39;Category 1 v 0&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb141-21"><a href="ordinal-and-multicategory-regression.html#cb141-21" tabindex="-1"></a>  <span class="fu">add_trace</span>(<span class="at">y =</span> <span class="sc">~</span>y2, <span class="at">type =</span> <span class="st">&#39;scatter&#39;</span>, <span class="at">mode =</span> <span class="st">&#39;lines&#39;</span>, <span class="at">name =</span> <span class="st">&#39;Category 2 v 1/0&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb141-22"><a href="ordinal-and-multicategory-regression.html#cb141-22" tabindex="-1"></a>  <span class="fu">add_trace</span>(<span class="at">y =</span> <span class="sc">~</span>y3, <span class="at">type =</span> <span class="st">&#39;scatter&#39;</span>, <span class="at">mode =</span> <span class="st">&#39;lines&#39;</span>, <span class="at">name =</span> <span class="st">&#39;Category 3 v 2/1/0&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb141-23"><a href="ordinal-and-multicategory-regression.html#cb141-23" tabindex="-1"></a>  <span class="fu">add_trace</span>(<span class="at">y =</span> <span class="sc">~</span>y4, <span class="at">type =</span> <span class="st">&#39;scatter&#39;</span>, <span class="at">mode =</span> <span class="st">&#39;lines&#39;</span>, <span class="at">name =</span> <span class="st">&#39;Category 4 v 3/2/1/0&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb141-24"><a href="ordinal-and-multicategory-regression.html#cb141-24" tabindex="-1"></a>  <span class="fu">add_trace</span>(<span class="at">y =</span> <span class="sc">~</span>y5, <span class="at">type =</span> <span class="st">&#39;scatter&#39;</span>, <span class="at">mode =</span> <span class="st">&#39;lines&#39;</span>, <span class="at">name =</span> <span class="st">&#39;Category 5 v 4/3/2/1/0&#39;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb141-25"><a href="ordinal-and-multicategory-regression.html#cb141-25" tabindex="-1"></a>  <span class="fu">layout</span>(<span class="at">title =</span> <span class="st">&#39;The Parallel Lines Assumption&#39;</span>,</span>
+<span id="cb141-26"><a href="ordinal-and-multicategory-regression.html#cb141-26" tabindex="-1"></a>         <span class="at">xaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">&#39;Independent Variable&#39;</span>),</span>
+<span id="cb141-27"><a href="ordinal-and-multicategory-regression.html#cb141-27" tabindex="-1"></a>         <span class="at">yaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">&#39;Pr(y=1)&#39;</span>))</span>
+<span id="cb141-28"><a href="ordinal-and-multicategory-regression.html#cb141-28" tabindex="-1"></a></span>
+<span id="cb141-29"><a href="ordinal-and-multicategory-regression.html#cb141-29" tabindex="-1"></a>fig</span></code></pre></div>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-5eb3a73e19ac08b5e63f" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-5eb3a73e19ac08b5e63f">{"x":{"visdat":{"13ee176ebd603":["function () ","plotlyVisDat"]},"cur_data":"13ee176ebd603","attrs":{"13ee176ebd603":{"x":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"y":{},"type":"scatter","mode":"lines","name":"Category 1 v 0","inherit":true},"13ee176ebd603.1":{"x":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"y":{},"type":"scatter","mode":"lines","name":"Category 2 v 1/0","inherit":true},"13ee176ebd603.2":{"x":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"y":{},"type":"scatter","mode":"lines","name":"Category 3 v 2/1/0","inherit":true},"13ee176ebd603.3":{"x":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"y":{},"type":"scatter","mode":"lines","name":"Category 4 v 3/2/1/0","inherit":true},"13ee176ebd603.4":{"x":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"y":{},"type":"scatter","mode":"lines","name":"Category 5 v 4/3/2/1/0","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"The Parallel Lines Assumption","xaxis":{"domain":[0,1],"automargin":true,"title":"Independent Variable"},"yaxis":{"domain":[0,1],"automargin":true,"title":"Pr(y=1)"},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[-10,-9.7979797979797976,-9.5959595959595951,-9.3939393939393945,-9.191919191919192,-8.9898989898989896,-8.7878787878787872,-8.5858585858585865,-8.3838383838383841,-8.1818181818181817,-7.9797979797979792,-7.7777777777777777,-7.5757575757575761,-7.3737373737373737,-7.1717171717171713,-6.9696969696969697,-6.7676767676767682,-6.5656565656565657,-6.3636363636363633,-6.1616161616161618,-5.9595959595959593,-5.7575757575757578,-5.5555555555555554,-5.3535353535353538,-5.1515151515151514,-4.9494949494949498,-4.7474747474747474,-4.5454545454545459,-4.3434343434343434,-4.1414141414141419,-3.9393939393939394,-3.7373737373737379,-3.5353535353535355,-3.333333333333333,-3.1313131313131315,-2.9292929292929291,-2.7272727272727275,-2.5252525252525251,-2.3232323232323235,-2.1212121212121211,-1.9191919191919187,-1.717171717171718,-1.5151515151515156,-1.3131313131313131,-1.1111111111111107,-0.90909090909091006,-0.70707070707070763,-0.50505050505050519,-0.30303030303030276,-0.10101010101010033,0.10101010101010033,0.30303030303030276,0.50505050505050519,0.70707070707070763,0.90909090909090828,1.1111111111111107,1.3131313131313131,1.5151515151515156,1.7171717171717162,1.9191919191919187,2.1212121212121211,2.3232323232323235,2.5252525252525242,2.7272727272727266,2.9292929292929291,3.1313131313131315,3.3333333333333339,3.5353535353535346,3.737373737373737,3.9393939393939394,4.1414141414141419,4.3434343434343425,4.545454545454545,4.7474747474747474,4.9494949494949498,5.1515151515151505,5.3535353535353529,5.5555555555555554,5.7575757575757578,5.9595959595959584,6.1616161616161627,6.3636363636363633,6.565656565656564,6.7676767676767682,6.9696969696969688,7.171717171717173,7.3737373737373737,7.5757575757575744,7.7777777777777786,7.9797979797979792,8.1818181818181799,8.3838383838383841,8.5858585858585847,8.787878787878789,8.9898989898989896,9.1919191919191903,9.3939393939393945,9.5959595959595951,9.7979797979797993,10],"y":[1.6701421848095181e-05,2.0440338368639386e-05,2.5016258298486162e-05,3.0616544935599933e-05,3.7470497681335215e-05,4.5858735696130373e-05,5.6124679963144641e-05,6.8688602373180609e-05,8.4064814775298689e-05,0.00010288269833762827,0.00012591242905346428,0.00015409644488334901,0.00018858793117269428,0.0002307978824364679,0.00028245264090224082,0.0003456642279009572,0.00042301628812167828,0.00051766907626254099,0.00063348765078403502,0.00077519832310999162,0.00094857946803188111,0.0011606940593524397,0.0014201727813867393,0.0017375583069220765,0.0021257233438627446,0.0026003773400703999,0.0031806792770570332,0.0038899767127663562,0.004756694015859749,0.0058153953230628552,0.0071080497350171435,0.0086855269861754372,0.010609350266973624,0.012953727530695871,0.015807871298423766,0.019278596626576508,0.023493153408405628,0.028602197275483212,0.034782726769969616,0.042240706527625023,0.051212951476519344,0.06196766423155365,0.07480280494096167,0.09004125467193827,0.10802156134341923,0.12908301822783425,0.15354404464565441,0.18167346672849996,0.21365546366762914,0.24955067974756917,0.2892581176651603,0.332484427102269,0.37872828822967725,0.42728687938333804,0.4772883667393607,0.5277492350545131,0.57764939455684017,0.62601333126812342,0.67198390613086101,0.71487742505859919,0.75421348326225535,0.78971897820468129,0.82131063982116148,0.84906323964709973,0.87317113719155526,0.89390960385679552,0.91160032279294168,0.92658336908721706,0.93919629258838022,0.94975981583785218,0.9585690789100314,0.9658891757930359,0.97195378428234014,0.97696587131811452,0.98109967513483487,0.98450337627523166,0.9873020486919537,0.98960062305595398,0.99148669890460783,0.99303311608751066,0.994300245763303,0.99533799316155813,0.99618752360318052,0.99688273387290027,0.99745149591872317,0.99791670112424979,0.99829713251455232,0.99860819018705715,0.99886249263518245,0.99907037384668862,0.99924029334328435,0.99937917381020813,0.99949267870436398,0.99958544024560048,0.99966124648207533,0.99972319465808435,0.99977381687578248,0.99981518300339911,0.99984898491484775,0.99987660542401369],"type":"scatter","mode":"lines","name":"Category 1 v 0","marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"line":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[-10,-9.7979797979797976,-9.5959595959595951,-9.3939393939393945,-9.191919191919192,-8.9898989898989896,-8.7878787878787872,-8.5858585858585865,-8.3838383838383841,-8.1818181818181817,-7.9797979797979792,-7.7777777777777777,-7.5757575757575761,-7.3737373737373737,-7.1717171717171713,-6.9696969696969697,-6.7676767676767682,-6.5656565656565657,-6.3636363636363633,-6.1616161616161618,-5.9595959595959593,-5.7575757575757578,-5.5555555555555554,-5.3535353535353538,-5.1515151515151514,-4.9494949494949498,-4.7474747474747474,-4.5454545454545459,-4.3434343434343434,-4.1414141414141419,-3.9393939393939394,-3.7373737373737379,-3.5353535353535355,-3.333333333333333,-3.1313131313131315,-2.9292929292929291,-2.7272727272727275,-2.5252525252525251,-2.3232323232323235,-2.1212121212121211,-1.9191919191919187,-1.717171717171718,-1.5151515151515156,-1.3131313131313131,-1.1111111111111107,-0.90909090909091006,-0.70707070707070763,-0.50505050505050519,-0.30303030303030276,-0.10101010101010033,0.10101010101010033,0.30303030303030276,0.50505050505050519,0.70707070707070763,0.90909090909090828,1.1111111111111107,1.3131313131313131,1.5151515151515156,1.7171717171717162,1.9191919191919187,2.1212121212121211,2.3232323232323235,2.5252525252525242,2.7272727272727266,2.9292929292929291,3.1313131313131315,3.3333333333333339,3.5353535353535346,3.737373737373737,3.9393939393939394,4.1414141414141419,4.3434343434343425,4.545454545454545,4.7474747474747474,4.9494949494949498,5.1515151515151505,5.3535353535353529,5.5555555555555554,5.7575757575757578,5.9595959595959584,6.1616161616161627,6.3636363636363633,6.565656565656564,6.7676767676767682,6.9696969696969688,7.171717171717173,7.3737373737373737,7.5757575757575744,7.7777777777777786,7.9797979797979792,8.1818181818181799,8.3838383838383841,8.5858585858585847,8.787878787878789,8.9898989898989896,9.1919191919191903,9.3939393939393945,9.5959595959595951,9.7979797979797993,10],"y":[2.2603242979035746e-06,2.7663478751133138e-06,3.3856556363656532e-06,4.143608474524291e-06,5.0712447220941427e-06,6.2065510891457862e-06,7.596018086769861e-06,9.2965436032985568e-06,1.1377762543278397e-05,1.3924897865205198e-05,1.7042249673360078e-05,2.0857465099378512e-05,2.5526763610397718e-05,3.1241331397070723e-05,3.8235146206091466e-05,4.6794552314885226e-05,5.7269976649027219e-05,7.0090264174954971e-05,8.5780217138852006e-05,0.00010498205268983678,0.0001284816520402963,0.00015724066776879683,0.00019243579162717144,0.00023550677224467494,0.00028821512116144235,0.00035271586943713321,0.00043164525074158947,0.00052822780796742748,0.00064640716935427062,0.00079100563995490602,0.00096791883053136342,0.0011843528258577653,0.001449112905269711,0.0017729545947921428,0.002169009869505743,0.0026533036390194594,0.0032453782127673009,0.0039690461842531912,0.004853294949535009,0.0059333686257568158,0.0072520550275823846,0.0088612059043268743,0.010823516782056805,0.013214586922900501,0.01612526784547853,0.019664287390972039,0.023961101240967089,0.029168869714709406,0.035467378240160094,0.043065608488515546,0.052203518570458865,0.063152404287654257,0.076212998508970523,0.091710249345781911,0.10998355446732727,0.13137120953080675,0.15618808226926814,0.18469620099093448,0.21706917187494151,0.25335312533378013,0.29342902315658703,0.33698310504102807,0.38349319729888248,0.43223767646165628,0.48233059321156424,0.53278119214023711,0.58257020646231483,0.63073087117703297,0.6764212981654204,0.71897721974366358,0.75793918244975922,0.79305415065284224,0.82425625710691985,0.8516340106612531,0.87539156075357749,0.89581027720505191,0.91321482635032347,0.92794585638143601,0.94033977698082505,0.95071506567448116,0.95936399882787304,0.96654854894488174,0.97249926439922341,0.97741613473829947,0.9814706649319378,0.98480859016199285,0.98755283820499296,0.98980648353915135,0.99165553846345,0.99317149763881574,0.99441360020929737,0.99543080414095253,0.99626348566603484,0.99694488663074254,0.99750233698245216,0.99795828063155767,0.99833113188228406,0.99863598747846627,0.99888521665587993,0.9990889488055994],"type":"scatter","mode":"lines","name":"Category 2 v 1/0","marker":{"color":"rgba(255,127,14,1)","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[-10,-9.7979797979797976,-9.5959595959595951,-9.3939393939393945,-9.191919191919192,-8.9898989898989896,-8.7878787878787872,-8.5858585858585865,-8.3838383838383841,-8.1818181818181817,-7.9797979797979792,-7.7777777777777777,-7.5757575757575761,-7.3737373737373737,-7.1717171717171713,-6.9696969696969697,-6.7676767676767682,-6.5656565656565657,-6.3636363636363633,-6.1616161616161618,-5.9595959595959593,-5.7575757575757578,-5.5555555555555554,-5.3535353535353538,-5.1515151515151514,-4.9494949494949498,-4.7474747474747474,-4.5454545454545459,-4.3434343434343434,-4.1414141414141419,-3.9393939393939394,-3.7373737373737379,-3.5353535353535355,-3.333333333333333,-3.1313131313131315,-2.9292929292929291,-2.7272727272727275,-2.5252525252525251,-2.3232323232323235,-2.1212121212121211,-1.9191919191919187,-1.717171717171718,-1.5151515151515156,-1.3131313131313131,-1.1111111111111107,-0.90909090909091006,-0.70707070707070763,-0.50505050505050519,-0.30303030303030276,-0.10101010101010033,0.10101010101010033,0.30303030303030276,0.50505050505050519,0.70707070707070763,0.90909090909090828,1.1111111111111107,1.3131313131313131,1.5151515151515156,1.7171717171717162,1.9191919191919187,2.1212121212121211,2.3232323232323235,2.5252525252525242,2.7272727272727266,2.9292929292929291,3.1313131313131315,3.3333333333333339,3.5353535353535346,3.737373737373737,3.9393939393939394,4.1414141414141419,4.3434343434343425,4.545454545454545,4.7474747474747474,4.9494949494949498,5.1515151515151505,5.3535353535353529,5.5555555555555554,5.7575757575757578,5.9595959595959584,6.1616161616161627,6.3636363636363633,6.565656565656564,6.7676767676767682,6.9696969696969688,7.171717171717173,7.3737373737373737,7.5757575757575744,7.7777777777777786,7.9797979797979792,8.1818181818181799,8.3838383838383841,8.5858585858585847,8.787878787878789,8.9898989898989896,9.1919191919191903,9.3939393939393945,9.5959595959595951,9.7979797979797993,10],"y":[0.0066928509242848554,0.0081789428562821613,0.0099916899362080588,0.012201264260636075,0.014892116363260341,0.018165492507155691,0.022142203958132146,0.026965570368090212,0.032804390909942818,0.039855698945889695,0.048346922719897809,0.058536902874367899,0.070715012027143642,0.085197401061588379,0.10231920350807022,0.12242143898621305,0.14583148353491501,0.17283646446618905,0.2036499335022193,0.23837374421039675,0.27695909778815886,0.31917282672147035,0.36457644074163931,0.41252537040181819,0.46219351092684902,0.51262357943007497,0.56279795369438246,0.61171941140716124,0.65848848940252069,0.70236511502557752,0.74280634723561778,0.7794778729544305,0.81224231094517951,0.8411308951190849,0.86630626410614642,0.88802329038025296,0.90659299528316784,0.92235245391657517,0.9356417590466013,0.94678782922608895,0.95609411885006113,0.96383499877981238,0.97025357461592576,0.97556186338166717,0.97994246346214953,0.98355106930658209,0.98651937229915421,0.98895804166250523,0.99095959419106694,0.99260104395028037,0.99394627939345837,0.99504815206560837,0.99595028367562977,0.99668861116732732,0.9972926957603816,0.99778682410771702,0.99819092935635756,0.99852135810545573,0.99879150674754447,0.99901234791145366,0.99919286497151605,0.9993404100018195,0.99946099821337242,0.99955954984498185,0.99964008868547005,0.99970590486945987,0.99975968828718109,0.99980363785338222,0.99983955096412114,0.99986889670726231,0.99989287575955066,0.99991246937955591,0.99992847947371377,0.9999415613567707,0.99995225053522985,0.99996098460193872,0.99996812113264033,0.99997395231349717,0.99997871689603068,0.99998260996730992,0.9999857909343467,0.99998839004889428,0.99999051373933501,0.99999224896766326,0.99999366678975676,0.99999482526457883,0.99999577183134991,0.99999654525196324,0.99999717719814474,0.99999769354832591,0.99999811544731265,0.9999984601721349,0.99999874183952464,0.99999897198398868,0.99999916003014266,0.99999931367864969,0.99999943922156442,0.99999954179999417,0.99999962561463129,0.99999969409777301],"type":"scatter","mode":"lines","name":"Category 3 v 2/1/0","marker":{"color":"rgba(44,160,44,1)","line":{"color":"rgba(44,160,44,1)"}},"error_y":{"color":"rgba(44,160,44,1)"},"error_x":{"color":"rgba(44,160,44,1)"},"line":{"color":"rgba(44,160,44,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[-10,-9.7979797979797976,-9.5959595959595951,-9.3939393939393945,-9.191919191919192,-8.9898989898989896,-8.7878787878787872,-8.5858585858585865,-8.3838383838383841,-8.1818181818181817,-7.9797979797979792,-7.7777777777777777,-7.5757575757575761,-7.3737373737373737,-7.1717171717171713,-6.9696969696969697,-6.7676767676767682,-6.5656565656565657,-6.3636363636363633,-6.1616161616161618,-5.9595959595959593,-5.7575757575757578,-5.5555555555555554,-5.3535353535353538,-5.1515151515151514,-4.9494949494949498,-4.7474747474747474,-4.5454545454545459,-4.3434343434343434,-4.1414141414141419,-3.9393939393939394,-3.7373737373737379,-3.5353535353535355,-3.333333333333333,-3.1313131313131315,-2.9292929292929291,-2.7272727272727275,-2.5252525252525251,-2.3232323232323235,-2.1212121212121211,-1.9191919191919187,-1.717171717171718,-1.5151515151515156,-1.3131313131313131,-1.1111111111111107,-0.90909090909091006,-0.70707070707070763,-0.50505050505050519,-0.30303030303030276,-0.10101010101010033,0.10101010101010033,0.30303030303030276,0.50505050505050519,0.70707070707070763,0.90909090909090828,1.1111111111111107,1.3131313131313131,1.5151515151515156,1.7171717171717162,1.9191919191919187,2.1212121212121211,2.3232323232323235,2.5252525252525242,2.7272727272727266,2.9292929292929291,3.1313131313131315,3.3333333333333339,3.5353535353535346,3.737373737373737,3.9393939393939394,4.1414141414141419,4.3434343434343425,4.545454545454545,4.7474747474747474,4.9494949494949498,5.1515151515151505,5.3535353535353529,5.5555555555555554,5.7575757575757578,5.9595959595959584,6.1616161616161627,6.3636363636363633,6.565656565656564,6.7676767676767682,6.9696969696969688,7.171717171717173,7.3737373737373737,7.5757575757575744,7.7777777777777786,7.9797979797979792,8.1818181818181799,8.3838383838383841,8.5858585858585847,8.787878787878789,8.9898989898989896,9.1919191919191903,9.3939393939393945,9.5959595959595951,9.7979797979797993,10],"y":[0.032295464698450495,0.039241817388967253,0.047608739273014587,0.057652559634911657,0.069660301606590716,0.083946199170603225,0.1008442710578463,0.12069569350675065,0.14382981825349311,0.17053813724548669,0.20104144703995791,0.23545199293068078,0.27373438393243804,0.3156711923493753,0.36084069092716747,0.40861424640069965,0.45817874764257138,0.50858501478743567,0.55881733097295327,0.60787386447885472,0.65484478878005836,0.69897554369379955,0.73970665384866219,0.77668727464098286,0.80976514116365672,0.83895929775910127,0.86442332402228295,0.88640610649144147,0.90521537245321615,0.9211870552238135,0.93466168797256222,0.94596769252800328,0.95541066098525229,0.96326740932797028,0.96978356302510316,0.97517357984224162,0.97962232693331319,0.98328754712647759,0.98630274193976308,0.98878015441700984,0.99081365266849641,0.99248139971206739,0.99384825336282467,0.99496787798791153,0.99588457350835702,0.99663484052678786,0.99724870722417869,0.99775084610911646,0.99816150850000285,0.99849730291121952,0.99877184104416439,0.99899627232523325,0.99917972517095688,0.99932967055755462,0.999452221110124,0.9995523768374257,0.99963422682357372,0.99970111463274547,0.99975577386354775,0.99980043917880013,0.99983693720685141,0.99986676093621207,0.99989113058272783,0.99991104337689229,0.99992731428009274,0.99994060927709238,0.99995147259470218,0.99996034895232611,0.99996760174958454,0.99997352793182048,0.9999783701395889,0.99998232663788,0.99998555943049861,0.9999882008911043,0.9999903591819248,0.99999212268169679,0.99999356360392355,0.9999947409534643,0.99999570294242623,0.99999648896422222,0.99999713120658773,0.99999765596957801,0.99999808474250251,0.99999843508387953,0.99999872134044121,0.99999895523462201,0.99999914634459142,0.9999993024964775,0.99999943008485048,0.99999953433458078,0.99999961951480221,0.9999996891137336,0.99999974598152586,0.99999979244697657,0.99999983041289686,0.99999986143403319,0.9999998867807357,0.99999990749098033,0.99999992441287511,0.99999993823939048],"type":"scatter","mode":"lines","name":"Category 4 v 3/2/1/0","marker":{"color":"rgba(214,39,40,1)","line":{"color":"rgba(214,39,40,1)"}},"error_y":{"color":"rgba(214,39,40,1)"},"error_x":{"color":"rgba(214,39,40,1)"},"line":{"color":"rgba(214,39,40,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[-10,-9.7979797979797976,-9.5959595959595951,-9.3939393939393945,-9.191919191919192,-8.9898989898989896,-8.7878787878787872,-8.5858585858585865,-8.3838383838383841,-8.1818181818181817,-7.9797979797979792,-7.7777777777777777,-7.5757575757575761,-7.3737373737373737,-7.1717171717171713,-6.9696969696969697,-6.7676767676767682,-6.5656565656565657,-6.3636363636363633,-6.1616161616161618,-5.9595959595959593,-5.7575757575757578,-5.5555555555555554,-5.3535353535353538,-5.1515151515151514,-4.9494949494949498,-4.7474747474747474,-4.5454545454545459,-4.3434343434343434,-4.1414141414141419,-3.9393939393939394,-3.7373737373737379,-3.5353535353535355,-3.333333333333333,-3.1313131313131315,-2.9292929292929291,-2.7272727272727275,-2.5252525252525251,-2.3232323232323235,-2.1212121212121211,-1.9191919191919187,-1.717171717171718,-1.5151515151515156,-1.3131313131313131,-1.1111111111111107,-0.90909090909091006,-0.70707070707070763,-0.50505050505050519,-0.30303030303030276,-0.10101010101010033,0.10101010101010033,0.30303030303030276,0.50505050505050519,0.70707070707070763,0.90909090909090828,1.1111111111111107,1.3131313131313131,1.5151515151515156,1.7171717171717162,1.9191919191919187,2.1212121212121211,2.3232323232323235,2.5252525252525242,2.7272727272727266,2.9292929292929291,3.1313131313131315,3.3333333333333339,3.5353535353535346,3.737373737373737,3.9393939393939394,4.1414141414141419,4.3434343434343425,4.545454545454545,4.7474747474747474,4.9494949494949498,5.1515151515151505,5.3535353535353529,5.5555555555555554,5.7575757575757578,5.9595959595959584,6.1616161616161627,6.3636363636363633,6.565656565656564,6.7676767676767682,6.9696969696969688,7.171717171717173,7.3737373737373737,7.5757575757575744,7.7777777777777786,7.9797979797979792,8.1818181818181799,8.3838383838383841,8.5858585858585847,8.787878787878789,8.9898989898989896,9.1919191919191903,9.3939393939393945,9.5959595959595951,9.7979797979797993,10],"y":[0.2689414213699951,0.31045782543997813,0.35526861761268724,0.40276933259717446,0.45216693149210541,0.50252523105442681,0.55283235033264189,0.60208049529526453,0.64934506552112925,0.69385025433062697,0.7350119486848723,0.77245438280718393,0.80600263328114408,0.83565701258312386,0.86155703571204156,0.88394216894532995,0.90311482866950599,0.91940895130205291,0.93316552998337166,0.94471511321433066,0.95436642886986567,0.96239993226507614,0.9690650295080464,0.97457985886975007,0.97913272061734635,0.98288446501599003,0.98597134477493564,0.98850799840977133,0.99059035313619204,0.99229832426125197,0.99369824902354376,0.99484503299601268,0.99578401221383728,0.99655254869843635,0.99718138447730553,0.9976957820573199,0.99811647935408332,0.99846048550540456,0.9987417415887504,0.99897166752025623,0.99915961364083883,0.99931323286736851,0.99943878689344645,0.99954139780179496,0.99962525460322782,0.99969378263197528,0.99974978238077772,0.99979554322471642,0.99983293653276017,0.99986349187433554,0.99988845937100823,0.99990886069943818,0.99992553080269142,0.99993915199696648,0.99995028185636847,0.99995937600824358,0.99996680676629612,0.99997287836033666,0.99997783938354345,0.99998189296509454,0.99998520508350464,0.99998791136027354,0.99999012261149689,0.99999192938441495,0.99999340566442496,0.99999461190420058,0.99999559749885214,0.99999640280841628,0.99999706081044604,0.99999759845034875,0.99999803774474061,0.99999839668299528,0.99999868996388908,0.99999892959750625,0.99999912539704927,0.99999928538068761,0.99999941609990406,0.99999952290778049,0.9999996101782086,0.9999996814850034,0.99999973974825429,0.99999978735390449,0.99999982625145734,0.99999985803381053,0.99999988400248696,0.99999990522093329,0.99999992255806847,0.99999993672386789,0.99999994829843719,0.99999995775576833,0.99999996548314962,0.99999997179702615,0.99999997695595855,0.99999998117121092,0.99999998461540263,0.99999998742957741,0.99999998972897897,0.99999999160777031,0.99999999314289023,0.99999999439720355],"type":"scatter","mode":"lines","name":"Category 5 v 4/3/2/1/0","marker":{"color":"rgba(148,103,189,1)","line":{"color":"rgba(148,103,189,1)"}},"error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"line":{"color":"rgba(148,103,189,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>The parallel lines assumption underlying the model is that the slopes are equivalent and all that moves the regression line is the threshold. In other words, the effect of the independent variable on the dependent variable is the same across all categories.</p>
+<p>Say we have four categories. If we were to simply estimate a series of binary regression, combining categories, we could test the parallel lines assumption.</p>
+<p><span class="math display">\[\beta_1=\beta_2=\beta_3\]</span></p>
+<p>This is a test of whether the regression lines are parallel. It is a test of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span> with <span class="math inline">\(K-1\)</span> separate logit equations (here 3 equations).</p>
+<p>We can test the aformentioned constraints in the ordered logit by relaxing the assumption that the <span class="math inline">\(\beta\)</span> parameters are the same in the model. For instance, we could conduct a likelihood ratio test by comparing the model fit of the fully constrained model (the normal ordered logit) to one with freeing this constraint and estimating the three unique parameters for <span class="math inline">\(\beta\)</span>.</p>
+<p>The LR test statistic is distributed <span class="math inline">\(\chi^2\)</span> with <span class="math inline">\(J(K-2)\)</span> degrees of freedom, where <span class="math inline">\(K\)</span> corresponds to the number of categories and <span class="math inline">\(J\)</span> is the number of independent variables. In this case, we have <span class="math inline">\(1\times 2=2\)</span> degrees of freedom. Why is it 2?</p>
+<p>An alternative is the Wald test, which operates by again considering <span class="math inline">\(K-1\)</span> logits, and specifying a constraint matrix. Long (1997, 143-144) describes the derivation of the test, which follows from the Wald test we discussed in the previous lecture. This was introduced by Brant (1990) and is occasionally called the Brant test of the parallel lines/proportional odds/parallel logit assumption.</p>
+</div>
+</div>
+<div id="nominal-models" class="section level2 hasAnchor" number="7.4">
+<h2><span class="header-section-number">7.4</span> Nominal Models<a href="ordinal-and-multicategory-regression.html#nominal-models" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Often, dependent variables don’t have a natural ordering. We cannot array the variable on a continuum; nor are the distances between categories equal. For example, voting in multiparty elections presents this issue: It’s not clear how to array four or five (or more) parties on a single continuum. Even party identification in the U.S. could be construed as non-ordered. Do “Independent’’ voters fall inbetween Republicans and Democrats? What about Green Party Voters, or Libertarians? Should we just assume these voters are ideological moderates?</p>
+<p>If we have multi-category nominal data, we again will violate the assumptions of the classical linear regression model. In addition to the usual problems (non-constant variance, non-sensical predictions, wrong functional form), OLS with an unordered variable is essentially meaningless because <span class="math inline">\(X\)</span> doesn’t have a linear effect on <span class="math inline">\(Y\)</span>.</p>
+<p>In the case of nominal data, we again can use the intuition of logit and probit with binary variables. The logit and probit models are somewhat different with multiple category data. Here, we’ll mainly stick with the logit case, called the <em>multinomial logit model</em> (MLM).</p>
+<p>Instead of a single logit, we now will make multiple comparisons. For instance, consider voting for one of three parties</p>
+<p>1=Democrat</p>
+<p>2=Republican</p>
+<p>3=Libertarian</p>
+<p>We could run one logit model predicting the probability of Democrat relative to Republican voting. Then, run a second model predicting Democrat versus Libertarian. Then, run a third model predicting Republican versus Libertarian. We could also include covariates predicting the outcome in each of these three models.</p>
+</div>
+<div id="intuition-1" class="section level2 hasAnchor" number="7.5">
+<h2><span class="header-section-number">7.5</span> Intuition<a href="ordinal-and-multicategory-regression.html#intuition-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Much of this is simply a summarization of Long (1997), Chapter 6. Assume <span class="math inline">\(y_{obs} \in (R, D, L)\)</span>.</p>
+<p>Maintaining the previous logic, estimate three models.</p>
+<p><span class="math display">\[ln({{pr(D|x)}\over{pr(R|x})}=\beta_{0,D|R}+\beta_{1,D|R}x\]</span> <span class="math display">\[ln({{pr(D|x)}\over{pr(L|x})}=\beta_{0,D|L}+\beta_{1,D|L}x\]</span> <span class="math display">\[ln({{pr(R|x)}\over{pr(L|x})}=\beta_{0,R|L}+\beta_{1,R|L}x\]</span></p>
+<p>Exponentiate and</p>
+<p><span class="math display">\[{{pr(D|x)}\over{pr(R|x})}=exp(\beta_{0,D|R}+\beta_{1,D|R}x)\]</span> <span class="math display">\[{{pr(D|x)}\over{pr(L|x})}=exp(\beta_{0,D|L}+\beta_{1,D|L}x)\]</span> $<span class="math inline">\({{pr(R|x)}\over{pr(L|x})}=exp(\beta_{0,R|L}+\beta_{1,R|L}x\)</span>)$</p>
+<p>Now, we are predicting the relative odds of being in each category. There is something that should appear redundant about this formulation. If we predict the the odds of A over B given x, and then predict the odds of B over C given x, we should be able to use these results to estimate the odds of A over C given x, rather than estimating an altogether separate model. In fact, it can be shown that this is the case: The sum of the first two equations equals the third equation. We need not estimate each model; it’s redundant (and not identified).</p>
+<p>We could also calculate the probability of being in the <span class="math inline">\(k\)</span>th category.</p>
+<p><span class="math display">\[{{pr(y=K|x)}}={{exp(X\beta_{k})}\over {\sum_k exp(X\beta_{k})}}\]</span></p>
+<p>If we were to estimate this model for each outcome, the model is not identified. We cannot find a unique solution for this sytem of equations. Multiply the above expression by <span class="math inline">\(\tau\)</span>, <span class="math inline">\(exp(x\tau)/exp(x\tau)\)</span>. The probabilities will stay the same, but <span class="math inline">\(\beta=\beta+\tau\)</span>. You should sort of see this in the three equations as well. We don’t really need to estimate three models to find the probability of the three categories. We only need to estimate two models and note that the third category has a probabity equal to 1 minus the sum of the two.</p>
+<p>Instead, we need to apply a constraint to identify the model. A common one is that the <span class="math inline">\(\beta\)</span>s for one of the equations are all equal to 1. So, for instance,</p>
+<p><span class="math display">\[y_{obs} =
+  \begin{array}{lr}
+    D, 1/(1+\sum_{k=2}^K exp(XB_k))\\
+    R,  exp(XB_{R})/(1+\sum_{k=2}^K exp(XB_k))\\
+    L,  exp(XB_{L})/(1+\sum_{k=2}^K exp(XB_k))\\
+  \end{array}
+\]</span></p>
+<p>Similar to a dummy variable regression, we estimate <span class="math inline">\(k-1\)</span> unique equations, where one category serves as the baseline, reference category. In the above example, the excluded category is Democrat. So, the basic logic of a series of chained logits still holds, but we are anchoring these logits relative to a common baseline (here, Democrat).</p>
+</div>
+<div id="the-likelihood-1" class="section level2 hasAnchor" number="7.6">
+<h2><span class="header-section-number">7.6</span> The Likelihood<a href="ordinal-and-multicategory-regression.html#the-likelihood-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The likelihood is not all that dissimilar to that of the ordered logit. Recall, the probability of being in the <span class="math inline">\(k\)</span>th category for the <span class="math inline">\(i\)</span>th subject is,</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y_{i}=K|x_i) &amp; = &amp;{ {exp(XB)}\over{\sum exp(XB)} }\\
+\end{eqnarray*}\]</span></p>
+<p>With the constraint that <span class="math inline">\(B=0\)</span> for the set of predictors in one category. Again, we need to calculate the joint parameter space, <span class="math inline">\(pr(y_{i}=1|X_i)\times pr(y_{i}=2|X_i) \times pr(y_{i}=3|X_i) \times....pr(y_{i}=K|X_i)\)</span>. This is just the joint probability for category membership, for each subject, so</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y_{i}|X_i) &amp; = &amp; \prod_{k=1}^K { {exp(XB)}\over{\sum exp(XB)} }\\
+\end{eqnarray*}\]</span></p>
+<p>This only refers to the probability space for a single subject. Since the likelihood is <span class="math inline">\(\prod_{i=1}^N p_i\)</span>, we need to calculate the joint probability for each subject, which is,</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y|X) &amp; = &amp; \prod_{i=1}^N \prod_{k=1}^K { {exp(XB)}\over{\sum exp(XB)} }\\
+\end{eqnarray*}\]</span></p>
+<p>Once again, it’s far easier to calculate the probabilities by taking the log of the likelihood.</p>
+<p><span class="math display">\[\begin{eqnarray*}
+Loglik(\beta | y, X)&amp; = &amp; \sum_{i=1}^N \sum_{k=1}^K log[{ {exp(XB)}\over{\sum exp(XB)} } \\
+\end{eqnarray*}\]</span></p>
+<p>Again, we could use maximum likelihood to estimate the parameters in the model.</p>
+</div>
+<div id="interpretation-1" class="section level2 hasAnchor" number="7.7">
+<h2><span class="header-section-number">7.7</span> Interpretation<a href="ordinal-and-multicategory-regression.html#interpretation-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>With <span class="math inline">\(k\)</span> categories, there are <span class="math inline">\(k-1\)</span> unique “models” in the multinomial logit model. In other words, if we include 2 covariates and there are 3 categories, we would estimate six parameters. Again, just think of this as a set of chained binary logit models, with a common baseline. For instance, if our dependent variable is voting Democrat, Republican, or Libertaraian, we could set Democrat as the baseline and predict the log odds of voting Democrat relative to Republican and Democrat relative to Libertarianism.</p>
+<p>As is probably not surprising, what this means is that the partial derivative is not a constant,</p>
+<p><span class="math display">\[{{\partial pr(y=k|x)}\over{\partial x}}=\sum_{j=1}^J \beta_{j,m}pr(y=k|x)\]</span></p>
+<p>Where, <span class="math inline">\(k\)</span> corresponds to the category, <span class="math inline">\(j\)</span> the item.</p>
+<p>The key to understand here is that one category serves as the baseline and we interpret the results of the <span class="math inline">\(k-1\)</span> categories in reference to that baseline. If we would like to test whether one variable does not have an effect, then:</p>
+<p><span class="math display">\[H_0=\beta_{k,1|r}=\beta_{k,2|r}=....\beta_{k,J|r}\]</span></p>
+<p>Likewise, we may also test the probability of being in the <span class="math inline">\(k\)</span>th category, given a particular value of <span class="math inline">\(x\)</span>.</p>
+<p><span class="math display">\[pr(y=k|x)={{exp(xB_k)}/{\sum_{j=1}^Jexp(xB_k)}}\]</span></p>
+</div>
+<div id="the-conditional-logit" class="section level2 hasAnchor" number="7.8">
+<h2><span class="header-section-number">7.8</span> The Conditional Logit<a href="ordinal-and-multicategory-regression.html#the-conditional-logit" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>A related model – but one that deserves a separate treatment – is what is called the <strong>Conditional Logit Model</strong> In the multinomial logit model, recall that we are modeling the choice as a function of an individual covariate. Individual <span class="math inline">\(i\)</span> has the same value, regardless of what he/she chooses. We could flip things and also consider how the characteristics of the choices themselves predict the outcome.</p>
+<p>As an example, we predicted voting in the Canadian election with authoritarianism. This is how the data might appear for person 1.</p>
+<p>Thus, there are three columns for each individual, corresponding to the choice. Within each participant, <span class="math inline">\(i\)</span> there is a single value for authoritarianism. This doesn’t vary within (?) subjects, it only varies between subjects.</p>
+<p>But what if we anticipated that choice was also a function of how much candidate <span class="math inline">\(j\)</span> spends. If we expect that candidate choice is also a function of the choices themselves, then the data might look something like this:</p>
+<p>Now note how the choice scores vary within participants. The participant still chooses, but that choice is not only a function of that participant’s characteristics, but also the choices themselves. We could then write the model as a function of the choices.</p>
+<p><span class="math display">\[pr(y=k|x)={{exp(z_kB_k)}/{\sum_{k=1}^Kexp(z_kB_k)}}\]</span></p>
+<p>Each choice is a function of <span class="math inline">\(z\)</span> – a characteristic of that choice. Here, we need not apply the constraint that <span class="math inline">\(\beta=0\)</span> because <span class="math inline">\(z\)</span> varies across choices. Thus, there will be <span class="math inline">\(k\)</span> sets of estimates for each category.</p>
+<p>It is possible to write a hybrid of these approaches, combining both characteristics of the choices with characteristics of the individual. Long (1997, pp 181-182) describes the general intuition. Given the fact there will be many parameters, and that conditional logit models are relatively rare in political science, I’m going to avoid spending class time to discuss this model. You should note, however, that this is type of model may be estimated.</p>
+</div>
+<div id="independence-of-irrelevant-alternatives" class="section level2 hasAnchor" number="7.9">
+<h2><span class="header-section-number">7.9</span> Independence of Irrelevant Alternatives<a href="ordinal-and-multicategory-regression.html#independence-of-irrelevant-alternatives" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Both the multinomial and conditional logit models make a relatively strong assumption about the choice process. It is called the <strong>Independence of Irrelevant Alternatives</strong> (IIA) assumption. Formally, it states that the probability of odds contrasting two choices are unaffected by additional alternatives. McFadden (cited on Long 1997, p. 182) introduces the now classic <strong>Red Bus/Blue Bus</strong> example. Say there are two forms of transportation available in a city: The city bus and driving one’s car. If an individual is indifferent to these approaches, taking advantage of both about equally, assume that <span class="math inline">\(p(car)=0.5\)</span> and <span class="math inline">\(p(bus)=0.5\)</span>, then the odds of taking the bus relative to the car is 1. The buses in the city are all red.</p>
+<p>But, let’s say the city introduces a bus on this individual’s route. The only difference is that the bus is blue. So now there is a red bus, a blue bus, and the car. IIA requires that the addition of the new option – the blue bus – will not change the original odds. Because the blue bus is identical (with the exception of the color), the individual probably doesn’t prefer it over the red bus. So, the only way that IIA holds is if the probability of <span class="math inline">\(p(car)=0.33, p(Red)=0.33, p(Blue)=0.33\)</span>.</p>
+<p>But now this also doesn’t make much sense; it implies that the individual will ride the bus over driving – the probability of taking is 2/3. Logically, what we should observe is that <span class="math inline">\(p(drive)=0.5, p(red)=0.25, p(blue)=0.25\)</span>. This involves a violation of IIA. If the new bus is introduced, the only way for IIA to hold is if the associated probabilities change and <span class="math inline">\(p(car)=p(red)\)</span>. But we are unlikely to observe this if we logically think about the problem.</p>
+<p>If we think about how we might test the IIA. The odds of selecting the red bus, relative to the car should be the same regardless of whether blue buses are available. We need to make the IIA in both the multinomial and conditional logit models. Say I predict the odds of voting for Bush v. Clinton in 1992. I do this in one model by excluding third party voters; then I do this again in a multinomial model with Perot voters included. The assumption holds that the odds (i.e., the coefficients) should be the same in both models. This can be tested by using a <em>Hausman test.</em> Conceptually, the test involves comparing the full multinomial model to one where outcome categories are dropped from the analysis. The test is distributed <span class="math inline">\(\chi^2\)</span> and relies on the change in coefficients weighted by the inverse of the variance-covariance matrix of the full and restricted multinomial models. See Long (1997, p 184) for the exact calculation. This is often called a Hausman test, or a Hausman-McFadden test of IIA.</p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="an-introduction-to-causal-inference.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="comments-on-model-fit-and-interpretation.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {"link": null, "text": null},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

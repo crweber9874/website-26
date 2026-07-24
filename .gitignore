@@ -1,0 +1,35 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+*.log
+npm-debug.log*
+
+# environment
+.env
+.env.production
+
+# os / editor
+.DS_Store
+.vscode/
+
+# one-off script outputs (kept out of the repo)
+scripts/crossref-out.json
+scripts/crossref-err.log
+
+# local verification screenshots
+.shots/
+.chrome*/
+.chrome/
+# teaching book intermediates (rendered HTML is committed under public/pedagogy/)
+teaching/**/_site/
+teaching/**/_book/
+teaching/**/.quarto/
+teaching/**/*_cache/
+teaching/**/.Rproj.user/
+teaching/**/.RData
+teaching/**/.Rhistory

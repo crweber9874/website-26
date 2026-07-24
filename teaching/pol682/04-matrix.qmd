@@ -1,0 +1,608 @@
+
+# Multivariate Regression and Linear Algebra
+
+This brief overview introduces you to vectors and matrices, components necessary in *linear algrebra*. While the linear regression model can be written in either scalar or matrix forms (or both), *linear algebra* rather than *scalar algebra*, will generally make our lives easier, though there are some elementary operations and functions we'll need to use. This chapter provides an initial overview, which we'll expand upon in later lectures.
+
+Please note  these lecture notes closely follow the notation, formulae, expressions, etc in
+
+**Gill, Jeff. 2006. *Essential Mathematics for Political and Social Research*. Cambridge University Press.**
+
+In particular, this chapter closely tracks chapters 3 and  4.. Please consult this source for more information. As a secondary source, please consult:
+
+**Moore, Will and David Siegel. 2013. *A Mathematics Course for Political and Social Research*. Princeton, NJ: Princeton University Press.**
+
+## Introduction
+
+Much of quantitative political science—and the social sciences more generally—aims to quantify the relationships between multiple variables. For instance, say we are interested in predicting the probability of voting, $pr(Vote)$, given one's party identification ($X_{PID}$) and political ideology ($X_{Ideology}$). Let's assume we observe these variables in the form of a survey, in which people report whether they voted, their party identification (on a seven-point scale from 1, Strong Democrat, to 7, Strong Republican), and their ideology on a seven-point scale from 1 (Strong Liberal) to 7 (Strong Conservative). There are many ways we might address this question. For instance, we might count the number of people who vote who are Republican, the number who are conservative, and so forth. From this, we could calculate statistics such as the proportion of Democrats who vote.
+
+Regardless of how we approach this issue, we must first understand the data itself. The data, expressed in a n excel spreadsheet, csv,  or other data form, can be envisioned in matrix form. Each row of the data corresponds to a respondent (so if there are $n=1000$ respondents, there are 1000 rows). The data is *tabular*. Each column corresponds to an observed variable—here, ideology, PID, and voting.
+
+$$\begin{bmatrix}
+Vote & PID & Ideology \\\hline
+a_{11} & a_{12} & a_{13} \\
+a_{21} & a_{22} & a_{23} \\
+\vdots & \vdots & \vdots\\
+a_{n1} & a_{n2} & a_{n3}
+\end{bmatrix}$$
+
+In this case, we have an $n \times 3$ matrix. We could generate a simple linear expression: $y_{voting}=b_0+b_1 x_{Ideology}+b_2 x_{PID}$. Let's consider what these components entail.
+
+The problem is that there are three unknown quantities we need to find: $b_0, b_1, b_2$.
+
+$$\begin{bmatrix}
+y_{1}= & b_0+ b_1 x_{Ideology,1}+b_2 x_{PID,1}\\
+y_{2}= & b_0+ b_1 x_{Ideology,2}+b_2 x_{PID,2}\\
+y_{3}= & b_0+ b_1 x_{Ideology,3}+b_2 x_{PID,3}\\
+y_{4}= & b_0+ b_1 x_{Ideology,4}+b_2 x_{PID,4}\\
+\vdots\\
+y_{n}= & b_0+ b_1 x_{Ideology,n}+b_2 x_{PID,n}
+\end{bmatrix}$$
+
+We have *n* equations—one for each observation—but fewer unknowns. We need to develop tools to solve this system of equations. In other words, what constitutes a reasonably good guess of $b_0, b_1, b_2$? There are infinitely many potential values, but we'd like the one that most accurately predicts $y$. After all, we want a reasonable prediction of $y$ given our covariates—ideology and party ID. Put another way, we expect our prediction of $y$ knowing these covariates is more accurate than our prediction of $y$ absent these covariates.
+
+This is just one reason why we need to explore the properties of matrices. Over the next couple of weeks, we'll explore linear algebra and develop techniques to solve problems like the one above. Some of this may seem obscure; like much of mathematics, it may not be immediately clear why we're exploring these techniques. Some of you may convince yourselves this is tangential to what you'll need in this program. This is incorrect—as an instructor of two of the four required methods courses, I promise every aspect of what we'll examine will resurface. That said, don't become overly frustrated. Some material may be unfamiliar, and maybe it won't all make sense immediately. That's okay and expected. With practice, I think you'll find this material isn't all that technical. Often these concepts are best understood through applications and practice.
+
+Typically, when we represent any matrix, the first number corresponds to the row, the second to the column. If we called this matrix $\mathbf{A}$, we could use the notation $\mathbf{A}_{N \times 3}$. More generically, we might represent an $\mathbf{A}_{N \times N}$ matrix as:
+
+$$\begin{bmatrix}
+a_{11} & a_{12} & \cdots & a_{1n} \\
+a_{21} & a_{22} & \cdots & a_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+a_{n1} & a_{n2} & \cdots & a_{nn}
+\end{bmatrix}$$
+
+It is worthwhile to consider what constitutes the entries of this matrix. We can think of a matrix as being made up of a series of vectors. A **vector** encodes pieces of information using a string of numbers. Returning to our running example, there are three column vectors corresponding to the variables. There are 1000 row vectors, which map each individual's vote propensity, PID in a three-dimensional space. The **length** of a vector is simply how many elements it encodes. For instance, each row vector is of length 3. Another way to write this is $\mathbf{a} \in \mathbb{R}^{3}$, which denotes that the vector is three-dimensional.
+
+## Vectors
+
+Single numbers are called scalars; vectors are different. Vectors include multiple elements. More formally, a scalar provides only a single piece of information: magnitude or strength. Vectors exist in $\mathbb{R}^{k}$ and encode **strength** (its norm) as well as **direction** or location. Think of plotting a straight line in a two-dimensional space, starting at the origin. The vector encodes the magnitude—how long is the line—and the direction (where is the line going). A vector is made up of multiple elements and is most easily understood geometrically.
+
+Assume $\mathbf{a}=[3,2,1]$ and $\mathbf{b}=[1,1,1]$. Or more simply, let's work in $\mathbb{R}^{2}$. Consider two vectors: $\mathbf{a}=[9,2]$ and $\mathbf{b}=[1,1]$. These are just two locations in a two-dimensional space. The vectors traverse different paths and have different magnitudes (one is longer). A natural question is: what is the distance between these vectors? If $\mathbf{a}=[x_1,y_1]$ and $\mathbf{b}=[x_2,y_2]$, then the Euclidean distance between these vectors is:
+
+$$\text{Distance}(a,b)^{\text{Euclidean}}=\sqrt{(x_1-x_2)^2+(y_1-y_2)^2}$$
+
+This is really just an extension of what you likely learned in high school using the Pythagorean Theorem. It's useful to envision things geometrically rather than simply trying to remember formulas. Drop a perpendicular from (9,2) to form a right triangle. The line connecting $\mathbf{a}$ and $\mathbf{b}$ is the hypotenuse, solved by $c^2=a^2+b^2$. Plug in the differences with respect to $x$ and $y$ to find the hypotenuse.
+
+### The Norm of a Vector
+
+This is related to another important characteristic: the **norm** of a vector. This measures the distance from the beginning point to the ending point of a vector. Think of it as the length of a line starting at the origin—it's most useful to think of a vector as starting at (0,0). The norm is a measure of strength or magnitude. Envision the point defined by the vector and the distance of that point from the origin. This is really just the distance formula if we knew two vectors: the one we're interested in—call it $\mathbf{a}$—and the zero vector, defined by (0,0). We define the norm as:
+
+$$\|\mathbf{a}\|=\sqrt{x_1^2+y_1^2}$$
+
+If we know the $x,y$ coordinates for the beginning and end point of a vector, we can move it anywhere and the norm remains the same—it doesn't change length, only relative location. It should be intuitive: the length doesn't change, only its general location in space. Also:
+
+$$\text{Distance}(a,b)^{\text{Euclidean}}=\sqrt{\|\mathbf{a}\|^{2}+\|\mathbf{b}\|^{2}}$$
+
+This makes intuitive sense. We can find distance using two norms, since the norm is just the vector beginning at the origin.
+
+### Vector Addition and Subtraction
+
+From this, we can generate further operations with a relatively clear geometric basis. Vector addition and subtraction simply involve adding (or subtracting) each element:
+
+$$\mathbf{a}-\mathbf{b}=[3-1, 2-1, 1-1]=[2,1,0]$$
+
+or
+
+$$\mathbf{a}+\mathbf{b}=[3+1, 2+1, 1+1]=[4,3,2]$$
+
+In this example, the vectors are said to be **conformable** because they have the same number of elements. **We cannot subtract or add vectors of different lengths**; for example, if $\mathbf{a}=[3,2]$ and $\mathbf{b}=[1,1,1]$, the vectors are non-conformable. It's useful to remember that order generally doesn't matter for addition, but it will for subtraction.
+
+### Operators and Properties
+**Commutative:** $\mathbf{a}+\mathbf{b}=\mathbf{b}+\mathbf{a}$
+
+**Associative:** $(\mathbf{a}+\mathbf{b})+\mathbf{c}=\mathbf{a}+(\mathbf{b}+\mathbf{c})$
+
+The order of vector addition doesn't matter.
+
+**Distributive:**
+
+(1) $c(\mathbf{a}+\mathbf{b})=c\mathbf{a}+c\mathbf{b}$
+
+(2)  $(c+d)\mathbf{a}=c\mathbf{a}+d\mathbf{a}$
+
+**Zero**:
+
+ $\mathbf{a}+0=\mathbf{a}=\mathbf{a}-\mathbf{a}=0$
+
+ $0\mathbf{a}=0$
+
+$1\mathbf{a}=\mathbf{a}$
+
+Geometrically, adding two vectors, $\mathbf{a}+\mathbf{b}$, completes the third side of a triangle.
+
+### Vectors, Extended
+
+We can extend this to higher dimensions—vectors that reside in a higher-dimensional space, $\mathbb{R}^{N}$, have more than two components. Let's consider $\mathbb{R}^{3}$: vectors with three components. If we were to plot this, we would have $x$, $y$, and $z$ axes. For two vectors $\mathbf{a}, \mathbf{b}$ with three components:
+
+$$\text{Distance}(a,b)^{\text{Euclidean}}=\sqrt{(x_1-x_2)^2+(y_1-y_2)^2+(z_1-z_2)^2}$$
+
+This is the Euclidean distance in $\mathbb{R}^3$. The norm is also a slight modification:
+
+$$\|\mathbf{a}\|=\sqrt{x_1^2+y_1^2+z_1^2}$$
+
+Also, notice that when we divide a vector by its magnitude (its norm), the norm of that new vector is 1. Because of this property, we have a **normed** (or **unit**) vector. This is often useful in applied settings because it standardizes the vector. Regardless of the vector's components, a normed vector always has unit length.
+
+## Similarity and Vector Products
+
+Although it is easy to multiply a scalar with a vector, there are several ways to multiply vectors. Let's define multiplication in three ways: the **inner product**, the **cross product**, and the **outer product**.
+
+### The Inner Product
+
+ Suppose $\mathbf{a}=[3,2,1]$ and $\mathbf{b}=[1,1,1]$. To calculate the inner product (or **dot product**), we multiply each element and add: $[3 \cdot 1+2 \cdot 1+1 \cdot 1]=6$. The shorthand notation is $\sum_{i} a_i b_i$, which reads: "multiply the $i$-th element in $\mathbf{a}$ with the $i$-th element in $\mathbf{b}$ and then sum from 1 to $k$, where $k$ is the length of the vectors" (Gill 2006, p. 87).
+
+**The inner product is a measure of covariance—how two vectors (or variables) go together.** The correlation is the standardized covariance: it is the mean-centered inner product divided by the product of the norms of mean-centered $x$ and mean-centered $y$.
+
+$$\text{cov}(x,y)=E[(x-\bar{x})(y-\bar{y})]=\frac{\sum(x-\bar{x})(y-\bar{y})}{n-1}=\frac{\text{inner.product}(x-\bar{x}, y-\bar{y})}{n-1}$$
+
+$$r_{x,y}=\frac{\text{cov}(x,y)}{sd(x)sd(y)}=\frac{\text{inner.product}(x-\bar{x}, y-\bar{y})}{\|\mathbf{x}-\bar{\mathbf{x}}\|\|\mathbf{y}-\bar{\mathbf{y}}\|}$$
+
+Geometrically, if two vectors are **orthogonal** (independent), the inner product is zero, denoted $\mathbf{a} \perp \mathbf{b}$. In other words, the covariance/correlation will be zero. We can see this using the law of cosines.
+
+### Covariance and Correlation
+#### The Law of Cosines
+
+If you know two sides of a triangle and the angle where these two sides meet, you can calculate the third side using: $c^2=a^2+b^2-2ab\cos(\theta)$, where $\theta$ must be between 0 and $\pi$. Recall the circumference of a circle is $2\pi r$. Assuming a unit circle where $r=1$, a triangle can only be formed if $\theta < 180°$, which in radians is $\pi$. We can always find the unknown side of the triangle by knowing the angle where $a$ and $b$ meet.
+
+Now, how does this relate to the inner product? If $\mathbf{a}$ and $\mathbf{b}$ are vectors, the inner product is:
+
+$$\text{inner.product}(\mathbf{a},\mathbf{b})=\|\mathbf{a}\|\|\mathbf{b}\|\cos(\theta)$$
+
+The inner product of $\mathbf{a}$ and $\mathbf{b}$ is a function of the vector norms and the angle between them. The only way the inner product of two non-zero vectors equals zero is if $\cos(\theta)=0$, which occurs when $\theta=\pi/2$ (90 degrees). Thus, we only have two independent or orthogonal vectors when the angle between them is 90 degrees, or $\pi/2$ radians.
+
+Similarly:
+
+$$\|\mathbf{a}-\mathbf{b}\|^2=\|\mathbf{a}\|^2+\|\mathbf{b}\|^2-2\cos(\theta)$$
+
+Rearranging:
+
+$$\cos(\theta)=\frac{\text{inner.product}(\mathbf{a},\mathbf{b})}{\|\mathbf{a}\|\|\mathbf{b}\|}$$
+
+$$\theta=\arccos\left(\frac{\text{inner.product}(\mathbf{a},\mathbf{b})}{\|\mathbf{a}\|\|\mathbf{b}\|}\right)$$
+
+**The inner product is generally viewed as a measure of association.** Note the relationship between the inner product and covariance between two variables. If that covariance is zero, geometrically it means a right angle is formed.
+
+#### A Practical Digression: Cohesion and Voting
+
+Why should you care? The vector norm is a measure of magnitude, strength, consistency, length, and so on. We could view it as an indicator of cohesion. Gill (2006) cites Casteveans (1970). Suppose we have a legislative vote where Conservatives vote 2, 100 and Liberals vote 72, 33. We could calculate the normed values, which gives a measure of cohesion. We could also calculate $\theta$ and compare it to other votes.
+
+#### Inner Product Rules
+
+The **inner product rules**(Gill 2006)
+
+**Commutative:** $\mathbf{a} \cdot \mathbf{b}=\mathbf{b} \cdot \mathbf{a}$
+
+**Associative:** $d(\mathbf{a}+\mathbf{b})=(d\mathbf{a}) \cdot \mathbf{b}=\mathbf{a} \cdot d(\mathbf{b})$
+
+**Distributive:** $\mathbf{c}(\mathbf{a}+\mathbf{b})=\mathbf{c}\mathbf{a}+\mathbf{c}\mathbf{b}$
+
+**Zero:** $\mathbf{a} \cdot 0=0$
+
+**Unit:** $1 \cdot \mathbf{a}=\sum a_i$
+
+### Looking Forward: The Cross Product
+
+The cross product is another common matrix multiplication operation. Follow these steps:
+
+1. Stack the vectors.
+2. Pick a row or column.
+3. Calculate the determinant on the smaller $2 \times 2$ submatrix by deleting the $i$-th entry.
+
+Say we have $\mathbf{a}=[3,2,1]$ and $\mathbf{b}=[1,4,7]$:
+
+$$\begin{bmatrix}
+3 & 2 & 1\\
+1 & 4 & 7
+\end{bmatrix}$$
+
+The cross product is $[2 \cdot 7-4 \cdot 1, 1 \cdot 1-3 \cdot 7, 3 \cdot 4-2 \cdot 1]$. The important indexing trick is that if the entry is in an even-numbered location, we flip the order of subtraction. So we get $[10,-20,10]$. The cross product is orthogonal to both original vectors (Gill 2006). We'll see that the cross-product is useful for calculating the inverse of a matrix through the determinant.
+
+### Looking Forward:  The Outer Product
+
+The outer product involves taking one vector, transposing it, and then multiplying that vector by the second vector:
+
+$$\begin{bmatrix}
+3 \\
+2\\
+1
+\end{bmatrix}
+\begin{bmatrix}
+1 & 4 & 7
+\end{bmatrix}$$
+
+If we multiply these by taking the $i$-th row and multiplying by the $j$-th column, then adding, we get:
+
+$$\begin{bmatrix}
+3 & 12 & 21\\
+2 & 8 & 14\\
+1 & 4 & 7
+\end{bmatrix}$$
+
+## Matrices
+
+As noted, we can combine row or column vectors in a matrix. For an $i \times j$ matrix, the first number typically corresponds to the number of rows, the second to the number of columns. Let's follow the convention that vectors are written as lowercase bold letters and matrices as uppercase bold letters. Like vectors, it's important to establish different types of matrices, their properties, and matrix operations.
+
+### Matrix Properties and Types
+
+**The Equality Property:** Two matrices are equal, $\mathbf{A}=\mathbf{B}$, if all elements are identical.
+
+**A Square Matrix:** A square matrix has an equal number of rows and columns.
+
+**A Symmetric Matrix:** A symmetriic the same entries above and below the diagonal.
+
+**A Skew-symmetric Matrix:** A symmetric matrix where the signs of the off-diagonals change (entries are the same, but signs differ).
+
+**Transpose:** The transpose of a matrix changes rows to columns, or vice versa. This is denoted $\mathbf{A}^T$ or $\mathbf{A}^{\prime}$.
+
+**Squaring:** Squaring a matrix is the same as multiplying it by itself: $\mathbf{A}^2=\mathbf{A}\mathbf{A}$. The mechanics differ from multiplying two scalars.
+
+**Idempotent Matrix:** $\mathbf{A}^2=\mathbf{A}\mathbf{A}=\mathbf{A}$
+
+**Identity Matrix:** $\mathbf{I}$ is analogous to multiplying a scalar by 1. So $\mathbf{A}\mathbf{I}=\mathbf{A}$. The identity matrix has zeros off the diagonal and 1s on the diagonal.
+
+**Trace:** The trace of a matrix is the sum of all diagonal elements: $\text{tr}(\mathbf{I})$ equals the number of rows in the matrix.
+
+### Matrix Addition and Subtraction
+
+<div style="background-color: #f0f7ff; border-left: 4px solid #0066cc; padding: 15px; margin: 20px 0;">
+
+**Always examine the matrices used in your analysis. What are the number of rows? What are the number of columns?  What data are missing?**
+
+</div>
+
+How do we  perform operations on matrices? After all a **matrix** encodes far more than a **scalar** and is a combination of *row* or *column* vectors.
+
+For matrices to be added or subtracted, they must be **conformable** (same dimensions). To add or subtract, simply add (or subtract) the $i,j$ elements:
+
+
+$$\begin{bmatrix}
+a_{11} & a_{12} & \cdots & a_{1n} \\
+a_{21} & a_{22} & \cdots & a_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+a_{n1} & a_{n2} & \cdots & a_{nn}
+\end{bmatrix}+
+\begin{bmatrix}
+b_{11} & b_{12} & \cdots & b_{1n} \\
+b_{21} & b_{22} & \cdots & b_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+b_{n1} & b_{n2} & \cdots & b_{nn}
+\end{bmatrix}=
+\begin{bmatrix}
+a_{11}+b_{11} & a_{12}+b_{12} & \cdots & a_{1n}+b_{1n} \\
+a_{21}+b_{21} & a_{22}+b_{22} & \cdots & a_{2n}+b_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+a_{n1}+b_{n1} & a_{n2}+b_{n2} & \cdots & a_{nn}+b_{nn}
+\end{bmatrix}$$
+
+A matrix multiplied by a scalar is every element multiplied by that scalar.
+
+**Commutative:** $\mathbf{X}+\mathbf{Y}=\mathbf{Y}+\mathbf{X}$
+
+**Additive:** $(\mathbf{X}+\mathbf{Y})+\mathbf{Z}=\mathbf{X}+(\mathbf{Y}+\mathbf{Z})$
+
+**Distributive (Matrix):** $\mathbf{c}(\mathbf{X}+\mathbf{Y})=\mathbf{c}\mathbf{X}+\mathbf{c}\mathbf{Y}$
+
+**Distributed (Scalar):** $(c+t)\mathbf{X}=c\mathbf{X}+t\mathbf{X}$
+
+**Zero:** $\mathbf{A}+0=\mathbf{A}$
+
+### Matrix Multiplication
+
+We need to elaborate on this general algebra to multiply two matrices and invert matrices. A critical component that makes matrix multiplication different from scalar multiplication is that **order absolutely matters**. It is entirely conceivable that $\mathbf{A}\mathbf{B}$ differs from $\mathbf{B}\mathbf{A}$. It is also possible that $\mathbf{A}\mathbf{B}$ can be multiplied but $\mathbf{B}\mathbf{A}$ cannot!
+
+To multiply two matrices, we multiply and add the $i$-th row with the $j$-th column:
+
+$$\begin{bmatrix}
+1 & 3 \\
+2 & 4
+\end{bmatrix}
+\begin{bmatrix}
+3 & 5 \\
+2 & 4
+\end{bmatrix}=
+\begin{bmatrix}
+1 \cdot 3+3 \cdot 2 & 1 \cdot 5+3 \cdot 4 \\
+2 \cdot 3+4 \cdot 2 & 2 \cdot 5+4 \cdot 4
+\end{bmatrix}$$
+
+If we multiply two $2 \times 2$ matrices, we get a $2 \times 2$ matrix. Two matrices are conformable for multiplication if the first matrix has the same number of columns as the second has rows. The dimensions of the resulting matrix are the rows of the first matrix by the columns of the second.
+
+For example:
+- $2 \times 2$ multiplied by $3 \times 2$ is not conformable.
+- $3 \times 2$ multiplied by $2 \times 2$ yields a $3 \times 2$ matrix.
+- $9 \times 2$ multiplied by $2 \times 11$ yields a $9 \times 11$ matrix.
+
+This is just one reason why order matters.
+
+
+<div style="background-color: #f0f7ff; border-left: 4px solid #0066cc; padding: 15px; margin: 20px 0;">
+
+## Matrix Conformability
+
+**Conformability** refers to whether two matrices have compatible dimensions for a particular  matrix operation. Different operations have different  requirements. Knowing whether a matrix or matrices are conformable in a particular operation is essential to debuggin.
+
+### Conformability for Addition and Subtraction
+
+Recall, for addition and subtraction, matrices must have **exactly the same dimensions**—the same number of rows and the same number of columns. If $\mathbf{A}$ is $m \times n$ and $\mathbf{B}$ is $m \times n$, then $\mathbf{A}+\mathbf{B}$ and $\mathbf{A}-\mathbf{B}$ are both $m \times n$.
+
+**Example (Conformable):**
+
+$$\mathbf{A}=\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}_{2 \times 2} \quad \mathbf{B}=\begin{bmatrix} 5 & 6 \\ 7 & 8 \end{bmatrix}_{2 \times 2}$$
+
+$$\mathbf{A}+\mathbf{B}=\begin{bmatrix} 1+5 & 2+6 \\ 3+7 & 4+8 \end{bmatrix}=\begin{bmatrix} 6 & 8 \\ 10 & 12 \end{bmatrix}_{2 \times 2}$$
+
+**Example (Non-conformable):**
+
+$$\mathbf{A}=\begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix}_{2 \times 2} \quad \mathbf{C}=\begin{bmatrix} 5 & 6 & 7 \\ 8 & 9 & 10 \end{bmatrix}_{2 \times 3}$$
+
+$$\mathbf{A}+\mathbf{C} \text{ is not defined—dimensions don't match}$$
+
+### Conformability for Multiplication
+
+For matrix multiplication, the rule is: **the number of columns in the first matrix must equal the number of rows in the second matrix.**
+
+If $\mathbf{A}$ is $m \times n$ and $\mathbf{B}$ is $n \times p$, then $\mathbf{A}\mathbf{B}$ is conformable and produces an $m \times p$ matrix.
+
+**General Rule:**
+$$\mathbf{A}_{m \times n} \times \mathbf{B}_{n \times p} = \mathbf{C}_{m \times p}$$
+
+The inner dimensions ($n$ in both matrices) must match. The result has dimensions of the outer dimensions ($m$ rows from $\mathbf{A}$, $p$ columns from $\mathbf{B}$).
+
+**Example (Conformable):**
+
+$$\mathbf{A}_{2 \times 3}=\begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix} \quad \mathbf{B}_{3 \times 2}=\begin{bmatrix} 7 & 8 \\ 9 & 10 \\ 11 & 12 \end{bmatrix}$$
+
+The first matrix has 3 columns, the second has 3 rows—**conformable for multiplication**.
+
+$$\mathbf{A}\mathbf{B}_{2 \times 2}=\begin{bmatrix} 1(7)+2(9)+3(11) & 1(8)+2(10)+3(12) \\ 4(7)+5(9)+6(11) & 4(8)+5(10)+6(12) \end{bmatrix}$$
+
+$$=\begin{bmatrix} 58 & 64 \\ 139 & 154 \end{bmatrix}_{2 \times 2}$$
+
+**Example (Non-conformable):**
+
+$$\mathbf{A}_{2 \times 3} \times \mathbf{C}_{2 \times 2}$$
+
+The first matrix has 3 columns, but the second has only 2 rows—**not conformable**. You cannot multiply these matrices.
+
+### Order Matters
+
+Conformability reveals why matrix multiplication is **not commutative** --  order matters.
+
+**Case 1:** $\mathbf{A}_{2 \times 3}$ and $\mathbf{B}_{3 \times 2}$
+
+- $\mathbf{A}\mathbf{B}$: Columns of $\mathbf{A}$ (3) = Rows of $\mathbf{B}$ (3) ✓ **Conformable** → Result is $2 \times 2$
+- $\mathbf{B}\mathbf{A}$: Columns of $\mathbf{B}$ (2) ≠ Rows of $\mathbf{A}$ (2)... wait, that's equal! ✓ **Conformable** → Result is $3 \times 3$
+
+But $\mathbf{A}\mathbf{B}$ and $\mathbf{B}\mathbf{A}$ produce **different dimensions and different values**.
+
+**Case 2:** $\mathbf{A}_{2 \times 3}$ and $\mathbf{C}_{2 \times 2}$
+
+- $\mathbf{A}\mathbf{C}$: Columns of $\mathbf{A}$ (3) ≠ Rows of $\mathbf{C}$ (2) ✗ **Not conformable**
+- $\mathbf{C}\mathbf{A}$: Columns of $\mathbf{C}$ (2) ≠ Rows of $\mathbf{A}$ (2)... wait, that's equal! ✓ **Conformable** → Result is $2 \times 3$
+
+</div>
+
+## The Transpose
+
+The transpose of a matrix $\mathbf{A}$, written $\mathbf{A}^T$ (or $\mathbf{A}'$), swaps rows and columns. If $\mathbf{A}$ is $m \times n$, then $\mathbf{A}^T$ is $n \times m$.
+
+$$
+\mathbf{A} = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix}_{2 \times 3}
+\quad \Longrightarrow \quad
+\mathbf{A}^T = \begin{bmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{bmatrix}_{3 \times 2}
+$$
+
+### Key Properties of the Transpose
+
+| Property | Statement |
+|----------|-----------|
+| Double transpose | $(\mathbf{A}^T)^T = \mathbf{A}$ |
+| Sum | $(\mathbf{A} + \mathbf{B})^T = \mathbf{A}^T + \mathbf{B}^T$ |
+| Scalar | $(c\mathbf{A})^T = c\mathbf{A}^T$ |
+| Product (reversal) | $(\mathbf{A}\mathbf{B})^T = \mathbf{B}^T\mathbf{A}^T$ |
+| Symmetric matrix | $\mathbf{A} = \mathbf{A}^T$ iff $\mathbf{A}$ is symmetric |
+
+The product rule is especially important: **transposing a product reverses the order**. This generalizes: $(\mathbf{A}\mathbf{B}\mathbf{C})^T = \mathbf{C}^T\mathbf{B}^T\mathbf{A}^T$. You'll see this repeatedly in the OLS derivation.
+
+A useful result: for any matrix $\mathbf{A}$, the product $\mathbf{A}^T\mathbf{A}$ is always a symmetric, square matrix (with dimensions $n \times n$ if $\mathbf{A}$ is $m \times n$). This is exactly what $\mathbf{X}^T\mathbf{X}$ produces in the normal equations.
+
+## Matrix Inversion
+
+For scalars, the inverse of $a$ is $a^{-1} = 1/a$, and $a \cdot a^{-1} = 1$. The matrix analog is: $\mathbf{A}\mathbf{A}^{-1} = \mathbf{A}^{-1}\mathbf{A} = \mathbf{I}$, where $\mathbf{I}$ is the identity matrix.
+
+Only **square** matrices can have inverses, and not all square matrices do. A matrix that has an inverse is called **nonsingular** (or invertible); one that does not is **singular**.
+
+### When Does the Inverse Exist?
+
+A square matrix $\mathbf{A}$ is invertible if and only if its **determinant** is nonzero: $\det(\mathbf{A}) \neq 0$.
+
+For a $2 \times 2$ matrix:
+
+$$
+\mathbf{A} = \begin{bmatrix} a & b \\ c & d \end{bmatrix}
+\quad \Longrightarrow \quad
+\mathbf{A}^{-1} = \frac{1}{ad - bc}\begin{bmatrix} d & -b \\ -c & a \end{bmatrix}
+$$
+
+The denominator $ad - bc$ is the determinant. If it equals zero, the matrix is singular and no inverse exists.
+
+**Example:**
+
+$$
+\mathbf{A} = \begin{bmatrix} 4 & 7 \\ 2 & 6 \end{bmatrix}
+\quad \Longrightarrow \quad
+\det(\mathbf{A}) = 4(6) - 7(2) = 10
+$$
+
+$$
+\mathbf{A}^{-1} = \frac{1}{10}\begin{bmatrix} 6 & -7 \\ -2 & 4 \end{bmatrix} = \begin{bmatrix} 0.6 & -0.7 \\ -0.2 & 0.4 \end{bmatrix}
+$$
+
+Verify: $\mathbf{A}\mathbf{A}^{-1} = \begin{bmatrix} 4(0.6)+7(-0.2) & 4(-0.7)+7(0.4) \\ 2(0.6)+6(-0.2) & 2(-0.7)+6(0.4) \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = \mathbf{I}$ ✓
+
+### Key Properties of the Inverse
+
+| Property | Statement |
+|----------|-----------|
+| Product (reversal) | $(\mathbf{A}\mathbf{B})^{-1} = \mathbf{B}^{-1}\mathbf{A}^{-1}$ |
+| Transpose | $(\mathbf{A}^T)^{-1} = (\mathbf{A}^{-1})^T$ |
+| Double inverse | $(\mathbf{A}^{-1})^{-1} = \mathbf{A}$ |
+| Identity | $\mathbf{I}^{-1} = \mathbf{I}$ |
+
+Like the transpose, **inverting a product reverses the order**.
+
+### Why This Matters for OLS
+
+In the OLS derivation, we arrive at the **normal equations**: $\mathbf{X}^T\mathbf{X}\mathbf{b} = \mathbf{X}^T\mathbf{y}$. To isolate $\mathbf{b}$, we multiply both sides by $(\mathbf{X}^T\mathbf{X})^{-1}$:
+
+$$\mathbf{b} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$$
+
+This requires $\mathbf{X}^T\mathbf{X}$ to be invertible. It fails when $\mathbf{X}$ has **perfect multicollinearity** — one column is a linear combination of others — because $\det(\mathbf{X}^T\mathbf{X}) = 0$. This is the matrix algebra reason behind Assumption 9 (no perfect multicollinearity).
+
+
+## Linear Regression and Matrix Algebra
+
+Let's take it a step further -- since at this point it may not be clear even why we need the inverse. Oftentimes in the social sciences we're interested in solving a system of equations.  
+
+$$
+\begin{bmatrix}
+y_{1}= & b_0+ b_1 x_{Ideology,1}+b_2 x_{PID,1}\\
+y_{2}= & b_0+ b_1 x_{Ideology,2}+b_2 x_{PID,2}\\
+y_{3}= &  b_0+ b_1 x_{Ideology,3}+b_2 x_{PID,3}\\
+y_{4}= &  b_0+ b_1 x_{Ideology,4}+b_2 x_{PID,4}\\
+\vdots\\
+y_{n}= &  b_0+ b_1 x_{Ideology,n}+b_2 x_{PID,n}\\
+\end{bmatrix}
+$$
+
+
+The linear regression model can be written in matrix form as:
+$$ \textbf{y} = \textbf{X} \textbf{b} + \textbf{e} $$
+
+The dependent variable, $Y$ is a vector.
+$$ \textbf{y} =
+\begin{bmatrix}
+Y_1 \\
+Y_2 \\
+\vdots \\
+Y_n
+\end{bmatrix}
+$$
+
+The matrix $X$ consists of the independent variables. The first column is a vector of ones for the intercept term, and the remaining columns are the independent variables -- i.e.,  your data.
+
+$$ \textbf{X} =
+\begin{bmatrix}
+1 & X_{11} & X_{12} & \cdots & X_{1k} \\
+1 & X_{21} & X_{22} & \cdots & X_{2k} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & X_{n1} & X_{n2} & \cdots & X_{nk}
+\end{bmatrix}
+$$
+
+The parameter vector is what we are estimating, the slopes and intercept.
+
+$$ \textbf{b} =
+\begin{bmatrix}
+b_0 \\
+b_1 \\
+\vdots \\
+b_k
+\end{bmatrix}
+$$
+
+And the errors
+
+$$ \textbf{e} =
+\begin{bmatrix}
+e_1 \\
+e_2 \\
+\vdots \\
+e_n
+\end{bmatrix}
+$$
+And all together:
+
+$$
+  \begin{bmatrix}
+y_1\\
+y_2\\
+y_3\\
+\vdots\\
+y_n
+\end{bmatrix}
+ =
+\begin{bmatrix}
+1 & x_{12} & x_{13} & x_{14} & \cdots & x_{1k} \\
+1 & x_{22} & x_{23} & x_{24} & \cdots & x_{2k} \\
+1 & x_{32} & x_{33} & x_{34} & \cdots & x_{3k} \\
+\vdots & \vdots & \vdots & \ddots & \vdots\\
+1 & x_{n2} & x_{n3} & x_{n4} & \cdots & x_{nk} \\
+\end{bmatrix}
+\begin{bmatrix}
+b_1\\
+b_2\\
+b_3\\
+\vdots\\
+b_k\\
+\end{bmatrix}
+ +
+ \begin{bmatrix}
+e_1\\
+e_2\\
+e_3\\
+\vdots\\
+e_n\\
+\end{bmatrix}
+$$
+
+And,
+
+\begin{align*}
+y_1 &= b_0 + b_1 x_{11} + b_2 x_{12} + \cdots + b_k x_{1k} + e_1 \\
+y_2 &= b_0 + b_1 x_{21} + b_2 x_{22} + \cdots + b_k x_{2k} + e_2 \\
+\vdots\\
+y_n &= b_0 + b_1 x_{n1} + b_2 x_{n2} + \cdots + b_k x_{nk} + e_n
+\end{align*}
+
+Which is just:
+
+$$y_i = b_0 +  b_1 x_{i1} + b_2 x_{i2} + \cdots + b_k x_{ik} + e_1$$
+
+## Deriving the OLS Estimator in Matrix Form
+
+The goal is the same, minimize this:
+$$
+min(\mathbf{e}^T\mathbf{e})
+$$
+
+Where
+
+$$
+\mathbf{e^T e} = (\textbf{y} - \textbf{Xb})^T(\textbf{y} - \textbf{Xb})
+$$
+
+
+$$\mathbf{e}^T \mathbf{e}=\mathbf{y}^T\mathbf{y}-\mathbf{b}^T\mathbf{X}^T\mathbf{y}-\mathbf{y}^T\mathbf{X}\mathbf{b}+\mathbf{b}^T\mathbf{X}^T\mathbf{X}\mathbf{b}$$
+
+ But $\mathbf{b}^T\mathbf{X}^T\mathbf{y}$ and $\mathbf{y}^T\mathbf{X}\mathbf{b}$ are scalars, and
+
+$$[\mathbf{y}^T\mathbf{X}\mathbf{b}]^T =\mathbf{b}^T\mathbf{X}^T\mathbf{y}$$
+
+$$\mathbf{e}^T \mathbf{e}=\mathbf{y}^T\mathbf{y}-2\mathbf{b}^T\mathbf{X}^T\mathbf{y}+\mathbf{b}^T\mathbf{X}^T\mathbf{X}\mathbf{b}$$
+
+$$\frac{\partial \mathbf{e}^T \mathbf{e}}{\partial \mathbf{b}}=0-2\mathbf{X^Ty}+2\mathbf{X^T X b}$$
+
+Again, set this to 0, and $\mathbf{X^T y}=\mathbf{X^T X b}$, the normal equations!
+
+When we multiply a matrix by its inverse, we get the identity matrix, so multiply the equation by $(\mathbf{X^T X})^{-1}$
+
+
+$$(\mathbf{X^T X})^{-1}\mathbf{X^T y}=\mathbf{b}$$
+
+As long as $\mathbf{X^T X}$ is invertible, we can solve for vector $\textbf{b}$.
+
+Because the matrix version has a more compact representation, it is often easier to manage with multiple variables. The equation is always the same. It's also common to see the linear equation written in matrix form
+
+$$
+\textbf{y} = \textbf{X}\textbf{b} + \textbf{e}
+$$

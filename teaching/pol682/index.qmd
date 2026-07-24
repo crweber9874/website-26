@@ -1,0 +1,34 @@
+# Introduction {.unnumbered}
+
+This is the course reader for POL 682. The reader provides a comprehensive overview of linear regression techniques, including simple and multiple linear regression, with practical examples and visualizations. 
+
+## Overview
+
+Linear regression is a fundamental statistical technique used to model the relationship between a dependent variable and one or more independent variables. This book covers:
+
+- Basic concepts of linear regression
+- Simple linear regression
+- Deriving the OLS Estimator
+- Gauss-Markov Assumptions and Theorem
+- Multiple linear regression
+- Model diagnostics and validation
+- Numerous applications with real data
+
+## Prerequisites
+
+To follow along with the examples in this book, you should have:
+
+- Basic knowledge of statistics
+- Completed POL 681 or equivalent
+- Basic understanding of R programming
+- Understanding of mathematical notation
+- Familiarity with matrix algebra is helpful but not required (there is also a chapter in this reader)
+
+## Structure
+
+The book is organized into several chapters:
+
+1. **Simple Linear Regression**: Introduction to modeling relationships between two variables
+2. **Ordinary Least Squares**: Deriving the OLS estimator
+3. **Model Diagnostics**: Checking assumptions and validating models
+4. **Applications and Case Studies**: Practical examples with real data

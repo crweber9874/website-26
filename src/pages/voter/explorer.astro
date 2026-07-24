@@ -1,0 +1,27 @@
+---
+import AvpLayout from "@/layouts/AvpLayout.astro";
+import Explorer from "@/modules/avp/explorer/components/Explorer.jsx";
+import { loadCd } from "@/modules/avp/explorer/lib/data.js";
+import { loadContent, fillTemplate } from "@/modules/avp/shared/lib/content.js";
+
+const data = loadCd();
+const { sections } = loadContent("explorer");
+const hero = sections.hero;
+const lede = fillTemplate(hero.ledeTemplate, {
+  fileDate: data.fileDate,
+  vintage: data.vintage,
+});
+---
+
+<AvpLayout title="Explorer" module="explorer">
+  <section class="hero hero-compact">
+    <div class="wrap">
+      <div class="eyebrow">{hero.eyebrow}</div>
+      <h1 class={hero.titleClass}>{hero.title}</h1>
+      <p class="lede" set:html={lede} />
+    </div>
+  </section>
+  <main class="wrap content-after-hero">
+    <Explorer client:only="react" initialData={data} initialGeo="cd" />
+  </main>
+</AvpLayout>

@@ -1,0 +1,193 @@
+#   Comments On Model Fit and Interpretation
+
+##  Interpretation
+
+The problem with the categorical models we've explored is that they are not directly interpretable, due to the non-linearity of the effect of $x$ on $y$.  Consider the binary logit model.
+
+
+Consistent with Long (1997), if we take the partial derivatives with respect to $x$ (Use the chain rule and then ${{\partial F(x)} \over {\partial x}}=f(x)$:
+
+$${{\partial F(x)}\over{\partial x}}=b \times f(x)$$
+
+
+In this case, f(x) is either the logit or probit PDF. So, for logit,
+
+$${{\partial F_{logit}(x)}\over{\partial x}}=b \times {{exp(a+bx)}\over{1+exp(a+bx)^2}}$$
+
+The slope associated with $x$ is a function of $b$ and the given value of $x$. For probit, just replace f(x) with the normal PDF.
+
+It is even more challenging to interpret the results when there are other covariates, since:
+
+$${{\partial F_{logit}(x)}\over{\partial x_k}}=b_k \times {{exp(a+\sum b_j x_j)}\over{1+exp(a+\sum b_j x_j)^2}}$$
+
+We could attempt to interpret the coefficients in terms of the partial derivative for the latent variable, though recall why this is ill-advised: The coefficients depend on the scale of the error term. Depending upon the variance of the error (normal or logit), this effects the coefficient. Thus, it is quite difficult to make much sense from the slopes alone.
+
+As noted by Long (1997), we could partially standardized the slopes, by dividing each slope by the standard deviation of $y$, ($b/s_y)$. Now the interpretation is, "for a one unit change in x we anticipate a b standard deviation change in $y_{latent}$." We could alternatively fully standardize the slopes by multiplying $b$ with $(s_x/s_y)$. Now, we may state``for a one standard deviation change in x we anticipate a b standard deviation change in $y_{latent}$.'' These approaches are somewhat more common, but it's still far from ideal. What does $y_{latent}$ mean, in practice?
+
+It's not very intuitive. To see this, let's just consider the logit model, though really the same problem exists for the probit.
+
+Recall the logit model is:
+
+$${log{{\theta_i}\over{1-\theta_i}}}=x_iB$$
+
+The model estimates the linear effect of $x_i$ on the log odds ratio. Thus, every coefficient in the model represents the expected log change in the odds for a unit change in $x$. Unlike an OLS model, the coefficients in the logit (or probit) are not directly interpretable. If you are absolutely certain that a reader thinks of the world in terms of log odds ratios, then just leave the model as is. Or, perhaps readers think in terms of standardized log odds ratios? If not, you it's necessary to do a fair amount of post-estimation work to show the consequences of your independent variables on you 0/1 outcome.
+
+The problem more or less boils down to something relatively simple: The model is non-additive and non-linear. The consequences of x on the probability that $y=1$ is inherently tied to the value of x and the value of all other covariates in the particular model. The "non-additivity" part is unimportant here, since there is only one indepenendent variable. But, we can still see that the slope of x$\rightarrow$y is far from constant.
+
+
+## Frequentism and Model Fit
+
+Model fit is an important, though difficult, topic when we are dealing with non-linear models. Though we can derive scalar measures of model fit from the linear model, which generally describe the discrepancy between the observed and predicted data (e.g., $R^2$), it's hard to find a comparably reliable statistic for non-linear models.
+
+Typically, we use $R^2$ to diagnose model fit, where the statistic is between 0 and 1. But with dichotomous or ordinal data, it is never really clear what the boundary will be. It also doesn't have a natural intepretation. Recall, the statistic measures the amount of variance shared between the linear composition and the dependent variable -- it's the ratio of the regression variance to the total variance. We can calculate the total variance, but the regression variance is more challenging because we never observe $y_{latent}$ directly.
+
+Why this occurs should be fairly intuitive. Because we need to theoretically separate the structural and measurement models, it is difficult to derive a measure that is based on the distance between the observed and the predicted data. For instance, $exp(b)$, the odds ratio in a logit regression, makes it difficult to then map the log odds onto the 0/1 realization of the latent variable.
+
+Let's consider measures of model fit when using maximum likelihood, then we'll move to Bayesian models. Let's also start with binary logit, though these methods can be easily extended to any categorical data. These are general measures of fit that translate to a variety of models (as long as ML is used). In addition to scalar measures of fit, we'll review model comparisons and "information measures" which may be used to compare non-nested models. Finally, we'll consider several approaches uniquely tailored to the binary variable regression; in particular, pseudo-$R^2$, **counts correctly predicted**, and **counts predicted, corrected by chance**, and how to summarize prediction uncertainty.
+
+### Counts correctly predicted
+
+We could come up with a matrix which is the predicted value of $Y_{obs}$ and the actual value of $Y$. In this 2x2 matrix, the 1,1 and 0,0 entries represent accurate predictions; the off-diagonals are inaccurate predictions. We could just generate our prediction by whether the predicted latent variable is positive ($y=1$) or negative ($y=0$). Then, calculate the **percent correctly predicted.**
+
+If we convert these to probabilities by using the inverse normal or logit ($\texttt{pnorm}$ or $\texttt{logit}$), then define the $ePCP$, expected correctly predicted as:
+
+$$ePCP={1\over n}({\sum_{y=1} P_i+\sum_{y=0}(1-P_i)})$$
+
+An issue with **Percent Correctly Predicted** is that certainty is a constant. We declare $Y=1$ if $p=0.55$, just as we would declare $Y=1$ if $p=0.99$, but are clearly more confident in the latter. Thus, we weight each prediction by its constituent probability. We are accounting for our uncertainty. Typically, this number is somewhat lower than PCP.
+
+Another variation: Let's assume two models, a naive model and a model with the expected predictor. The naive model predicts the outcome based on the modal category. Thus, if 51% voted for the Republican, the model would predict a Republican vote with probability of 0.51. We should never really get less than 0.51 -- if we do, then the naive model would be a superior model.
+
+In reality, our naive estimate is 0.52
+
+```{r, warning = FALSE, message = FALSE}
+
+library(dplyr)
+library(MASS)
+library('pscl')
+
+load("~/Dropbox/github_repos/teaching/POL683_Fall24/advancedRegression/vignettes/dataActive.rda")
+dat = dataActive %>% 
+  mutate(
+    pid = recode(pid3, "Democrat" = 1, "Independent" = 2, "Republican" = 3, "Other" = 2, "Not sure" = 2),
+    ideo = ifelse(ideo5 == "Very liberal", 1, 0),
+    liberal = ifelse(ideo5 == "Liberal" | ideo5 == "Very liberal", 1, 0),
+    independent = ifelse(ideo5 == "Moderate", 1, 0),
+    conservative = ifelse(ideo5 == "Conservative" | ideo5 == "Very conservative", 1, 0),
+    protest = ifelse(violent > 4, 1, 0)
+  ) 
+my_model =  glm(protest ~ as.factor(pid),
+       family=binomial(link="logit"), data = dat)
+hitmiss(my_model)
+```
+
+Think of it this way -- if we were to just estimate $\theta$, that value would be the same as $\texttt{plogis(a)}$ from a regression model with no predictors. The naive model is one that just assumes a single underlying $\theta$, instead of $\theta$ being some linear composite of predictors. Then, we may construct a comparison,
+
+$$PRE={{PCP-PMC}\over {1-PMC}}$$
+
+Where the PRE is simply the proportional reduction in error -- how much do we reduce the error with our model, compared to the naive model which only predicts the modal category?
+
+## The Likelihood Ratio Test
+
+These are useful summary measures of model fit; they simply represent a comparison between our predicted and observed data, but in the case of binary responses. Often, we are also interested in comparing coefficients and/or estimating whether a coefficient or set of coefficients are equal to zero.
+
+How do we test $H_0: \beta_{PID}=\beta_{Polarization}=0$? Similar to the joint F-test in the linear model, we can define a likelihood ratio test when we use MLE. Define two models: (1) \$M_0: a \$ and (2) $M_1: a+b_1x_x+b_2 x_2$
+
+Let's estimate the second model by maximizing the log likelihood function ($loglik_{m1}$) and then estimate a second model where we constrain the two slopes to be 0. Then,
+
+$$G^2(M_0|M_1)=2 loglik_{m1}-2 loglik_{m0}$$
+
+```{r, warning = FALSE, message = FALSE}
+library(lmtest)
+
+load("~/Dropbox/github_repos/teaching/POL683_Fall24/advancedRegression/vignettes/dataActive.rda")
+dat = dataActive %>% 
+  mutate(
+    pid = recode(pid3, "Democrat" = 1, "Independent" = 2, "Republican" = 3, "Other" = 2, "Not sure" = 2),
+    ideo = ifelse(ideo5 == "Very liberal", 1, 0),
+    liberal = ifelse(ideo5 == "Liberal" | ideo5 == "Very liberal", 1, 0),
+    independent = ifelse(ideo5 == "Moderate", 1, 0),
+    conservative = ifelse(ideo5 == "Conservative" | ideo5 == "Very conservative", 1, 0),
+    protest = ifelse(violent > 4, 1, 0)
+  ) 
+a =  glm(protest ~ 1,
+       family=binomial(link="logit"), data = dat)
+
+b =  glm(protest ~ as.factor(pid),
+       family=binomial(link="logit"), data = dat)
+
+
+
+lrtest(a, b)
+```
+
+The $G^2$ statistic is distributed $\chi^2$ with $df=$number of constraints (here 2). Clearly, we can reject the null of no influence. See Long (1997, page 94)
+
+We could flip things, and instead of comparing our model to one with no predictors, we could compare our model to one with predictors equal to the number of data points. In this case, we would perfectly predict our data, so the likelihood becomes 1. The log of 1 is 0. If we craft the same comparison
+
+$$G^2=2 loglik_{Full}-2 loglik_{M_1}$$,
+
+this reduces to
+
+$$Deviance=-2 loglik_{M_1}$$,
+
+This is called the deviance. It is just two times the log likelihood. It's also reported at the bottom of the $\texttt{glm}$ output
+
+In particular, the *Null Deviance* is
+
+$$Null,Deviance=2loglik_{full}-2log_lik{Null}$$
+
+The *Residual Deviance*
+
+$$Residual,Deviance=2loglik_{full}-2loglik_{My Model}$$
+
+## The Wald Test
+
+The Wald Test is asymptotically equal to the LR test, and the logic isn't all that different. First, constuct a Q and R vector of constants, such that
+
+$$Qb=r$$
+
+Let's assume one variable, so we estimate a slope and an intercept. Our $b$ vector is length 2.
+
+Let's test the constraint that $b=0$, then declare $Q=(0,1)$ and $r=0$. The Wald statistic is
+
+$$W=(Qb-r)^T(Qvar(b)Q^T)^{-1}(Qb-r)$$
+
+Let's deconstruct the statistic. The left and rightmost portions estimate the distance between the actual value of $b$ and 0 -- regardless of the complexity, it's the freed model relative to the constrained model. Because there is uncertainty around the estimates, this is represented in the middle portion. Again, we multiple by Q because we are only concerned about $b$. Take the inverse because we want to give more weight to precise (smaller variance) estimates (Long 1997, 90).
+
+In \$\texttt{R}\$ we could use the $\texttt{aod}$ package. The first argument is $b$, the second is the variance-covariance matrix, the third is the terms that we want to constrain. More complex constraints could also be specified.
+
+## Warning
+
+The Wald and LR tests are reasonable approaches, but (1) their small sample properties are somewhat unknown, and (2) they should only be used if the $\textit{null}$ model consists of the same data. Say you estimate a regression of $y$ on $x$ where $x$ is missing several observations. $\texttt{R}$ will automatically drop these observations. Our null model must only include values of $y$ in which $x$ is observed, otherwise, it's an invalid comparison. I specified this above by declaring a dataset in which all NAs were omitted, $\texttt{na.omit(data)}$. Be careful when you conduct these tests that your null model only includes points where the X variables are observed (even though the Xs aren't included in the model)!
+
+Moreover, these methods can really only be used for nested model. In the case above, $b=0$ is a constraint, so the restricted/constrained model is nested in the unrestricted model. In other words, the data are the same and the models are nested. If we wish to compare non-nested models, it's advisable to use the \`\`information measures'' described below.
+
+### Single Point Estimates of Fit
+
+Scalar estimates of model fit are not incredibly meaningful in the logit/probit framework. Yet, since they are often presented, I'll introduce them here. Recall, the $R^2$ measure is just
+
+$$R^2={RegSS\over TSS}=1-{RSS/TSS}$$
+
+The problem is that in the logit/probit model, we cannot directly compare $Y_{obs}$ to the prediction we make with respect to $Y_{latent}$. Nonetheless, let's define the Efron (1978) measure of *pseudo-*$R^2$ as,
+
+$$Pseudo-R^2={1-{\sum (y-\hat{y_{latent}})^2}\over {\sum (y-\bar{y})^2)}}$$
+
+Thus, in the denominator we are subtracting the latent prediction from the 0/1 observed value.
+
+Or, McFadden (1973) takes the ratio of the log likelihood of the model without predictors relative to the log likelihood of the model with predictors. Subtract this ratio from 1.
+
+Notice that the point predictions are somewhat different. The Long (1997) book (p. 104-105) highlights several additional ones, which I encourage you to program yourselves, but typically the problem still remains: The fact that our predictions and the observed data are on different metrics, makes any comparison somewhat tenuous. Instead, a better approach is to use the aformentioned count predictions.
+
+## Information Measures
+
+The Akaike Information Criterion (AIC) is defined as:
+
+$$AIC={{-2loglik(\theta)+2P}\over N}$$
+
+Calculate the $-2loglik$ and add 2 $\times$ the number of predictors, where $p=K+1$ (Long 1997, 109). Finally, divide by the number of observations. Notice what happens with this function. As the number of parameters increases, but the log-likelihood stays the same, the AIC will increase. We prefer a \emph{smaller} AIC. The statistic penalizes for added parameters that do not improve fit. We will always decrease the log-likelihood by adding more parameters. Unlike the LR test, we could compare different non-nested models or models across samples. We just calculate the difference between two models -- call the first $AIC_1$ and the second $AIC_2$. There's not really an agreed upon cutoff as to what this difference should be, to determine whether one model fits better. I generally follow the rule that if it greater than 10, it's probably worthwhile to accept the more complex model.
+
+The Bayesian Information Criterion (BIC) is again based on a comparision -- between a fully saturated model and the proposed model. The BIC is:
+
+$$BIC=D(M)-df ln N$$
+
+Here, $D(M)$ is simply the deviance for the model -- again the contrast between the proposed model and the fully saturated model. The degrees of freedom calculation is $N-k-1$, where $k$ is the number of predictors. Note what happens with this statistic. If the deviance increases, this indicates a worse fitting model; we prefer a smaller number. But the deviance is again offset by the number of parameters, the degrees of freedom. Again, we should always prefer the model with smaller BIC.

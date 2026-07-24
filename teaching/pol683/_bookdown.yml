@@ -1,0 +1,19 @@
+delete_merged_file: true
+language:
+  ui:
+    chapter_name: "Chapter "
+
+rmd_files: [
+  "index.Rmd",   
+  "syllabus.Rmd",
+  "01-intro.Rmd",
+  "02-matrix.Rmd",
+  "03-logit.Rmd",
+  "04-simulation.Rmd",
+  "05-causal1.Rmd",
+  "08-ordered.Rmd",
+  "07-fit.Rmd",
+  "08-count_data.Rmd"
+  
+  ]
+ 

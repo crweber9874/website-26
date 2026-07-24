@@ -1,0 +1,265 @@
+---
+import Base from "@/layouts/Base.astro";
+import { site } from "@/data/site";
+import {
+  education,
+  employment,
+  honors,
+  service,
+  skills,
+  media,
+  workingPapers,
+} from "@/data/cv";
+import { allPublications, doiUrl, type Publication } from "@/data/publications";
+
+const books = allPublications.filter((p) => p.type === "book");
+const articles = allPublications.filter((p) => p.type === "article");
+const chapters = allPublications.filter((p) => p.type === "chapter");
+const references = allPublications.filter((p) => p.type === "reference");
+
+const pubGroups: { label: string; items: Publication[] }[] = [
+  { label: "Books", items: books },
+  { label: "Journal Articles", items: articles },
+  { label: "Book Chapters", items: chapters },
+  { label: "Encyclopedia & Reference", items: references },
+].filter((g) => g.items.length > 0);
+---
+
+<Base title="Curriculum Vitae">
+  <article class="cv bg-paper px-6 pb-24 pt-32 text-ink md:px-10">
+    <div class="mx-auto max-w-3xl">
+      <!-- Masthead -->
+      <header class="cv-head border-b border-ink/15 pb-8">
+        <h1 class="font-display text-4xl font-light tracking-tight sm:text-5xl">
+          Christopher Weber
+        </h1>
+        <p class="mt-2 text-sm text-ink/70">
+          Professor of Political Science · University of Arizona · Ph.D., Stony
+          Brook · Director, The Arizona Voter Project
+        </p>
+        <div
+          class="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-xs text-ink/60"
+        >
+          <span>{site.email}</span>
+          <span>{site.office}</span>
+          <a href={site.voterProject} class="link-underline"
+            >voterproject.arizona.edu</a
+          >
+          <a href={site.github} class="link-underline">github.com/crweber9874</a>
+        </div>
+
+        <div id="download" class="cv-actions mt-6 flex flex-wrap gap-3">
+          <button
+            id="cv-print"
+            type="button"
+            class="rounded-full bg-ink px-6 py-2.5 text-sm font-semibold text-paper transition-transform hover:-translate-y-0.5"
+          >
+            Download PDF
+          </button>
+          <a
+            href="/research"
+            class="rounded-full border border-ink/25 px-6 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-ink/60"
+            >Selected publications</a
+          >
+        </div>
+      </header>
+
+      <!-- Appointments -->
+      <section class="cv-section">
+        <h2 class="cv-h2">Appointments</h2>
+        <ul class="mt-4 space-y-3">
+          {
+            employment.map((e) => (
+              <li class="cv-row">
+                <span class="cv-years">{e.years}</span>
+                <span>
+                  <span class="font-medium">{e.role}</span>
+                  <span class="text-ink/60"> — {e.org}</span>
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <!-- Education -->
+      <section class="cv-section">
+        <h2 class="cv-h2">Education</h2>
+        <ul class="mt-4 space-y-3">
+          {
+            education.map((e) => (
+              <li>
+                <p class="font-medium">{e.school}</p>
+                {e.items.map((it) => (
+                  <p class="text-sm text-ink/60">{it}</p>
+                ))}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <!-- Publications -->
+      {
+        pubGroups.map((group) => (
+          <section class="cv-section">
+            <h2 class="cv-h2">{group.label}</h2>
+            <ol class="mt-4 space-y-4">
+              {group.items.map((p) => (
+                <li class="text-sm leading-relaxed">
+                  <span class="text-ink/70">{p.authors}</span> ({p.year}).{" "}
+                  <span class="italic">{p.title}.</span>{" "}
+                  <span class="text-ink/70">{p.venue}.</span>
+                  {p.doi && (
+                    <a
+                      href={doiUrl(p.doi)}
+                      class="link-underline ml-1 font-mono text-xs text-ink/60"
+                    >
+                      doi.org/{p.doi}
+                    </a>
+                  )}
+                  {p.amazon && (
+                    <a
+                      href={p.amazon}
+                      class="link-underline ml-1 font-mono text-xs text-ink/60"
+                    >
+                      amazon
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))
+      }
+
+      <!-- Manuscripts in progress -->
+      <section class="cv-section">
+        <h2 class="cv-h2">Manuscripts in Progress</h2>
+        <ul class="mt-4 space-y-3 text-sm leading-relaxed">
+          {workingPapers.map((w) => <li>{w}</li>)}
+        </ul>
+      </section>
+
+      <!-- Honors & Awards -->
+      <section class="cv-section">
+        <h2 class="cv-h2">Honors, Awards & Grants</h2>
+        <ul class="mt-4 space-y-2 text-sm leading-relaxed">
+          {honors.map((h) => <li>{h}</li>)}
+        </ul>
+      </section>
+
+      <!-- Service -->
+      <section class="cv-section">
+        <h2 class="cv-h2">Professional Service</h2>
+        <ul class="mt-4 space-y-3">
+          {
+            service.map((s) => (
+              <li class="cv-row">
+                <span class="cv-years">{s.years}</span>
+                <span>{s.role}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <!-- Technical skills -->
+      <section class="cv-section">
+        <h2 class="cv-h2">Technical Skills</h2>
+        <ul class="mt-4 space-y-2 text-sm leading-relaxed">
+          {
+            skills.map((s) => (
+              <li>
+                <span class="font-medium">{s.label}:</span>{" "}
+                <span class="text-ink/70">{s.detail}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <!-- Media -->
+      <section class="cv-section">
+        <h2 class="cv-h2">Selected Media</h2>
+        <ul class="mt-4 space-y-2 text-sm leading-relaxed">
+          {
+            media.map((m) => (
+              <li>
+                <span class="font-medium">{m.outlet}</span>
+                <span class="text-ink/60"> — {m.note}</span>
+                {m.href && (
+                  <a href={m.href} class="link-underline ml-1 font-mono text-xs text-ink/60">
+                    link
+                  </a>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+  </article>
+</Base>
+
+<style is:global>
+  .cv-section {
+    margin-top: 2.5rem;
+  }
+  .cv-h2 {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, currentColor 55%, transparent);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 0.5rem;
+  }
+  .cv-row {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 1rem;
+    align-items: baseline;
+  }
+  .cv-years {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.5);
+  }
+
+  @media print {
+    header:not(.cv-head),
+    footer,
+    .cv-actions,
+    #scroll-indicator {
+      display: none !important;
+    }
+    html,
+    body {
+      background: #fff !important;
+    }
+    .cv {
+      padding-top: 0 !important;
+      color: #000 !important;
+    }
+    .cv a {
+      color: #000 !important;
+      text-decoration: none;
+    }
+    .cv-section {
+      break-inside: avoid;
+    }
+    li {
+      break-inside: avoid;
+    }
+    @page {
+      margin: 1.6cm;
+    }
+  }
+</style>
+
+<script>
+  document.getElementById("cv-print")?.addEventListener("click", () => {
+    window.print();
+  });
+</script>

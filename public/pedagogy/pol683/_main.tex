@@ -1,0 +1,2324 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{book}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\usepackage{booktabs}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage[]{natbib}
+\bibliographystyle{plainnat}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={A Course on Advanced Regression Models, Causal Inference, and Data Visualization},
+  pdfauthor={Christopher Weber},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{A Course on Advanced Regression Models, Causal Inference, and Data Visualization}
+\author{Christopher Weber}
+\date{2024-09-09}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{1}
+\tableofcontents
+}
+\chapter*{}\label{section}
+\addcontentsline{toc}{chapter}{}
+
+\section*{Preface}\label{preface}
+\addcontentsline{toc}{section}{Preface}
+
+The purpose of this course is to introduce students to advanced techniques in regression, statistical computation, and techniques in scientific reproducibility and transparency. Students in this course should be very familiar with linear regression, as well as the Gauss-Markov assumptions underlying the classical linear model (i.e., POL 682). In this course, we will consider a variety of regression techniques for categorical and limited data. It is essential to remain up-to-date on the readings, as well as apply the reviewed methods to existing data.
+
+The course will progress through several related sections. The first part will focus on several theoretical factors pertaining to statistical inference. We will start by considering two fundamental approaches underlying inference, the likelihood principle and Bayes' rule. We will also re-consider the linear model, the Gauss-Markov assumptions, and we will review several concepts and statistical distributions. In this section we will also consider the practical trade off researchers encounter pertaining to efficiency and bias.
+
+In the second section, we will move to discrete dependent and limited variables. In practice, it is quite rare to encounter dependent variables that are continuous and normally distributed. In circumstances with binary, ordinal, and other multicategory dependent variables, the Gauss-Markov assumptions will be violated, thus rendering OLS an inappropriate choice. At this juncture, we will use both maximum likelihood (ML) and Bayesian methods to estimate logit, probit, multinomial logit/probit, and ordinal logit/probit models.
+
+Political scientists often encounter datasets that involve event counts (e.g., war casualties, number of conflict events, elections won by a candidate). These variables rarely follow a normal distribution; instead, they are heavily skewed. After the logit/probit weeks, we'll consider several type of count-oriented regression models, including the Poisson, Negative Binomial, and ``Hurdle'' models. We will then transition to censored and sample selection models.
+
+In the final section, we will consider a variety of topics that extend the models from the previous weeks. For instance, ``endogeneity'' is a common problem to arise in applied settings -- an independent variable is correlated with the error term. We'll look this problem in several ways, followed with several common solutions. We will examine two-stage least squares, three-stage least squares, and matching methods.Finally, we will examine hierarchical models.
+
+Three major points need to be emphasized. First, many of the statistical methods build on models discussed in previous weeks. It is essential to keep up-to-date on readings, and if there is something that confuses you, please see me as soon as possible. Second, I find that the best way to learn these techniques is to implement them. I strongly recommend you find a dataset and work with this dataset throughout the semester. Even if your analysis is not always substantively interesting, at the very least, you will have the code for future use. Third, I strongly encourage you to give yourself sufficient time to complete the course requirements. One of the worst ways to learn statistics is through cramming and completing assignments at the very last minute. As you likely know, I am flexible with due dates and generally accept late assignments. Don't take advantage of this policy! Handing things in late and consistently placing other obligations before this class has the potential to adversely impact what you learn.
+
+\chapter{Syllabus}\label{syllabus}
+
+\section*{POL 683: Advanced Regression Analysis}\label{pol-683-advanced-regression-analysis}
+\addcontentsline{toc}{section}{POL 683: Advanced Regression Analysis}
+
+\subsection*{Fall 2024}\label{fall-2024}
+\addcontentsline{toc}{subsection}{Fall 2024}
+
+Tuesdays 9:00PM - 11:30AM
+
+\textbf{Instructor:}
+
+Christopher Weber, PhD
+
+School of Government and Public Policy
+
+University of Arizona 333
+
+Social Sciences Building
+
+\href{mailto:chrisweber@arizona.edu}{\nolinkurl{chrisweber@arizona.edu}}
+
+Office Hours: T 12:00PM-1:30PM (and by appointment).
+
+\section{Course Description}\label{course-description}
+
+The purpose of this course is to introduce students to advanced techniques in regression, statistical computation, and techniques in scientific reproducibility and transparency. Students in this course should be very familiar with linear regression, as well as the Gauss-Markov assumptions underlying the classical linear model (i.e., POL 682). In this course, we will consider a variety of regression techniques for categorical and limited data. It is essential to remain up-to-date on the readings, as well as apply the reviewed methods to existing data.
+
+The course will progress through several related sections. The first part will focus on several theoretical factors pertaining to statistical inference. We will start by considering two fundamental approaches underlying inference, the likelihood principle and Bayes' rule. We will also re-consider the linear model, the Gauss-Markov assumptions, and we will review several concepts and statistical distributions. In this section we will also consider the practical trade off researchers encounter pertaining to efficiency and bias.
+
+In the second section, we will move to discrete dependent and limited variables. In practice, it is quite rare to encounter dependent variables that are continuous and normally distributed. In circumstances with binary, ordinal, and other multicategory dependent variables, the Gauss-Markov assumptions will be violated, thus rendering OLS an inappropriate choice. At this juncture, we will use both maximum likelihood (ML) and Bayesian methods to estimate logit, probit, multinomial logit/probit, and ordinal logit/probit models.
+
+Political scientists often encounter datasets that involve event counts (e.g., war casualties, number of conflict events, elections won by a candidate). These variables rarely follow a normal distribution; instead, they are heavily skewed. After the logit/probit weeks, we'll consider several type of count-oriented regression models, including the Poisson, Negative Binomial, and ``Hurdle'' models. We will then transition to censored and sample selection models.
+
+In the final section, we will consider a variety of topics that extend the models from the previous weeks. For instance, ``endogeneity'' is a common problem to arise in applied settings -- an independent variable is correlated with the error term. We'll look this problem in several ways, followed with several common solutions. We will examine two-stage least squares, three-stage least squares, and matching methods.Finally, we will examine hierarchical models.
+
+Three major points need to be emphasized. First, many of the statistical methods build on models discussed in previous weeks. It is essential to keep up-to-date on readings, and if there is something that confuses you, please see me as soon as possible. Second, I find that the best way to learn these techniques is to implement them. I strongly recommend you find a dataset and work with this dataset throughout the semester. Even if your analysis is not always substantively interesting, at the very least, you will have the code for future use. Third, I strongly encourage you to give yourself sufficient time to complete the course requirements. One of the worst ways to learn statistics is through cramming and completing assignments at the very last minute. As you likely know, I am flexible with due dates and generally accept late assignments. Don't take advantage of this policy! Handing things in late and consistently placing other obligations before this class has the potential to adversely impact what you learn.
+
+\section{Learning Objectives}\label{learning-objectives}
+
+In this class, students will complete the following.
+
+\begin{itemize}
+\item
+  Identify the tools involved in advanced regression analysis.
+\item
+  Use these methods in applied settings.
+\item
+  Understand the appropriate regression analysis in various settings.
+\end{itemize}
+
+\emph{Required Course Readings}
+
+Long, J. Scott. 1997. \emph{Regression Models for Categorical and Limited Dependent Variables}. Sage: New York.
+
+McElreath, Richard 2020. Statistical Rethinking: A Bayesian Course with Examples in Stan and R.Cambridge: Cambridge University Press.
+
+Additional Required Readings
+
+I have assigned a number of journal articles, which may be accessed through the University of Arizona Library. They are all available for download through JSTOR and/or e-journals.
+
+\emph{Recommended Readings}
+
+Eliason, Scott. 1993. Maximum Likelihood Estimation: Logic and Practice. Thousand Oaks, CA: Sage.
+
+Fox, John. 2008. Applied Regression Analysis and Generalized Linear Models, Second Edition. Thousand Oaks, California: Sage.
+
+Gelman, Andrew, John Carlin, Hal Stern, David Dunson, Aki Vehtari, and Donald Rubin. 2014. Bayesian Data Analysis, Third Edition. CRC Press: New York.
+
+King, Gary. 1998. Unifying Political Methodology: The Likelihood Theory of Statistical Inference. Michigan University Press: Ann Arbor.
+
+Berry, William and Stanley Feldman. 1985 Multiple Regression In Practice. Newbury, CA: Sage.
+
+Gelman, Andrew and Jennifer Hill. 2007.Data Analysis Using Regression and Multilevel/Hierarchical Models. Cambridge: Cambridge University Press.
+
+William H. Greene. Econometric Analysis, 8th Edition. New York: Pearson. (From 682)
+
+\textbf{Statistical Software}
+
+There are many statistical software packages available, all of which will perform the functions explored in this class. We will be relying on \emph{R}, a free statistical program available for Mac, Windows, and Linux. R may be downloaded from the CRAN website (\url{http://www.r-project.org}). The CRAN site also includes a variety of user's manuals, which I suggest you consult early in the semester (if you are unfamiliar with the R language).
+
+We will explore a variety of Rfunctions throughout the semester. I will assume that you know the ``basics,'' such as opening a dataset, accessing variables, and creating new variables. I will also assume that you can run and estimate simple linear regression models, manipulate/recode data, and access saved objects.
+
+We will also rely heavily on the \textbf{\emph{Stan}} language for Bayesian models. Stan can be run on a variety of platforms; I would recommend using R. Please follow the instructions on this page:
+
+\href{https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started}{\emph{https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started}}
+
+Also, download and start following the Stan User's Manual:
+
+\href{http://mc-stan.org/documentation/}{\emph{http://mc-stan.org/documentation/}}
+
+I strongly recommend you install Stan in the first week of the semester. Occasionally, problems arise. These should be addressed early in the semester.
+
+There is a really easy-to-use package in R called brms. We'll use it throughout the term -- it follows the structure of a \emph{lm} call, but compiles and runs a stan regression model.
+
+\emph{Open Science}
+
+This class strives to advance an open science framework, a shift in the basic and social sciences to make research, data, code, and publications open and accessible. In this class, we will discuss scientific techniques that promote collaboration, transparency, and reproducibility. This means we will generally rely on free tools -- like R -- public repositories and develop research protocols that are transparent and well documented. In practice, this means:
+
+\begin{itemize}
+\item
+  We will regularly use open source software, like R.
+\item
+  We will develop open source code, by posting code on Github.
+\item
+  We will generate modular computer code.
+\item
+  We will generate code that produces reproducible examples.
+\item
+  We will generate clear clear documentation.
+\item
+  In addition to a variety of packages in R, we will rely on one built for this class (and very much, in production). It is called \textbf{advancedRegression}. You will periodically need to re-install package, as we'll make updates through the semester.
+\end{itemize}
+
+\textbf{Collaboration}. I tend to find that the most useful way to learn statistics is to practice statistics. I suspect this class will be far easier if you take the time (i.e., a few hours every week) to implement the procedures we discuss in class. I will make most of my code for this class available through github. We'll spend some time on basic github operations in this cousre, so there is no need to set up anything in advance (simply be sure you have a github acct.)
+
+\textbf{Github} is a tool for version control and collaboration. You should create agithub user account during the first week, in addition to acquainting yourself with the service. Please also read some of the online tutorials regarding github and how to set it up with Rstudio orR. If you use an email other than your University of Arizona email, please let me know.
+
+\emph{Important Information }
+
+If you feel sick, or may have been in contact with someone who is infectious, stay home. Except for seeking medical care, avoid contact with others and do not travel.
+
+The UA policy regarding absences on and accommodation of religious holidays is available here: (\url{http://deanofstudents.arizona.edu/religiousobservanceandpractice}. Visit the UArizona COVID-19 page for regular updates.
+
+Life challenges: If you are experiencing unexpected barriers to your success in your courses, please note the Dean of Students Office is a central support resource for all students and may be helpful. The Dean of Students Office can be reached at 520-621-2057 or \href{mailto:DOS-deanofstudents@email.arizona.edu}{\nolinkurl{DOS-deanofstudents@email.arizona.edu}}.
+
+Physical and mental-health challenges: If you are facing physical or mental health challenges this semester, please note that Campus Health provides quality medical and mental health care. For medical appointments, call (520-621-9202. For After Hours care, call (520) 570-7898. For the Counseling and Psych Services (CAPS) 24/7 hotline, call (520) 621-3334.
+
+Equipment and software requirements: For this class you will need daily access to the following hardware: laptop or web-enabled device with webcam and microphone; regular access to reliable internet signal; ability to download and run the following software: R/RStudio. You should install rstan, tidy, dplyr, ggplot2, pscl, and nnet packages within the first week of the course.
+
+Staying current: You are required to complete course assignments by the due date.
+
+Students who turn in an assignment on the due date but after the beginning of class will lose a minimum of one letter grade. An additional letter grade will be deducted for each day the assignment is late. Depending on where we are in the class, I may decide to alter a due date. Any changes will be announced in classes. Makeup exams or assignments will be allowed only in the case of university excused absences. Again, documentation must be provided.
+
+Threatening behavior is unacceptable and will be reported. The Arizona Board of Regents' Student Code of Conduct, ABOR Policy 5-308, prohibits threats of physical harm to any member of the University community, including to one's self. See: \url{http://policy.arizona.edu/threatening-behavior-students}.
+
+It is the University's goal that learning experiences be as accessible as possible. If you anticipate or experience physical or academic barriers based on disability, please let me know immediately so that we can discuss options. You are also welcome to contact Disability Resources (520-621-3268) to establish reasonable accommodations. Please be aware that the accessible table and chairs in this room should remain available for students who find that standard classroom seating is not usable.
+
+It is your responsibility to complete all works assigned in this course (e.g., tests, assignments) in full observation of the Student Code of Academic Integrity. Students are encouraged to share intellectual views and discuss freely the principles and applications of course materials. However, graded work/exercises must be the product of independent effort unless otherwise instructed. Students are expected to adhere to the UA Code of Academic Integrity as described in the UA General Catalog. See: \url{http://deanofstudents.arizona.edu/codeofacademicintegrity}.
+
+In addition, the University Libraries have some excellent tips for avoiding plagiarism available at: \href{http:///url\%7Bwww.library.arizona.edu/help/tutorials/plagiarism/index.html}{www.library.arizona.edu/help/tutorials/plagiarism/index.html}.
+
+According to Section D (6) (a) of the University's Intellectual Property Policy (which is available at \url{http://www.ott.arizona.edu/uploads/ip_policy.pdf}. faculty own the intellectual property for their course notes and course materials. The instructor holds the copyright to his/her lectures and course materials, including student notes or summaries that substantially reflect them. Student notes and course recordings are for individual use or for shared use on an individual basis. Selling class notes and/or other course materials to other students or to a third party for resale is not permitted without the instructor's express written consent. Violations to the instructor's copyright are subject to the Code of Academic Integrity and may result in course sanctions. Additionally, students who use D2L or UA email to sell or buy these copyrighted materials are subject to Code of Conduct Violations for misuse of student email addresses.
+
+For more information on the confidentiality of student records, please see \url{http://www.registrar.arizona.edu/ferpa/default.htm}
+
+\(\bullet\) Requests for incompletes (I) and withdrawal (W) must be made in accordance with university policies which are available at \url{http://catalog.arizona.edu/2012-13/policies/grade.htm\#I} and \url{http://catalog.arizona.edu/2012-13/policies/grade.htm\#W}, respectively.
+
+\(\bullet\) The UA's policy concerning Class Attendance and Administrative Drops is available at: \url{http://catalog.arizona.edu/2012-13/policies/classatten.htm}
+
+\section{Grades}\label{grades}
+
+90\%-100\% A
+
+80\%-89\% B
+
+70\%-79\% C
+
+60\%-69\% D
+
+59\% and below E
+
+\textbf{Graded Items}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.1700}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.5500}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.2800}}@{}}
+\caption{\textbf{Description of Graded Items.} Written projects comprise 40\% percent of your grade. For both the midterm and the final project, you will apply the techniques from this class to an actual data. The midterm paper consists of a challenge -- forecast the 2024 presidential election. Parts of this assignment will be done individually, other parts will be group work.}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Component}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Description}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Percent of Final Grade}
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Component}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Description}
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+\textbf{Percent of Final Grade}
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Midterm Project & Election forecast, short assignments and final report & 15\% \\
+Midterm Exam & Short Answer/Problems & 25\% \\
+Final Exam & Short Answer/Problems & 30\% \\
+Final Paper & & 30\% \\
+\end{longtable}
+
+We will collaborate, but each person will play a unique role interpreting the results, which will form the basis for your grade. The goal for us, the challenge: \textbf{Create statistically informed set of predictions, effectively visualize these predictions, and finally, put the report on a public website.}
+
+How will we do this? First, start by familiarizing yourself with:
+
+\begin{itemize}
+\item
+  \textbf{Shiny}. Shiny is an open-source R package. It allows one to build interactive visualizations. This can be really important in academic work, as well as data science applications more generally. This book is a good resource, \hyperref[0]{https://mastering-shiny.org/}. And the documentation on the shiny website is also quite helpful, with many example \hyperref[0]{https://shiny.posit.co/r/gallery/}
+\item
+  \textbf{Github.} Code for the project should be pushed to the class repo.
+
+  \textbf{crweber9874/advanced\_regression}
+
+  \textbf{Data sources.} It is imperative that you research how others have generated election predictions, and where to find data. Should one use historical data, economic data, polling data, lots of polling data, and so forth? The project will entail a considerable amount of work, so it's important to regularly work on the project, rather than procrastinating until shortly before the due date.
+\end{itemize}
+
+\textbf{Protocol for Electoral Forecasting Project}
+
+Please adhere to the following due dates.
+
+\begin{itemize}
+\item
+  August 27, 2024: Create two research groups.
+\item
+  September 10, 2024: Generate model ideas.
+\item
+  October 1, 2024: Submit cleaned data, code, and documentation.
+\item
+  October 22: Submit predictions and brief report.
+\item
+  October 29: Build shiny application
+\end{itemize}
+
+You must also complete a final project. This should include an analysis using methods from this class -- i.e., the regression techniques from this class. The final paper should be between 10-15 pages in length. It is up to you to locate a dataset for both papers! I recommend exploring data options early in the semester, by searching for data on the ICPSR, Dataverse, or other data repositories. Alternatively, you are welcome to use data you have collected. You are free to choose the topic, but you must be able to provide me with the data used in your report. Again, your code should be shared on GitHub. If you or your advisor has proprietary data which I cannot access, you should not use this. I must be able to verify that you did all the necessary calculations honestly and accurately, which requires me being able to access any data you use. Also, if you rely on your own data, you must adhere to the University of Arizona's Institutional Review Board requirements.
+
+The paper should include all the elements of a research paper. That said, my primary interest rests in your analyses. I ask that you be quite thorough when presenting the results. It is not sufficient to just run a regression and present the point estimates. Your paper should include detailed interpretation, robustness checks, and post-estimation clarification (which often come in the form of graphics). It should be a high quality paper; if you would not be comfortable presenting it at a conference, you should not feel comfortable handing it in for a grade. \emph{Do not just cut and paste R output. Tables and figures should be presented in a professional manner. I will deduct points for cut-and-pasted output from R.}
+
+Your statistical models should be theoretically informed. I do not require a full-fledged introduction/literature review, though you should spend a page or two briefly describing the relevant literature. It is essential to include the formal hypotheses you will test, which should relate to this one/two page review. I will need to verify that your empirical tests match your expectations. Please follow American Psychological Association (APA) style or American Journal of Political Science (AJPS) style. The references should appear at the end of your manuscript. Please do not place the references in footnotes.
+
+I strongly recommend you meeting with me periodically throughout the semester to discuss these projects.
+
+There will be a midterm exam (25\%) and a final exam (30\%). The final will be cumulative, and will cover all material from the semester. The midterm and final should be completed in-class. You may use your notes and the course materials to complete the both exams. The exam must be completed independently.
+
+\textbf{Important Due Dates for Graded Material}
+
+Please adhere to the following due dates.
+
+\begin{itemize}
+\item
+  August 27, 2024: Create two research groups (midterm project).
+\item
+  September 10, 2024: Model assignment (midterm project).
+\item
+  October 1, 2024: Submit cleaned data, code, and documentation (midterm project).
+\item
+  October 22: Submit predictions and brief report (midterm project).
+\item
+  November 5: Midterm Exam (in-class).
+\item
+  December 17: Final Exam (in-class).
+\item
+  December 17: Final Project. Please upload here
+\end{itemize}
+
+\url{https://arizona.box.com/s/snd55jtnk3iyygzgi8k3of0v5eq8fr7i}.
+
+\section{Course Outline}\label{course-outline}
+
+Please read all assigned readings prior to the listed meeting times. Please note that the course schedule is subject to change at my discretion. You are responsible for announced changes.
+
+\emph{Key}
+
+\(\bullet\) indicates a required reading
+
+\(\rightarrow\) indicates a recommended reading
+
+\(\star\) indicates an assignment.
+
+\(\cdot\) indicates midterm project topic
+
+Week 1 (8/27): Introduction
+
+\(\bullet\) Long, Chapter 1.
+
+\(\bullet\) McElreath, Chapter 1
+
+\(\cdot\) Organize into small groups
+
+Week 2 (9/3): Introduction to Maximum Likelihood and the Generalized Linear Model, I
+
+\(\bullet\) Long, Chapter 2.
+
+\(\bullet\) McElreath, Chapter 2
+
+\(\rightarrow\) Gelman and Hill, Chapters 3 and 4.
+
+\(\cdot\) Discuss data and model ideas.
+
+\(\star\) \textbf{Models}. For next week, please bring model ideas to class. How should we predict election outcomes? What data should we use? Please write a brief (1-2 page) report listing ideas, perhaps elaborating on what others have done. There is no need for a formal literature review, but outlining the state of forecasting would be useful.
+
+Week 3 (9/10): Introduction to Maximum Likelihood and the Generalized Linear Model, II
+
+\(\bullet\) Long, Chapter 3.
+
+\(\bullet\) McElreath, Chapter 3
+
+\(\rightarrow\) Eliason, Scott R. 1993. Maximum Likelihood Estimation: Logic and Practice. Sage Monographs.
+
+\(\rightarrow\) Fox, John. 2008. Applied Regression Analysis and Generalized Linear Models, Second Edition. Sage: New York. Chapter 15.
+
+\(\cdot\) Discuss data and model ideas.
+
+\subsection{Building a Statistical Model}\label{building-a-statistical-model}
+
+Week 4 (9/17): Building a Model
+
+\(\bullet\) McElreath, Chapter 4, and (pp.~323 - 345)
+
+\(\bullet\) Freedman, Paul, Michael Franz, and Kenneth Goldstein. 2004. ``Campaign Advertising and Democratic Citizenship.'' American Journal of Political Science, 48(4): 723-741.
+
+\(\bullet\) King, Gary and Langche Zeng. 2001. ``Logistic Regression in Rare Events Data.'' Political Analysis, 9(2): 137-173.
+
+\(\rightarrow\) John Fox. 2008. Applied Regression Analysis and Generalized Linear Models, Second Edition. Sage: New York. Chapter 14.
+
+\(\rightarrow\) King, Chapters 5, 6.
+
+\(\cdot\) Discuss data and model ideas.
+
+\(\star\) \textbf{Model} \textbf{Strategy}. As a group, develop a plan to generate electoral predictions. What are the strengths and weaknesses of your approach. Each group should meet outside of regular class time and draft a 1-2 page report for next week.
+
+\subsection{Estimation and Model Fit}\label{estimation-and-model-fit}
+
+Week 5 (9/24): Estimation, Prediction, Simulation
+
+\(\bullet\) McElreath, Chapter 5
+
+\(\bullet\) King, Gary, Michael Tomz and Jason Wittenberg. 2000. ``Making the Most of Statistical Analyses: Improving Estimation and Interpretation.'' American Journal of Political Science 44(2): 341-355.
+
+\(\bullet\) Greenhill, Brian, Michael Ward, and Audrey Sacks. 2011. ``The Separation Plot: A New Visual Method for Evaluating the Fit of Binary Models.'' American Journal of Political Science, 55(4): 991-1002.
+
+\(\bullet\) Herron, Michael. 2000. ``Post Estimation Uncertainty in Limited Dependent Variable Models.'' Political Analysis, 8(1): 83-98.
+
+\(\cdot\) Discuss data, code, and reproducibility
+
+\(\star\) \textbf{Data}. As a group, prepare data. Clean these data, prepare them for distribution, and write clear documentation.
+
+\textbf{Simulation based approaches}
+
+Week 6 (10/1): Introduction to Causal Inference and the Directed Acyclic Graph (DAG)
+
+\(\bullet\) McElreath, Chapter 6
+
+\(\bullet\) Jackman, Simon. 2000. ``Estimation and Inference via Bayesian Simulation: An Introduction to Markov-Chain Monte Carlo.'' American Journal of Political Science, 44(2): 375-404.
+
+\(\bullet\) Western, Bruce and Simon Jackman. 1994. ``Bayesian Inference for Comparative Research.'' American Political Science Review, 88(2): 412-423.
+
+\(\bullet\) Adrian Raftery. 1995. ``Bayesian Model Selection in Social Research.'' Sociological Methodology, 25, 111-163.
+
+\(\rightarrow\) Stan User's Manual, Chapter 6.
+
+\(\rightarrow\) Fox, John. 2008. Applied Regression Analysis and Generalized Linear Models, Second Edition. Sage: New York. Chapter 22.\textbackslash{}
+
+\(\cdot\) Introduction to Shiny
+
+\(\star\) \textbackslash textbf\{Midterm Project. Generate predictions, absolutely no later than 10/22. Each group should submit a csv file with the following headers: \textbackslash textbf\{state, \textbackslash textbf\{republican\textbackslash\_vote\textbackslash\_share\textbackslash\_prediction, \textbackslash textbf\{democratic\textbackslash\_vote\textbackslash\_share\textbackslash\_prediction. Thus will be three files -- two student groups, and my own. One 10/29, we'll build a Shiny app. Each group should also provide a 1-2 page report describing their statistical method, and perhaps walking the reader through code. Perhaps use R Markdown.
+
+Models with Multi-category Discrete Variables
+
+Week 7 (10/8): Multicategory models
+
+\(\bullet\) Long, Chapters 5 and 6
+
+\(\bullet\) McElreath, pp.~359 - 368
+
+\(\bullet\) Alvarez, Michael and Jonathan Nagler. 1998. ``When Politics and Models Collide: Estimating Models of Multiparty Elections.'' American Journal of Political Science, 42(1): 55-96.
+
+Count Data
+
+Week 8 (10/15):
+
+\(\bullet\) Long, Chapter 8.
+
+\(\bullet\) McElreath, pp.~345-359; pp.~369-380
+
+\(\bullet\) King, Gary. 1988. ``Statistical Models for Political Science Event Counts: Bias in Conventional Procedures and Evidence for the Exponential Poisson Regression Model.'' American Journal of Political Science, 32(3): 838-863.
+
+Week 9 (10/22): Poisson, Overdispersion, and Underdispersion
+
+\(\bullet\) McElreath, pp.~369-380
+
+\(\bullet\) Wilson, Matthew and James Piazza. 2013. ``Autocracies and Terrorism: Conditioning Effects of Authoritarian Regime Type on Terrorist Attacks.'' American Journal of Political Science, 57(4): 941-955.
+
+\(\bullet\) Box-Steffensmeier, Janet M., and Bradford S. Jones. 1997. ``Time is of the Essence: Event History Models in Political Science.'' American Journal of Political Science, 41(4): 1414-1461.
+
+\textbackslash textbf\{Censored Data and Selection Bias
+
+Week 10 (10/29): Censoring, Selection Bias
+
+\(\bullet\) Long, Chapter 7.
+
+\(\bullet\) Goren, Paul, Christopher Federico and Miki Caul Kittilson. 2009. ``Source Cues, Partisan Identities, and Political Value Expression.'' American Journal of Political Science, 53(4): 805-820.
+
+\(\bullet\) Boehmke, Frederic, Daniel Morey, and Megan Shannon. 2006. ``Selection Bias and Continuous-Time Duration Models: Consequences and Proposed Solutions.'' American Journal of Political Science, 50(1): 192-207.
+
+Week 11 (11/5): Midterm Exam
+
+\textbf{Midterm Exam.} You may use notes and/or the textbook, though no computers, tablets, or phones may be used. (Frankly, AI does a great job answering my questions, and I need to protect the integrity of the exam). The exception is your phone can be used as a calculator.
+
+Multilevel Data Structures.
+
+Week 12 (11/12): Multilevel Analysis
+
+\(\bullet\) McElreath, Chapter 13
+
+Week 13 (11/19): Multilevel Analysis, Continued
+
+\(\bullet\) McElreath, Chapter 14.
+
+\(\bullet\) Steenbergen, Marco and Bradford Jones. 2002. ``Modeling Multilevel Data Structures.'' American Journal Political Science, 46(1): 218-237.
+
+\(\bullet\) Stegmuller, Daniel. 2014.''How Many Countries for Multilevel Modeling? A Comparison of Frequentist and Bayesian Approaches.''American Journal Political Science, 57(3): 748-761.
+
+Regularization and Non-Linearity
+
+Week 14 (11/26): The Ridge and Lasso Models
+
+\(\bullet\) McElreath, Chapter 7
+
+\(\bullet\) Please read Chapter 6 in An Introduction to Statistical Learning. This chapter can be downloaded for free here: \href{http://web.stanford.edu/~hastie/pub.htm}{http://web.stanford.edu/\textbackslash\textasciitilde hastie/pub.htm}
+
+\(\bullet\) Please read Chapter 5 in The Elements of Statistical Learning, Chapter 5. This chapter can be downloaded for free here: \href{http://web.stanford.edu/~hastie/pub.htm}{http://web.stanford.edu/\textbackslash\textasciitilde hastie/pub.htm}
+
+Week 15 (12/3):
+
+\(\bullet\) Gelman and Hill, Chapter 20.
+
+\(\bullet\) End of semester workshop.
+
+Week 16 (12/11): Workshop
+
+\(\star\) \textbf{Final} \textbf{Exam}. You may use notes and/or the textbook, though no computers, tablets, or phones may be used. (Frankly, AI does a great job answering my questions, and I need to protect the integrity of the exam). The exception is your phone can be used as a calculator. The exam will take place on Tuesday, 12/17 from 8-10AM
+
+\(\star\) Paper II is due by 12/17, 5PM. Please upload to D2L folder; code should be uploaded to your personal github repository.
+
+\textbf{Have a wonderful break}
+
+\chapter{An Introduction to the Course}\label{an-introduction-to-the-course}
+
+\section{A Brief Review, DAGs, and Statistical Inference}\label{a-brief-review-dags-and-statistical-inference}
+
+This class strives to both elaborate and demystify statistical inference. Statistical methodology -- like math instruction in general -- is often taught as a series of techniques, often building on one another. It's common to learn the fundamentals first: calculus, probability, parametric and non-parametric techniques, the basics of hypothesis testing. This typically transitions to an exploration of regression, usually with a focus on linear regression. However, following the Gauss-Markov assumptions, the linear model is often presented as an ideal model if the assumptions are met, and a problematic model if they are not. Issues of endogeneity, collinearity, autocorrelated errors, heteroskedasticity, and measurement errors are often presented as limitations to the model; limitations that often require more advanced techniques.
+
+And that's where we are now. You've now been exposed to a vast amount of technical knowledge. You've learned how to test hypotheses, through group mean comparisons like the \emph{t-test} and \emph{Analysis of Variance}. Similarly, you've learned that you can often test these differences using different distributions, like the \emph{gaussian normal}, the \emph{t-distribution}, the \emph{Fisher distribution}, the \emph{Poisson distribution}, and the \emph{Binomial distribution}. You've also learned that probability is the workhorse of inferential statistics, and can be understood through terms like \emph{marginal probability}, \emph{conditional probability}, and \emph{joint probability}. We rely on these concepts throughout inferential statistics. What is the conditional expectation of y given x (the slope coefficient)? What is the marginal effect of x on y (the average effect)? What is the joint probability of observing x and y? I suspect you've also learned about the \emph{likelihood} and \emph{Bayes' Rule} (also below), and how these two approaches are the foundation of statistical inference.
+
+This course aims to tie together many of these concepts. In McElreath (2020), Figure 1.1 displays the complicated architecture involved in statistical decision making, a flowchart that is often how statistics is taught. It's no wonder that the discipline can seem so intimidating. The goal of this course is to simplify matters, much like McElreath (2020), by drawing on a series of unifying principles that can be used to understand the statistics you've already learned, as well as the procedures covered in this class.
+
+So, for instance, we'll consider the \emph{likelihood principle}/\emph{frequentism} and \emph{Bayesian statistics}. We'll see that while both often reach similar substantive conclusions, the logic underlying these two approaches is quite different. They ask us to say very different things about estimated parameters; they also allow us to approach scientific inquiry in varying ways. For instance, the \emph{Null Hypothesis Test} still quite common throughout the social sciences. One forms an expectation about the data. Then they form a statement that accounts for all other possibilities: The Null. The statistical test involves an estimate as to the probability of observing the null, given the data. These data are used to create a point estimate and standard error. If the null is accompanied by a relatively low probability -- the \emph{p-value} -- the research states with a degree of confidence that they can reject the null. Here's the rub: We're not falsifying the null -- which is central to the basis of hypothesis testing forwarded by Karl Popper, a central figure in the philosophy of science. Instead, we're simply saying that the null is unlikely. Likewise, failing to refute the null does not mean the null is true. \emph{Type II} error is the probability of failing to reject the null when it is false. This type of error can occur when sample sizes are small, for instance. It could be that the alternative (i.e., the researchers) hypothesis is true, but because many statistical tests are influenced by sample size, the test may not produce a statistically significant result.
+
+Adding to the challenges, it is difficult to apply the notion of \emph{repeated observation} central to frequentism in many applied circumstances. A given war under particular conditions only happens once. An election may involve a once-in-a-lifetime choice between two candidates. An landmark policy is only passed once. In these circumstances, the notion of repeated observation is difficult to apply.
+
+Another issue we'll consider -- and one that is important to consider in the context of regression models -- is that of measurement, or \emph{measurement error.} Take for instance the measurement of ideology.
+
+Ideology is a latent (i.e., unobserved) construct. Assume it is measured with three indicators, and we assume these indicators are a functional consequence of one's latent ideology -- an unobservable construct. What is ideology, after all? We need not assume our measures are a perfect representation of the construct, only that they are consequences, with some degree -- perhaps a large degree -- of unobserved error. If \(j\) represents the ideology measures (\(J=3\)), and \(i\) is the respondent, we could write a measurement equation:
+
+\begin{equation}
+y_{i,j}=\lambda_j x_{Ideology,i}+d_j
+\end{equation}
+
+An individual \(i\)'s score on the \(j\)th variable is a linear expression of one's underlying ideology and error. This is a very simple measurement model. Note it's just a linear expression, though in this case everything on the right hand side is also unobserved. Think about other concepts. What is party identification but a socially constructed identity to maintain a political coalition? How might we measure this construct? Are these good measures? What about ``democracy'' and ``representation,'' even gradations of ``conflict.''
+
+Measurement models are also intimately related and central to many econometric examples. Consider the distribution in the figure above. The red line represents a utility function; we can think of it as a distribution that represenst the utility derived from policies or politicians closest to that point. That is \(\theta\) corresponds to an ``ideal point''; politicians or policy closest to this point are preferred. We could think of this in terms of ideological space -- what is the most valued ideology score? Assume \(X_A\) and \(X_B\) correspond to ideological positions adopted by two candidates.
+
+Assume this individual prefers A to B, since A is closer. Trace the expected utility on the y-axis for each option and compare it to the ideal point. The individuals earns more utility from A. In fact, the individual should always prefer a candidate that is closest to the ideal point.
+
+Utility maximization is achieved by minimizing the distance between \(X_n\), where \(n\) is a candidate or policy.
+
+Basically, the individual should prefer the candidate that has the smallest value:
+
+Candidate A: \((x_{A}-\theta)^2\).
+
+Candidate B \((x_{B}-\theta)^2\).
+
+Or, as is commonly written, one should prefer the candidate that maximizes the negative distance
+
+Candidate A: \(-(x_{A}-\theta)^2\)
+
+Candidate B: \(-(x_{B}-\theta)^2\).
+
+But in our formulation, ideology is measured with error, so let's represent measurement error in the equation.
+
+The distance to Candidate A with error is: \((x_{A}-\theta)^2+e_1\).
+
+The distance to Candidate B with error is \((x_{B}-\theta)^2+e_2\).
+
+Let's make the choice more formal, by noting that the probability of preferring Candidate A is
+
+\[ p(Y=A)=[-(x_{A}-{\theta})^2+e_1] - [-(x_{B}-{\theta})^2+e_2] \]
+
+This looks complicated, but let's piece it together. Its putting together everything we already know. If the score is positive, the voter will express a preference for A; if negative B; if zero, indifferent.
+
+Then,
+
+\$\$ \textbackslash begin\{align\} p(Y=A)=\&\textbackslash theta\^{}2+x\_\{A\} x\_\{B\}-\textbackslash theta x\_\{A\}-\textbackslash theta x\_\{B\} + e\_1- e\_2 \textbackslash nonumber \textbackslash\textbackslash{} =\&x\_\{A\}\^{}2-x\_\{B\}\^{}2+2(x\_A-x\_B)\textbackslash theta+e\_2-e\_1 \textbackslash\textbackslash{} =\&\textbackslash alpha+\textbackslash beta\textbackslash theta+\textbackslash epsilon \textbackslash end\{align\} \$\$
+
+The probability of selecting one policy over another is a function of one's underlying, latent ideology score predicting vote choice, in a binary logit model. It's common to assume \(\epsilon \sim N(0, \sigma^2)\)\} What's important to note is that \(\alpha\) represents characteristics of the choices, and \(\beta\) links the underlying latent score to the policy preference. This form of a ``measurement model,'' again with characteristics of both the chooser and the choice in the equation.
+
+Please see Kevin Quinn and colleagues (e.g., Ho and Quinn 2010; Quinn 2012, and Jessee 2012) work for more elaboration here.
+
+\section{A Review}\label{a-review}
+
+\subsection*{An Introduction to the Directed Acyclic Graph (DAG)}\label{an-introduction-to-the-directed-acyclic-graph-dag}
+\addcontentsline{toc}{subsection}{An Introduction to the Directed Acyclic Graph (DAG)}
+
+First, consider a simple problem. Let's assume we have a dataset with five variables. Each variable has two categories. Suppose we wanted to find the joint probability of these five variables; for convenience, let's label them A, B, C, D, E. To find the joint probability of these five two category variables, this would involve a table with \(2^5=32\) entries. Say we switch things to five five category variables. Now there are \(5^5=3125\) possible combinations. This is really cumbersome, and can be simplified using a graph structure.
+
+Instead, we can represent the joint probability of these variables in terms of conditional probabilities. Enter the Directed Acyclic Graph (DAG), and its application to causal structures (Pearl 2000).
+
+Consider the following DAG
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(dagitty)}
+\FunctionTok{library}\NormalTok{(ggdag)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'ggdag'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:stats':
+## 
+##     filter
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{g }\OtherTok{\textless{}{-}} \FunctionTok{dagitty}\NormalTok{(}\StringTok{"dag \{}
+\StringTok{    A {-}\textgreater{} B}
+\StringTok{    A {-}\textgreater{} C}
+\StringTok{    C {-}\textgreater{} D}
+\StringTok{    D {-}\textgreater{} E}
+\StringTok{\}"}\NormalTok{)}
+
+\FunctionTok{ggdag}\NormalTok{(g, }\AttributeTok{text =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{theme\_dag}\NormalTok{() }
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+\[
+p(E,|A, C, D) = p(E|D)p(D|C)p(A)
+\]
+
+We should also be clear about notation. Oftentimes, we deal with two variables, \(x\) and \(y\). We'll often refer to things such as ``What is the probability of observing \(x\) averaged, or marginalized, across \(y\)?''
+
+This is relatively easy to envision in a 2x2 table, in which we sum across rows or columns. The appropriate operation is then:
+
+\[p(x)=\sum_y p(x_i, y_i) \hspace{0.5in}  \texttt{Marginal Probability}\]
+
+In the DAG example
+
+The marginal probability of E is
+
+\[
+p(E) = \sum_A \sum_B \sum_C \sum_D p(E|D)p(D|C)p(A)
+\]
+
+Distributions are also used to describe continuous variables. In fact, much of the applications in this class will assume a continous distribution, even if we only observe a discrete response option. In your first semester statistics course, you reviewed the properties of a variety of continuous distributions -- I assume, the \textbf{normal}, \textbf{poisson}, \textbf{student's t}, \textbf{F}, and so forth. One can use calculus -- integration, in particular -- to calculate various areas under the curve. For a continuous bivariate density,
+
+\[p(x)=\int p(x, y) dy \hspace{0.5in}  \texttt{Marginal Probability}\]
+
+The conditional probability of E given A, B, C, and D, can be represented in terms of the above graph, where we simply trace the path from E to A. The graphical representation can often be easier to interpret relative to their associated joint probabilities.
+
+There are also conditional probabilities, not at all different from what was presented graphically. Note the close correspondence between the conditional and joint probabilities.
+
+\[p(x|y)=p(x,y)/p(y)\hspace{0.5in} \texttt{Conditional Probability}\]
+
+where, \(p(x)=\sum_y p(x, y)\) or \(p(x)=\int p(x, y) dy\). In other words, we are taking the joint probability of two things happening, here \(p(x,y)\), and dividing that joint probability by the marginal probability of observing y, \(p(y)\). Think of the conditional probability as the joint probability of two events -- x and y -- weighted by the marginal probability of y occurring.
+
+This representation is really useful, and widely used throughout quantitative methodology. We can represent complicated joint probabilities -- the data -- in terms of conditional probabilities. Later in the course I'll further develop this structure, explaining how it can be used to develop causal estimands, Bayesian models, and various types of ``effects,'' like the direct, indirect, and total. First, let's explore some basic properties, as this will be useful in building our first regression model.
+
+\subsection{A Simple DAG}\label{a-simple-dag}
+
+Let's explore some more characteristics of a DAG. Let's just say our statistical model is \(x \rightarrow y\). Then \(p(x,y) = p(y|x)p(x)\)
+
+What's particularly useful about a graphical structure is that we can represent more complex relationships. We've explored \emph{directed} paths. And often, a variable's effect is conveyed by other variables, and \emph{indirect} path that moves in one direction.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dagify}\NormalTok{(y}\SpecialCharTok{\textasciitilde{}}\NormalTok{x, x}\SpecialCharTok{\textasciitilde{}}\NormalTok{ z) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{ggdag\_canonical}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{theme\_dag}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+Because there is no connected path from \(z\) to \(y\), we can say that \(z\) is independent of \(y\) given \(x\). In practice, if we were to estimate a regression model where \(y~a + b_1*x+b_2*z\). We would expect \(b_2\) to be zero. Write this as an independence formula. A useful way to write out an independent relationship is
+
+\[z \perp y \mid x\] Another common way to state this is, ``z is conditionally independent of y given x.'' Another relationship is the \textbf{fork}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dagify}\NormalTok{(y}\SpecialCharTok{\textasciitilde{}}\NormalTok{u, x}\SpecialCharTok{\textasciitilde{}}\NormalTok{u) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{ggdag}\NormalTok{()}\SpecialCharTok{+} \FunctionTok{theme\_dag}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+Here, \(u\) is a fork. It has an effect on two variables, \(x\) and \(y\). Forks are interesting because they're often described in terms of ``confounding variables.'' Note that in this graph \(x\) and \(u\) are conditionally independent given \(u\).
+
+But failing to condition on \(u\), a common cause of both \(y\) and \(x\) means that if we ignore \(u\). The independence will no longer hold.
+
+\[x \not \perp y \]
+
+If we don't condition on the fork -- the confound ``u'' -- we may find a relationship where none exists. This is why we're often encouraged to specify theoretically informed models, models that ``control for'' the effect of potential confounding variables.
+
+\section{An Example: Smoking and Cancer}\label{an-example-smoking-and-cancer}
+
+Up until somewhat recently, the link between smoking and cancer was contested. While epidemiological studies in the 1950s and 1960s suggested a link, doctors, scientists, and health professionals were slower to adopt anti-smoking recommendations and regulations. Elements of the debate were advanced by prominent scientists and statisticians. Indeed, Ronald Fisher -- one of the founders of modern statistics (think F-test, ANOVA, among many others) -- was a regular pipe smoker who was vocal in his opposition to a purported smoking and cancer link, instead propagating (at the time plausible) alternative explanations, like there may be an unobserved variable -- a gene -- that predisposes some to smoking as well as lung cancer (Pearl 2014). Or, what had been a report that a non-trivial number of smokers purported to rarely inhale. It wasn't until 1964 The Surgeon General's Report \href{https://profiles.nlm.nih.gov/spotlight/nn/feature/smoking}{on Smoking and Health} firmly stated there to be a causal link between smoking and cancer in males.
+
+Here is a simplification of the debate.
+
+While scientists had suggested a causal link between \(smoking \rightarrow tar \rightarrow cancer\), one argument was that perhaps some unobserved variable, a gene, predisposes people to smoking and developing lung cancer. Let's write out the model with a confounder, genes.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dagify}\NormalTok{(smoking }\SpecialCharTok{\textasciitilde{}}\NormalTok{ genes, cancer }\SpecialCharTok{\textasciitilde{}}\NormalTok{ genes, }
+       \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"cancer"} \OtherTok{=} \StringTok{"Cancer"}\NormalTok{,}
+  \StringTok{"tar"} \OtherTok{=} \StringTok{"Tar"}\NormalTok{,}
+  \StringTok{"smoking"} \OtherTok{=} \StringTok{"Smoking"}\NormalTok{,}
+  \StringTok{"genes"} \OtherTok{=} \StringTok{"Genes"}
+\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{ggdag}\NormalTok{(}\AttributeTok{text =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{use\_labels =} \StringTok{"label"}\NormalTok{)  }\SpecialCharTok{+} \FunctionTok{theme\_dag}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+Note that such a common cause implies that
+
+\[smoking \perp cancer \mid gene \] A common way to say this is that smoking is \emph{d-separated} from cancer by conditioning on genes.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dagify}\NormalTok{(smoking }\SpecialCharTok{\textasciitilde{}}\NormalTok{ genes, cancer }\SpecialCharTok{\textasciitilde{}}\NormalTok{ genes, }
+       \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"cancer"} \OtherTok{=} \StringTok{"Cancer"}\NormalTok{,}
+  \StringTok{"tar"} \OtherTok{=} \StringTok{"Tar"}\NormalTok{,}
+  \StringTok{"smoking"} \OtherTok{=} \StringTok{"Smoking"}\NormalTok{,}
+  \StringTok{"genes"} \OtherTok{=} \StringTok{"Genes"}
+\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{ggdag\_drelationship}\NormalTok{(}\AttributeTok{from =} \StringTok{"smoking"}\NormalTok{, }\AttributeTok{to  =} \StringTok{"cancer"}\NormalTok{, }\AttributeTok{controlling\_for =} \StringTok{"genes"}\NormalTok{, }\AttributeTok{text =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{use\_labels =} \StringTok{"label"}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{theme\_dag}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+Recall, this is the definition of independence.
+
+\[p(x,y)=p(x) p(y) \hspace{0.5in}  \texttt{Independence}\]
+
+This is actually quite intuitive if you think about it. If \(p(x)\) and \(p(y)\) are entirely unrelated -- knowing one does not help you know the other -- then the probability of observing the two events is simply the product. If I flip a coin from 1989 and one from 1977, the flips are independent. Knowing the outcome of the 1989 coin flip is inconsequential for the outcome of the 1977 coin flip. By extension, if two events are independent, then the conditional probability \(p(x|y)=p(x)\). Think briefly about what this means in context of the coin flip. Given that the Canadian coins is head, what is the probability that the 1989 coin is heads?
+
+Returning to the example, if we don't condition on ``genes'', the two will be \textbf{d-connected}.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dagify}\NormalTok{(smoking }\SpecialCharTok{\textasciitilde{}}\NormalTok{ genes, cancer }\SpecialCharTok{\textasciitilde{}}\NormalTok{ genes, }
+       \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"cancer"} \OtherTok{=} \StringTok{"Cancer"}\NormalTok{,}
+  \StringTok{"tar"} \OtherTok{=} \StringTok{"Tar"}\NormalTok{,}
+  \StringTok{"smoking"} \OtherTok{=} \StringTok{"Smoking"}\NormalTok{,}
+  \StringTok{"genes"} \OtherTok{=} \StringTok{"Genes"}
+\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{ggdag\_drelationship}\NormalTok{(}\AttributeTok{from =} \StringTok{"smoking"}\NormalTok{, }\AttributeTok{to  =} \StringTok{"cancer"}\NormalTok{, }\AttributeTok{text =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{use\_labels =} \StringTok{"label"}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{theme\_dag}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+Another type of fork is the \textbf{inverted fork}. The inverted fork is just that. Instead of multiple arrows extending away from a common node, multiple arrows point to that common node.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dagify}\NormalTok{(y}\SpecialCharTok{\textasciitilde{}}\NormalTok{x}\SpecialCharTok{+}\NormalTok{ z, m}\SpecialCharTok{\textasciitilde{}}\NormalTok{z}\SpecialCharTok{+}\NormalTok{y) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{ggdag}\NormalTok{() }\SpecialCharTok{+} \FunctionTok{theme\_dag}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+This is a common problem in the social sciences; it forms the basis for mediation analysis. Notice that \(z\) can affect \(m\) in a couple ways. One is \(z\rightarrow m\). Another is \(z \rightarrow y \rightarrow m\). The problem is that \(y\) is a function of \(x\) and \(z\). \(y\) is a \textbf{collider} variable. Perhaps we estimate a model where \(m\) is the outcome, \(z\) and \(y\) are predictors. The consequence of conditioning on a collider \(y\) is that we open a path to \(m\) that is unintended.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{dagify}\NormalTok{(y}\SpecialCharTok{\textasciitilde{}}\NormalTok{x}\SpecialCharTok{+}\NormalTok{ z, m}\SpecialCharTok{\textasciitilde{}}\NormalTok{z}\SpecialCharTok{+}\NormalTok{y)  }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{ggdag\_drelationship}\NormalTok{(}\AttributeTok{from =} \StringTok{"z"}\NormalTok{, }\AttributeTok{to  =} \StringTok{"y"}\NormalTok{, }\AttributeTok{control =} \StringTok{"m"}\NormalTok{, }\AttributeTok{text =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{theme\_dag}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-9-1.pdf}
+
+\(x\) and \(y\) are unrelated, but they're \textbf{d-connected} by conditioning on \(y\). This is a problem, conditioning on a collider introduces bias, and correlations where none exist.
+
+Let's consider a different application, from literature on advertising and political turnout (Lau and Pomper 2004; Ansolabahere, Iyengar and Simon 1999). Let's consider the finding that negative advertising influences turnout, mediated by efficacy.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(ggdag)}
+\FunctionTok{dagify}\NormalTok{(turnout }\SpecialCharTok{\textasciitilde{}}\NormalTok{ efficacy, efficacy }\SpecialCharTok{\textasciitilde{}}\NormalTok{  negativity, }
+       \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"turnout"} \OtherTok{=} \StringTok{"Voting"}\NormalTok{,}
+  \StringTok{"efficacy"} \OtherTok{=} \StringTok{"Political Efficacy"}\NormalTok{,}
+  \StringTok{"negativity"} \OtherTok{=} \StringTok{"Negative Ad"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{ggdag}\NormalTok{(}\AttributeTok{text =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{use\_labels =} \StringTok{"label"}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{theme\_dag}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+But what if,
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(ggdag)}
+\FunctionTok{dagify}\NormalTok{(turnout }\SpecialCharTok{\textasciitilde{}}\NormalTok{ efficacy }\SpecialCharTok{+}\NormalTok{ knowledge, efficacy }\SpecialCharTok{\textasciitilde{}}\NormalTok{  negativity }\SpecialCharTok{+}\NormalTok{ knowledge, }
+       \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"turnout"} \OtherTok{=} \StringTok{"Voting"}\NormalTok{,}
+  \StringTok{"knowledge"} \OtherTok{=} \StringTok{"Political Knowledge"}\NormalTok{,}
+  \StringTok{"efficacy"} \OtherTok{=} \StringTok{"Political Efficacy"}\NormalTok{,}
+  \StringTok{"negativity"} \OtherTok{=} \StringTok{"Negative Ad"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{ggdag}\NormalTok{(}\AttributeTok{text =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{use\_labels =} \StringTok{"label"}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{theme\_dag}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-11-1.pdf}
+
+This is a \textbf{collider} problem. Political efficacy is a collider. Including efficacy in the model will bias the parameter estimates. For instance, conditioning on political efficacy will induce a correlation between voting and negativity that doesn't exist. Although they should be independent, they're d-connected by efficacy. Collider bias is different from confounding bias. In the case of confounding bias, one must control for the confounder. In the case of a collider, one should not condition on the collider.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(dplyr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'dplyr'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# simulate data from a dag}
+\NormalTok{dat }\OtherTok{=} \FunctionTok{dagify}\NormalTok{(turnout }\SpecialCharTok{\textasciitilde{}}\NormalTok{ efficacy }\SpecialCharTok{+}\NormalTok{ knowledge , efficacy }\SpecialCharTok{\textasciitilde{}}\NormalTok{  negativity }\SpecialCharTok{+}\NormalTok{ knowledge, }
+       \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}
+  \StringTok{"turnout"} \OtherTok{=} \StringTok{"Voting"}\NormalTok{,}
+  \StringTok{"knowledge"} \OtherTok{=} \StringTok{"Political Knowledge"}\NormalTok{,}
+  \StringTok{"efficacy"} \OtherTok{=} \StringTok{"Political Efficacy"}\NormalTok{,}
+  \StringTok{"negativity"} \OtherTok{=} \StringTok{"Negative Ad"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{tidy\_dagitty}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{simulate\_data}\NormalTok{(}\AttributeTok{N =} \DecValTok{1000}\NormalTok{,   }\AttributeTok{b.default =} \FloatTok{0.5}\NormalTok{)}
+
+\CommentTok{\# partial correlation}
+\FunctionTok{cor}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{turnout, dat}\SpecialCharTok{$}\NormalTok{negativity, }\AttributeTok{method =} \StringTok{"pearson"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.2405141
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ppcor}\SpecialCharTok{::}\FunctionTok{pcor}\NormalTok{(dat }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(}\SpecialCharTok{!}\NormalTok{knowledge))}\SpecialCharTok{$}\NormalTok{estimate}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##             efficacy negativity    turnout
+## efficacy   1.0000000  0.4951086  0.7448369
+## negativity 0.4951086  1.0000000 -0.2293432
+## turnout    0.7448369 -0.2293432  1.0000000
+\end{verbatim}
+
+Although negativity has a positive impact absent efficacy, the partial correlation is negative.
+
+\section{The Logic of Inference}\label{the-logic-of-inference}
+
+This class involves much more than finding a model that is appropriate for a given data structure. In fact, we will continually be returning to two themes in inferential statistics, the \emph{frequentist} and \emph{Bayesian traditions}. In some circumstances, these two traditions will yield very similar results, though the interpretations vary. During these first two weeks, we'll consider these two perspectives from a theoretical vantage; throughout the rest of the term, we'll review techniques to use these perspectives in inference.
+
+It's worthwhile to understand the motivating principles of these two approaches, prior to digging into technical content. Most likely, many of you have received training in the \emph{frequentist} tradition of probability, which is often credited to Jerzy Neyman, Karl Pearson and Sir Ronald Fisher, among others. The logic here is quite simple: Probability refers to the frequency of an event occurring in a series of trials.
+
+\textbf{Frequentism} is actually quite intuitive when applied to circumstances in which we can observe repeated trials. If you flip a coin, the probability of observing heads is 0.5. We can flip that coin in almost identical conditions hundreds or thousands of times. If the coin is fair, flipping the coin 10,000 times should yield approximately 5000 times. Yet, most people would recognize that we'll never flip exactly 5,000. Instead, we'll observe some variation around 5,000.
+
+Or consider the classic example of rolling a die. The probability of rolling a 1 (or any number, with a fair die) is 1/6. This number is of limited value in predicting the outcome of a single roll. Just like 0.5 is of limited value in our ability to predict Heads or Tails. And this is where things trend towards the \emph{subjective}. It's common to use probability as a measure of certainty. If the probability of flipping \textbf{Tails} is 0.5, that's akin to saying there's so much random fluctuation that if we repeatedly picked \textbf{Tails} we'd be right about half the time. So, 0.5 means we shouldn't be confident in our prediction.
+
+Turning to the dice, what repeated experiments means, approximately 1/6 of those trials will yield a 1. We can calculate multiple events, like which say we roll the die 10 times, and each trial involves rolling two dice, should we bet that at least one of these will yield two 1s? The probability of observing two ones is 1/6 \(\times\) 1/6 \(=\) 1/36. This implies that the rest of the sample space (i.e., not rolling two ones) is 35/36. Since the rolls are independent, then the probability that \textbf{two ones are not observed in 10 trials} is \((35/36)^{10}=0.75\) -- thus one should probably \emph{not} bet on ``snake eyes.''
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Load necessary library}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+
+\CommentTok{\# Always set seed for reproducibility}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{) }
+
+\CommentTok{\# Simulate draws}
+\NormalTok{n\_draws }\OtherTok{\textless{}{-}} \DecValTok{10000}
+\NormalTok{outcomes }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"H"}\NormalTok{, }\StringTok{"T"}\NormalTok{), }\AttributeTok{size =}\NormalTok{ n\_draws, }\AttributeTok{replace =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{prob =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.5}\NormalTok{, }\FloatTok{0.5}\NormalTok{))}
+
+\CommentTok{\# Create a data frame for plotting}
+\NormalTok{df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Outcome =}\NormalTok{ outcomes)}
+
+\CommentTok{\# Plot the results}
+\FunctionTok{ggplot}\NormalTok{(df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Outcome)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_bar}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Coins"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Outcome"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Frequency"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{theme\_minimal}\NormalTok{() }\SpecialCharTok{+} 
+  \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{limits =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, n\_draws}\SpecialCharTok{/}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ n\_draws}\SpecialCharTok{/}\DecValTok{4}\NormalTok{)) }
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-13-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{paste}\NormalTok{(}\StringTok{"Of "}\NormalTok{, n\_draws, }\StringTok{" draws "}\NormalTok{,  }\FunctionTok{table}\NormalTok{(df)[}\DecValTok{1}\NormalTok{], }\StringTok{" were heads! "}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Of  10000  draws  4943  were heads! "
+\end{verbatim}
+
+Be sure to set \emph{set.seed(10000)} to ensure reproducibility.
+
+Or, if we expect the coin to be unfair, where the probability of Tails is 0.75, we could simulate that.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Load necessary library}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+
+\NormalTok{simulate\_coin\_toss }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(n\_draws, prob\_heads) \{}
+  \CommentTok{\# Set seed for reproducibility}
+  \FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}
+
+  \CommentTok{\# Ensure probabilities are valid}
+  \ControlFlowTok{if}\NormalTok{ (prob\_heads }\SpecialCharTok{\textless{}} \DecValTok{0} \SpecialCharTok{||}\NormalTok{ prob\_heads }\SpecialCharTok{\textgreater{}} \DecValTok{1}\NormalTok{) \{}
+    \FunctionTok{stop}\NormalTok{(}\StringTok{"Probability of heads must be between 0 and 1."}\NormalTok{)}
+\NormalTok{  \}}
+
+  \CommentTok{\# Calculate probability of tails}
+\NormalTok{  prob\_tails }\OtherTok{\textless{}{-}} \DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ prob\_heads}
+
+  \CommentTok{\# Simulate draws}
+\NormalTok{  outcomes }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"H"}\NormalTok{, }\StringTok{"T"}\NormalTok{), }\AttributeTok{size =}\NormalTok{ n\_draws, }\AttributeTok{replace =} \ConstantTok{TRUE}\NormalTok{, }
+                     \AttributeTok{prob =} \FunctionTok{c}\NormalTok{(prob\_heads, prob\_tails))}
+
+  \CommentTok{\# Create a data frame for plotting}
+\NormalTok{  df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{Outcome =}\NormalTok{ outcomes)}
+
+  \CommentTok{\# Plot the results}
+\NormalTok{  plot }\OtherTok{=} \FunctionTok{ggplot}\NormalTok{(df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Outcome)) }\SpecialCharTok{+}
+    \FunctionTok{geom\_bar}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Coin Simulation"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Outcome"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Frequency"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_minimal}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{scale\_y\_continuous}\NormalTok{(}\AttributeTok{limits =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, n\_draws))}
+
+    \CommentTok{\# Return the results (optional)}
+  \FunctionTok{return}\NormalTok{(plot)}
+\NormalTok{\}}
+
+\FunctionTok{simulate\_coin\_toss}\NormalTok{(}\AttributeTok{n\_draws =} \DecValTok{100}\NormalTok{, }\AttributeTok{prob\_heads =} \FloatTok{0.25}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-14-1.pdf}
+
+Statistics is often taught from this perspective -- even if not always clearly acknowledge. For instance, a confidence interval is not a statement of certainty regarding whether the derived interval contains the true population value. You were likely instructed, early on, that statements such as ``there's a 95\% chance the mean falls between and '\,' is totally wrong. That statement often confused me. The reason is that frequentism hinges on the assumption that the population parameters are fixed. If we were to repeatedly draw samples from a population and calculate a confidence interval, approximately 95\% of those intervals would capture the population value value.
+
+In fact, the very logic of inference hinges on the notion of drawing a subset of the population (a sample) and making an inference about the general population from that sample. Yet, the \textbf{frequentist} approach forces us to think of the population parameter as fixed -- we simply don't have it because it would be expensive to collect -- and the methods we use to make inferences nearly always hinge on this notion of taking repeated samples from a population. Just recall the \textbf{central limit theorem}, \textbf{the standard error}, \textbf{confidence intervals}, \textbf{p-values}, and \textbf{Type I} and \textbf{Type II} errors. These concepts all rely on the notion of repeated observation; hence, the frequentist'\,' label. Let's take a step back and consider what this means from the perspective of social science and sampling. Then, I think you'll see what I mean when I use the term \textbf{frequentist}.
+
+\textbf{A Step Back}
+
+In this class, and really in most everything you've worked on, the focus of the research is rarely on individual observations but rather distributions. We can summarize data, and relationships between variables, based on distributions. For example, recall that in linear regression, one of the assumptions is the error process follows a parametric distribution (often the normal distribution). Moreoever, if we have a dependent variable that is clearly not normal and continuous, then this assumption becomes tenuous.
+
+Recall the differences between a probability density function (PDF) and a continuous density function (CDF). A PDF gives the probability of an occurrence (for a discrete variable) or a range of events (for a continuous variable).
+
+\textbf{Notation}
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\item
+  A CDF is written as F(x), or capital greek notation, e.g., \(\Gamma(x)\).
+\item
+  A PDF is written in lower case font, f(x), and we can find any area under a PDF by summation (for categorical data), and integration (for continuous data). That is,
+\end{enumerate}
+
+\[p(a<x<b)=\sum_i^{K} x_i\]
+
+\[p(a<x<b)=\int f(x) dx\]
+
+As such, \(F(\infty)=1\), and \(F(-\infty)=0\), and \(p(-\infty < x < \infty)=\int_{-\infty}^{\infty}f(x)dx=1\). This is an important principle, which occasionally is forgotten. The sum of the total under a probability distribution (continuous variable) or probability mass (discrete variable) must be 1.
+
+We can extend these ideas further, leveraging these three basic principles to what is known as \textbf{Bayes' Rule}, named after the mathematician Reverand Thomas Bayes.
+
+\section{Conditional Probabilities, Continued: Bayes' Rule}\label{conditional-probabilities-continued-bayes-rule}
+
+Consider the probability of observing \(x\) given \(y\). This probability can be expressed as the joint probability of observing \(x\) and \(y\) divided by the marginal probability of observing \(y\). That is,
+
+\[p(x|y)={p(x,y)\over p(y)}\]
+
+We can just rearrange things to find \(p(y|x)\). First multiply the equation by \(p(y)\)
+
+\[p(x|y) p(y)=p(x,y) \]
+
+But, remember, we can find the joint probability, \(p(x,y)\) as
+
+\[p(y|x) p(x)=p(y,x) \]
+
+Meaning,
+
+\[p(x|y) p(y)=p(y|x) p(x)\]
+
+Bayes' Rule is simply,
+
+\[p(y|x) ={p(x|y) p(y)\over p(x)}\]
+
+Notice, that we could simply solve this by inverting the rows and columns in the above example.
+
+We'll rely heavily on this basic principle, extending it in a number of interesting ways. For now, it's more than sufficient to simply understand that Bayes' Rule is really just a reordering of what we know about conditional probabilities.
+
+\textbf{Why p(y\textbar x) is important -- but misunderstood}
+
+The \textbf{Monty Hall Experiment} comes from the classic game show, ``Let's Make a Deal.'' Here's how it goes. There are three doors. Behind one door is a substantial prize -- a car -- behind the others are goats (undesirable prizes).
+
+The contestant chooses one of three doors, but doesn't open it. The door is announced. The host then chooses a door -- obviously not the one with a car -- opens it, and reveals a goat. The contestant offers the option of staying with their original choice, or switching doors.
+
+\emph{Should the contestant stick with the original choice or switch to the unopened door?}
+
+To begin -- and knowing nothing else,
+
+\[ P(Car, A) = P(Car, B) = P(Car, C)=1/3\]
+
+The contestant's initial choice is arbitrary, as the car is equally likely to be behind any door.
+
+Let's just assume you pick \emph{Door A.} It doesn't matter which one you choose though. The math stays the same.
+
+Now, Monte Hall then opens \textbf{Door B}, revealing a goat
+
+Let's now calculate some conditional probabilities.
+
+Firstly, you want to know the \textbf{probability that Monty opened door B given the car is behind door A}. Recall, that you chose door A, which means Monty could have opened either door B or door C.
+
+Let's break down the problem. The probability that Monte Hall opens \emph{Door B} given the car is behind \emph{Door A} is 0.5. You choose A, so he can open \emph{either} B or C, and will always pick one with the goat. Why is it 0.5. Monty will open door B if the car is behind either of the remaining doors.
+
+\[ P(OpenB | Car, A) = 1/2\]
+
+We know even more though. What is the probability that Monty Hall opened door B given the car is behind door B? It's zero! Under no circumstance will Monty reveal the door with the car, as that would just mean giving away a car, without any real contestant participation.
+
+\[ P(OpenB | Car, B) = 0\]
+
+The last probability to consider is the probability that Monty opened door B given the car is behind door C.
+
+\[ P(OpenB | Car, C) = 1 \]
+
+This is 1 for a simple reason. If you choose A, and he knows the car is behind C, he will always open B. That's all that's left.
+
+Prepared with this, let's invert the problem. After all, this is what we want to calculate -- considering Monty's choice, what is the probability a car is behind doors A, B, C.
+
+\[p(Car,A|OpenB)?\] \[p(Car,B|OpenB)?\]? \[p(Car,C|OpenB)?\]
+
+\[p(Car,A|OpenB) = {{(1/3 * 1/2)}\over{(1/3*1/2)+ (1/3*0) + (1/3*1)}} = 1/3\]
+
+\[p(Car,B|OpenB) = {{(1/3 * 0)}\over{(1/3*1/2)+ (1/3*0) + (1/3*1)}}  = 0\]
+
+\[p(Car,C|OpenB) = {{1/3 * 1}\over{(1/3*1/2)+ (1/3*0) + (1/3*1)}}  = 2/3\] The contestant should switch! Don't worry if you got it wrong. I did -- I still find myself inclined to mistrust the result. By far the most common result is to say it doesn't matter if you switch doors, acknowledging that the car resides behind Door A and B is equal, 0.5. This of course, is incorrect, which we can see with the application of Bayes' Theorem.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{monty\_hall }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(}\AttributeTok{num\_trials =} \DecValTok{1000}\NormalTok{) \{}
+\NormalTok{  wins\_switch }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{  wins\_stay   }\OtherTok{\textless{}{-}} \DecValTok{0}
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{num\_trials) \{}
+\NormalTok{    prize\_door    }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{    player\_choice }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+    \CommentTok{\# Monty must open one of two doors without cars}
+\NormalTok{    monty\_opens }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\FunctionTok{setdiff}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, }\FunctionTok{c}\NormalTok{(prize\_door, player\_choice)), }\DecValTok{1}\NormalTok{)}
+    \CommentTok{\# This is the door if player switches}
+\NormalTok{    switch\_door }\OtherTok{\textless{}{-}} \FunctionTok{setdiff}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{, }\FunctionTok{c}\NormalTok{(player\_choice, monty\_opens))}
+
+    \ControlFlowTok{if}\NormalTok{ (player\_choice }\SpecialCharTok{!=}\NormalTok{ prize\_door) \{}
+\NormalTok{      wins\_switch }\OtherTok{=}\NormalTok{ wins\_switch }\SpecialCharTok{+} \DecValTok{1}
+\NormalTok{    \} }\ControlFlowTok{else} \ControlFlowTok{if}\NormalTok{ (player\_choice }\SpecialCharTok{==}\NormalTok{ prize\_door) \{}
+\NormalTok{      wins\_stay }\OtherTok{\textless{}{-}}\NormalTok{ wins\_stay }\SpecialCharTok{+} \DecValTok{1}
+\NormalTok{    \}}
+\NormalTok{  \}}
+  \CommentTok{\# Calculate and print the win probabilities}
+\NormalTok{  win\_prob\_switch }\OtherTok{\textless{}{-}}\NormalTok{ wins\_switch }\SpecialCharTok{/}\NormalTok{ num\_trials}
+\NormalTok{  win\_prob\_stay }\OtherTok{\textless{}{-}}\NormalTok{ wins\_stay }\SpecialCharTok{/}\NormalTok{ num\_trials}
+  
+  \FunctionTok{cat}\NormalTok{(}\StringTok{"If the player switches doors, they win:"}\NormalTok{, win\_prob\_switch, }\StringTok{"of the time"}\NormalTok{, }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+  \FunctionTok{cat}\NormalTok{(}\StringTok{"If the player stays with original choice, they win:"}\NormalTok{, win\_prob\_stay, }\StringTok{"of the time"}\NormalTok{, }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\NormalTok{\}}
+\FunctionTok{monty\_hall}\NormalTok{(}\DecValTok{10000}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## If the player switches doors, they win: 0.6681 of the time 
+## If the player stays with original choice, they win: 0.3319 of the time
+\end{verbatim}
+
+\section{Two Traditions}\label{two-traditions}
+
+We will rely on probability densities a lot in this class. There are a variety of ways to describe, or summarize a distribution of data (or a theoretical distribution). Much of this class focuses on probability.
+
+In statistics, we often (albeit not explicitly) use probabilities in a relativistic sense. We think of it as trials or experiments that are repeatable, aka the \emph{frequentist} interpretation. For instance, the estimate of a particular candidate winning the presidential nomination may be 0.55. If we were able to conduct a primary election over and over and over again, in the long run, we are assuming the candidate wins 55 out of 100 times. On any given trial though, they'll either win or lose, just as you'll only win or lose if you play a game of chance.
+
+It's well established in the psychology literature that humans are not great at processing probabilities. Our attention is drawn to emotionally evocative events -- evident in the so called ``availability heuristic,'' and humans don't accurately process base rates, the ``accessibility heuristic.'' For instance, shortly after the September 11 attacks, many Americans chose to drive rather than fly, despite the fact that driving was still far more dangerous -- in terms of fatalities -- than flying. The probability of dying in a terrorist attack in the U.S. has traditionally been far less than dying in an automobile accident
+
+In the social sciences in particular, we use probability in a \textbf{subjective} sense, leveraging probability as a statement of certainty. While not inherently problematic, ``certainty'' means something different in the frequentist tradition, where parameters are fixed and we sample from a population.
+
+When we fit a model -- perhaps by minimizing the sum of squared residuals -- we are generating a statement about the ability of our data being produced by a particular model, \(p(Y|M)\). Since we're thinking about this broadly, let's swap out \(Y\) for \(D\), where \(D\) is the model. This is essentially what we do when we compare model fit, examining how the overall model changes in its predictive power. The problem is we may be inclined to make a statement about the model given the data. This term is called the ``likelihood'' -- what is the probability of observing the data, given a model.
+
+What is the probability, for instance, that a parameter falls in a particular range? The likelihood provides little help here. In a frequentist application, we can't make such a statement. We can only say, ``If we were to repeatedly draw samples from the population, the parameter should fall in this approximately 95\% of the time.'' This is the basis of the confidence interval. It's a statement about the long-run properties of the estimator. If we wanted to say something about different, we would need to calculate the inverted probability.
+
+Again, let's refer to \(M\) as the model, and \(D\) as the data.
+
+\[p(M|D) ={p(D|M) p(M)\over p(D)}\]
+
+The inverse probability is then a function of the likelihood, as well as the probability of observing the model \emph{and} the probability of observing the data. It turns out that since the denominator is a normalizing constant, which renders the numerator into a valid probability, it is proportional to the product absent \(p(D)\).
+
+\[p(M|D) \propto p(D|M) p(M)\]
+
+What this establishes is these two principles: Frequentism versus Bayesian inference. Typically, we're interested in the Bayesian version of the probability statement -- ``what is the probability that our data produced a model?'' The frequentist version, which draws on what is called the likelihood, really posits something different, and that is, ``what is the probability that a model produced our data?''
+
+You may have made a similar error when thinking about the Monty Hall experiment. We can ask \(p(car|door)\) and we can also ask \(p(door|car)\) These are quite different. The first is the probability that the car is behind a door, considering Monty opens a door with a goat. The second is the probability that Monty will choose a given door, given a car is behind it. Because Monty is choosing in a strategically predictable way, we can see that \(p(door|car)\) is not uniform.
+
+In fact, we'll just focus on likelihood for a bit, because we've not addressed a critical point: We often don't know the population parameter, but estimate it from data. This is where we pair the likelihood principle with algorithms to maximize the probability of observing the data given the model. This is \emph{maximum likelihood}.
+
+\section{Bernoulli Trials}\label{bernoulli-trials}
+
+Let's start with coin flips. We're going to operate from the assumption that a coin is fair, which simply means the probability of observing an H is the same as the probability of observing T. In this case, \(y \in [0 , 1]\). Let's say:
+
+\[y = {1, H, \theta=0.5}\atop  {y=0, T, 1-\theta=0.5} \]
+
+So, we're just labeling heads 1, tails 0. Each has an equal probability. Let's call this population parameter governing the behavior of the coin, \(\theta\). This isn't a trivial assumption -- it's central to \emph{frequentist} inference -- the parameter is fixed. The assumption is it exists, and governs the behavior the coin. Because we know what \(\theta\) is, by assuming the coin is fair, it is easy to find the probability of observing a particular string of heads, tails, or some combination.
+
+Let's also assume independent trials. What this means is one trial is independent of a subsequent trial. Then the joint probability of observing a (H,H) is simply \(0.5 \times 0.5=0.25\).But, perhaps we have some reason to expect the coin is not fair, and \(\theta=0.3\) (the coin is biased in favor of T). Then, the probability of observing a H,H,T is \(0.3 \times 0.3 \times 0.7\). Recall from the previous section we could simply express these independent coin flips in a formal expression, as
+
+\[p(heads)=\theta^y(1-\theta)^{1-y}\]
+
+And, across \(n\) independent trials trials,
+
+\[p(k)=\prod\theta^y_i(1-\theta)^{1-y_i}\] \[=\theta^k(1-\theta)^{n-k}\]
+
+Since \(\textbf{y}=y_1, y_2...y_n\) is observed and we are making an assumption about the constituent probabilities, all we need to do is multiply the probability of each outcome, here denoted by \(\prod\)
+
+Likewise, we could just use the binomial distribution to calculate this probability (call \(K\) an observed sequence).
+
+\[p(K | \theta, N)= {n \choose k} \theta^K(1-\theta)^{N-K}\]
+
+\section{\texorpdfstring{When \(\theta\) is unknown}{When \textbackslash theta is unknown}}\label{when-theta-is-unknown}
+
+Turn the question of coin flips on it's head (my apologies). We've assumed that \(\theta\) is known, allowing us to generate a valid probability distribution for some observed sequence. However, \(\theta\) -- the statistical parameter -- is usual what we want to estimate. It exists in the population, but it is not directly accessible. However, we assume it could accessed, if we had resources to access the total population -- like a \emph{census}. Of course, we rarely can access the whole population -- if we could, what would be the point of inference -- and instead we make an inference about this parameter. It's perhaps easiest to consider with coin flips. For a given coin, we assume \(\theta\). If we approach the trials with an assumption of a fair coin, we simply posit that \(\theta=0.5\). But, what if we are not able to generate such a concrete assumption about \(\theta\)?
+
+Instead, suppose we only have access to an observed series coin flips. Instead of approaching the problem from the issue of, \emph{What is the probability of observing two heads in a series of 10 flips, given a fair coin?} we might ask, ``Given 2 observed heads out of 10, what is the most probable value of \(\theta\)''? Or, ``Is the coin fair?'' It shouldn't take much convincing that this is a qualitatively different question. It's also the question we commonly ask ourselves in applied research. In particular, \textbf{Given the data available, what is the most likely parameter or set of parameters to generate the data?} In this case, ``parameter'' may be an estimate about how many people will vote for a candidate, a slope coefficient, and so forth. An alternate way to think of this is \(p(D|M)\) -- or what is the probability of observing the data, given the model (King 1998).
+
+Although you may not have seen this notation yet, our statistic models often assume we want to maximize the likelihood that an estimated population value produced a data set, called \(D\), so \(p(D | \theta)\). This is also why I've been following this convention. Consider the logic of minimizing the sum of squared errors. If \(\theta\) simply represent a vector of slope coefficients, recall that the logic of OLS is to minimize the squared discrepancy between the observed and predicted values. Though we can estimate an infinite number of \(\theta\) values, only one will meet the criterion of minimizing the sum of squared residuals. This is equivalent to asking ourselves, ``what is a set of \(\theta\) values that maximizes the likelihood of observing a particular dataset?'\,' in that finding \(\theta\) that minimizes the sum-of-squared residuals will also maximize the probability of observing a particular dataset.
+
+This is the logic underlying a technique that we will use throughout this semester, which is called ``maximum likelihood.'' In the linear model, the maximum likelihood estimator and the OLS estimator will yield the same results; yet, the logic of minimizing SSR is not applicable to many other data situations (e.g., a binary dependent variable). Thus, we may use the logic of ML to estimate a variety of models.
+
+Returning to the motivating example: What is \(\theta\) in a series of coin flips. Maximum likelihood is a technique to estimate parameters in a model, not unlike the principle of least squares. The logic -- and not so much math -- is as follows. Let's call \(\theta\) some set of parameter estimates and \(D=(y_1....y_n)^T\) is the observed data. The probability of observing vector, \(D|\theta\) is simply the product of all individual values of \(y_i | \theta\), if values are independently observed. Thus, the probability of observing H,H,T with a fair coin is simply \(0.5 \times 0.5 \times 0.5\).
+
+\section{Simulation and the Likelihood Function}\label{simulation-and-the-likelihood-function}
+
+Assume we observe 7 heads, 3 tails. What's our best guess of theta?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\NormalTok{theta }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{, }\AttributeTok{by =} \FloatTok{0.01}\NormalTok{)}
+\CommentTok{\# The likelihood function, using bernoulli trials}
+\NormalTok{likelihood }\OtherTok{\textless{}{-}}\NormalTok{ theta}\SpecialCharTok{\^{}}\DecValTok{7} \SpecialCharTok{*}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ theta)}\SpecialCharTok{\^{}}\DecValTok{3}
+\NormalTok{df }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(theta, likelihood)}
+
+\NormalTok{max\_likelihood\_theta }\OtherTok{\textless{}{-}}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{theta[}\FunctionTok{which.max}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{likelihood)]}
+
+\FunctionTok{ggplot}\NormalTok{(df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ theta, }\AttributeTok{y =}\NormalTok{ likelihood)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{geom\_vline}\NormalTok{(}\AttributeTok{xintercept =}\NormalTok{ max\_likelihood\_theta, }\AttributeTok{color =} \StringTok{"red"}\NormalTok{, }\AttributeTok{linetype =} \StringTok{"dashed"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Likelihood Function for 7 Heads and 3 Tails"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Theta (Probability of Heads)"}\NormalTok{,}
+       \AttributeTok{y =} \StringTok{"Likelihood"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-16-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Possible values of theta:"}\NormalTok{, }\FunctionTok{paste}\NormalTok{(}\FunctionTok{head}\NormalTok{(theta), }\AttributeTok{collapse =} \StringTok{", "}\NormalTok{), }\StringTok{"...}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Possible values of theta: 0, 0.01, 0.02, 0.03, 0.04, 0.05 ...
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"Assume we observe 7 heads, 3 tails. What\textquotesingle{}s our best guess?}\SpecialCharTok{\textbackslash{}n\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Assume we observe 7 heads, 3 tails. What's our best guess?
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cat}\NormalTok{(}\StringTok{"The maximum value of the distribution is at theta ="}\NormalTok{, max\_likelihood\_theta, }\StringTok{"}\SpecialCharTok{\textbackslash{}n}\StringTok{"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## The maximum value of the distribution is at theta = 0.7
+\end{verbatim}
+
+Instead of having a known probability, we can work the other direction and calculate the most likely value for \(\theta\) given an observed data set. To keep things tractable, assume 10 flips, and we observe 7 heads. That is, \(L(\theta | \sum y_i=7, N=10)\) -- we may generate a value for \(\theta\) that maximizes the probability of observing 7/10 heads.
+
+Formally, \[L(\theta)=\Pi p(y_i | \theta)\].
+
+Thus, the likelihood equation is the probability of observing \(y\) given some \textbf{best guess} of \(\theta\). Below, we'll very briefly develop a few techniques to formulate this guess
+
+We've now observed the data, and instead of knowing \(\theta\), we can estimate the most plausible value of \(\theta\), considering our data. If we flip a coin ten times and observe seven heads, what is a value of \(\theta\) that is most likely to produce this sequence of results? It's 0.7; the maximum likelihood estimate of \(\theta\) is 0.7.
+
+All the code does is take the probability of observing a head at each trial and multiplied these together. If we simulate values of \(\theta\), we find a single peaked function with a maximum value of 0.7.
+
+In particular, we have identified a value of \(\theta\) in the population that was most likely to produce the observed data. In other words, we assume:
+
+\[p(y|\theta)=\prod_{n=1}^Np(y_n|\theta)=\prod_{n=1}^N\theta^{y_n}(1-\theta)^{1-{y_n}}\] (Bishop 2006, page 69).
+
+If the sequence of results is \({H,H, T, H, T, T, T, T, T, T}\), if \(\theta=0.1\), then we multiply \(0.1 \times 0.1 \times 0.9 \times 0.1 \times 0.9^6\). By doing this for every value of \(\theta\), we want to find the highest probability associated with \(\theta\). This is precisely the logic of maximum likelihood: Observe a dataset and find a value of \(\theta\) that is most likely to have produced that dataset. What you can see is that the function is peaked. There is only one value that maximizes the ``likelihood function'\,' which is simply:
+
+\begin{eqnarray}
+p(y|\theta)=\prod_{n=1}^Np(y_n|\theta)=\prod_{n=1}^N\theta^{y_n}(1-\theta)^{1-{y_n}}
+\end{eqnarray}
+
+I've solved the problem with a simulation. In fact, that's not required. In this case, there is a closed form solution to the problem. In particular, we take the logarithm of the likelihood function, and solve by taking partial derivatives and setting these values to zero.
+
+In this example, you've probably noticed that the maximum likelihood estimate for \(\theta\), given \(n\) Bernoulli trials is simply \(k/n\), where \(k=\sum y_i\). We'll rely on this logic throughout the semester -- and we'll extend this considerably -- but for now it's really just important to conceptually understand the motivation, which is to find the most likely value of \(\theta\) that produced the observed distribution of data.
+
+As King (1998) notes, ``\textbf{Maximum Likelihood Estimation} is a theory of point estimation that derives in this very direct way from the likelihood function. The maximum is not always a very good summary of the entire likelihood function, but it is very convenient and often useful'' (p.~24)
+
+\section{Appendix}\label{appendix}
+
+\subsection{A Quick Review}\label{a-quick-review}
+
+\textbf{Correlated random variables}. Assume we observe two variables, \(x\) and \(y\). They have means \(\mu_x\) and \(\mu_y\) and standard deviations, \(\sigma_x\) and \(\sigma_y\). The mean of \(x+y\) is \(\mu_x+\mu_y\).
+
+The standard deviation is \(\sqrt{\sigma^2_x+\sigma^2_y+\rho\sigma_x\sigma_x}\), where \(\rho\) is the correlation between the variables (Gelman and Hill 2009, p.14). In R, we can test this
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{1000}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\NormalTok{y }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{1000}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{)}
+\CommentTok{\# Added means}
+\FunctionTok{mean}\NormalTok{(x) }\SpecialCharTok{+} \FunctionTok{mean}\NormalTok{(y) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -0.06276625
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Means of added variables}
+\FunctionTok{mean}\NormalTok{(x }\SpecialCharTok{+}\NormalTok{ y)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] -0.06276625
+\end{verbatim}
+
+We often assume the two variables follow a multivariate normal distribution, \(z_k \sim N(\mu_k, \Sigma_{kk})\). \(\mu_k\) represents the means of the random variables, \(\Sigma\) represents a covariance matrix, with variances on the diagonal and covariances on the off diagonal.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(MASS)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'MASS'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:dplyr':
+## 
+##     select
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(dplyr)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\CommentTok{\# A covariance matrix (correlation because var = 1)}
+\NormalTok{cov }\OtherTok{=} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FloatTok{0.25}\NormalTok{, }\FloatTok{0.25}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+\DocumentationTok{\#\# Simulate 1000 draws and plot}
+\NormalTok{x }\OtherTok{\textless{}{-}} \FunctionTok{mvrnorm}\NormalTok{(}\DecValTok{1000}\NormalTok{, }\AttributeTok{mu =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{), }\AttributeTok{Sigma =}\NormalTok{ cov) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{data.frame}\NormalTok{()}
+\FunctionTok{head}\NormalTok{(x)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            X1         X2
+## 1  1.23237942 -0.7010768
+## 2  0.58465895 -0.7573066
+## 3 -1.74525172  0.3678799
+## 4 -0.04896222 -0.4497497
+## 5  0.34968227 -0.1865196
+## 6 -0.30767570 -1.4233725
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{colnames}\NormalTok{(x) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"X1"}\NormalTok{, }\StringTok{"X2"}\NormalTok{)  }\CommentTok{\# Rename columns for clarity}
+
+\FunctionTok{ggplot}\NormalTok{(x, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ X1, }\AttributeTok{y =}\NormalTok{ X2)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{() }\SpecialCharTok{+}  
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"Scatter Plot of Bivariate Normal Data, rho = 0.25"}\NormalTok{,}
+       \AttributeTok{x =} \StringTok{"Variable X1"}\NormalTok{,}
+       \AttributeTok{y =} \StringTok{"Variable X2"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()  }
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-18-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{paste0}\NormalTok{(}\StringTok{"The estimated correlation is "}\NormalTok{ , }\FunctionTok{round}\NormalTok{(}\FunctionTok{cor}\NormalTok{(x)[}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{], }\DecValTok{3}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "The estimated correlation is 0.224"
+\end{verbatim}
+
+Recall the \textbf{central limit theorem} states that by drawing repeated samples and calculating the means, then the distribution of sample means will be approximately normal. A \emph{sampling model}, which we commonly work with, is a model applied to a sample from a population; we in turn use that model to make an inference about a population. In fact, a test-statistic or estimand is used in this model to draw an inference about a \textbf{population parameter}. Statistics are often called parameter estimates.
+
+The \textbf{standard error} of a statistic represents uncertainty about the parameter estimate (though see above caveats). In the case of a mean, recall that the central limit theorem allows us to estimate the standard deviation of sample means, \(\sigma/\sqrt{n}\). When dealing with proportions, the standard error is \(\sqrt{p(1-p)/n}\). Say we are interested in the difference between two proportions, we must then calculate the standard deviation of the differences, or \(\sqrt{sd_{p1}^2+sd_{p2}^2}\)
+
+\textbf{The Expected Value}. The expected value is the \textbf{average} value over many draws -- it's useful to think of it from the perspective of frequentism. For a discrete distribution, then:
+
+\[E(x_i)=\sum_{i}^{K} x_i p(x_i)\]
+
+Again, this doesn't tell us anything about a single, or even predicted, \(x_i\) value. It is the value of \(x_i\), weighted by \(p(x_i)\). Take a simple example, flipping a coin. Let's say \(H=Y=1\), \(T=Y=0\). As such, if we flip a coin 10 times, then \(E(Y_i)=\sum y_i  f(y)=(0.5)^{10}\). You may also write it as \$E(x\_i)=\textbackslash sum\_i\^{}\{K\} x\_i f(x\_i)\$.
+
+We have conceptually the same thing for a continuous variable, where
+
+\[E(x)=\int_{-\infty}^{\infty}x f(x)dx\].
+
+Again, it's simply the sum of the occurrence weighted by the probability of that occurrence. If \(y=f(x)=a+bx\), where \(a\) and \(b\) are simply constants, then \(E(y)=E(a+bx)=aEx+b\). The expected value of a fixed value or constant value is a constant. You should recognize this from your linear regression course, \(E(Y)=a+b\bar{X}\).
+
+\subsection{Properties of Estimators}\label{properties-of-estimators}
+
+We're often concerned with making inferences about a population from a sample. Recall, in the frequentist tradition, we think of parameters as fixed characteristics of the population; statistics are derived from sample(s) drawn from the population. They are often qualified with some degree of uncertainty. An estimator is the formula or equation used to represent what we think is the process governing a parameter. So, \(y_i=\alpha+\beta x + \epsilon\) forms the relationship between x and y in the population, governed by fixed parameters \(\alpha\), \(\beta\), and an error term. This is not the estimator. The estimator is the method we then use to guess these parameters. Ordinary least squares is an estimator. It's one of many estimators.
+
+The issue is that we only have a sample, or set of samples. Thus we wish to draw an inference about the population from the sample. The properties of an estimator can be explored in myriad ways. One method to assume a sample is observed over repeated trials, so we have repeated samples. We could then perform our estimation procedure across samples and compile these estimates. Recall the logic of the central limit theorem, for instance.
+
+If we were able to repeatedly draw samples and run our estimation procedure, we are left with a \textit{sampling distribution}. We can then explore properties of an estimator by examining this distribution. Most notably, the distribution will have mean
+
+\[E(\hat {\theta})\]
+
+\[var(\hat{\theta})=E(\hat{\theta}-E(\hat{\theta}))^2\]
+
+With \(\sqrt{var(\hat{\theta})}\) as the standard deviation of the sampling distribution. We can then establish three statistics to explore the properties of an estimator. The \emph{sampling error} is the deviation between our estimator \(\hat{\theta}\) and the population parameter (\(\theta\)). There will always be some degree of error by drawing a sample from a population. We may wish to minimize this sampling error, but we shouldn't expect it to be zero.
+
+\textbf{Bias} is the difference between the expected value of an estimator relative to the true population parameter, i.e., \(\hat{\theta}-\theta\). Note how this is different from the sampling error. The sampling error refers to the difference for a single estimate produced from our estimator. Bias is the average of many samples analyzed with an estimator.
+
+We're often also interested in how much an estimator varies about a true population parameter. Here, let's define the \textbf{Mean Squared Error} (MSE), or \(E(\hat{\theta}-\theta)^2\). Again, notice the difference here. Here, we are concerned with how much an estimator varies around the true population parameter. It can be shown that the MSE may be rewritten as
+
+\[E(\hat{\theta}-E(\hat{\theta}))^2 +[E(\hat{\theta}-\theta)]^2\]
+
+In other words, the MSE is a function of the variance of the estimator and the bias of the estimator. We generally wish for this value to be small. For instance, if we were to compare two estimators, we should prefer the estimator that is unbiased with minimum variance, which of course translates to having the smallest MSE.
+
+\subsection{Finite Sample Properties}\label{finite-sample-properties}
+
+Ordinary Least Squares has desirable \textbf{small sample properties}. What does this mean? Some estimators are unbiased or have minimal variance even when a sample is small.
+
+For instance, unbiasedness is \(E(\hat{\theta})=\theta\). Over repeated samples, the mean of the sampling distribution will converge upon the true population parameter. Although it may seem that unbiaseness alone is enough to prefer one estimator over another, it's not. The reason is that it is a property of repeated samples. Again, if we only collect one sample, we have no idea if a parameter estimate is near the true population value. To ascertain whether an estimator is unbiased, we examine it's properties over repeated trials.
+
+Efficiency, os
+
+\[var(\hat{\theta})<var(\tilde{\theta})\].
+
+This means that compared to other estimators, our preferred estimator should have smaller variance.
+
+In some cases, there is a tradeoff, in that we may have an estimator that is known to be biased, but it has smaller variance. That is, in some circumstances, we may even prefer some degree of bias, if our estimator has minimal variance. We'll often rely on a statistic called the \emph{Mean Squared Error} to compare estimators.
+
+\[MSE(\hat{\theta})=E(\hat{\theta}-\theta)^2\] The squared expected difference between the estimator and the true population parameter. The MSE is a function of the variance of the estimator and the bias of the estimator.
+
+\[MSE(\hat{\theta})=var(\hat{\theta})+[E(\hat{\theta}-\theta)]^2\] Some estimators we'll explore in this class have small variance, but some bias. Examples are \textbf{ridge} and \textbf{lasso} regression. These estimators may be preferred to OLS, which is unbiased, but may have larger variance because of multicollinearity, for instance.
+
+\textbf{\emph{The Bias Variance Tradeoff}}
+
+By now, you should be intimately familiar with a traditional linear equation.
+
+\[Y_i=\beta_0+\beta_1 x_{1,i}+\beta_2 x_{2,i}+\dots+\beta_k x_{k,i}+e_i\]
+
+We can find these parameters by minimizing the residual sum of squares.
+
+\[RSS=\sum_{i=1}^N=Y_i-(\beta_0+\beta_1 x_{1,i}+\beta_2 x_{2,i}+\dots+\beta_k x_{k,i})\] A problem that often arises in practice is that of collinearity -- with finite samples, it is not uncommon to find that some variables are (imperfect) linear combinations of other variables, which doesn't necessarily affect the parameter estimates, but will grossly exaggerate the standard errors.
+
+We end up with an unbiased, but inefficient estimate. This is not ideal. First, we cannot effectively test hypotheses and second unless the model is strongly informed by theory, it is possible that we could drop a variable. Of course, we know that if we drop a variable that should be in the model, then we risk biased estimates. This is one issue that is very common in applied statistics; theory may not always be informative enough to tell us exactly how to specify a model. Still, if we include irrelevant variables, this will lead ``overfitting'' whereby our ``out-of-sample'' predictions (think election forecasting) will be off.
+
+This is a tradeoff we'll discuss repeatedly throughout the term. It's commonly called the bias-variance tradeoff. Some estimators may be unbiased, but inefficient, and vice-versa.
+
+\subsection{Asymptotic Properties}\label{asymptotic-properties}
+
+We can also explore the properties of an estimator by varying the sample size; in particular, what happens to the estimator as the sample size approaches infinity? As the sample size gets larger and larger, what happens to the characteristics of an estimator?
+
+An estimator is said to be \emph{asymptotically unbiased} if
+
+\[\lim_{n\to\infty} E(\hat{\theta})=\theta\]
+
+A perfect example of this is the estimate of the sample variance; you may recall that the population variance is:
+
+\[\sigma^2={{1}\over{n}}(x-\mu_{x})^2\]
+
+But the sample variance is:
+
+\[\sigma^2={{1}\over{n-1}}(x-\bar{x})^2\]
+
+The population variance is an unbiased estimator as the sample size increases. In particular,
+
+\[\lim_{n\to\infty} E(\hat{\sigma^2})=\lim_{n\to\infty} [{{n-1}\over{n}}]\sigma^2=\sigma^2\]
+
+Note that as n approaches infinity, the term \([{{n-1}\over{n}}]\) approaches 1 and the estimator converges to the population parameter.
+
+An estimator is said to be \emph{consistent} if:
+
+\[P\lim_{n\to\infty}(|\hat{\theta}-\theta|<d)=1\]
+
+then,
+
+\[Plim_{n\to\infty}(\hat{\theta})=\theta\]
+
+Really, this is subtly different from asymptotic unbiasedness. What it means is that the probability that the estimator is not different from the population parameter is 1 as the sample size approaches infinity. Put slightly different, the probability increases to 1 that as the sample size increases the estimator converges to the population parameter.
+
+We sometimes refer to this as the bias/variance trade off. A prime example is the variance estimate above. When we divide by \(n\) this is also called the MLE estimate of the variance. It is biased in small samples, but consistent and asymptotically unbiased. I like to think of consistency more in terms of the variance of an estimator, such that \(P\lim_{n\to\infty}\) represents the point at which the variance is 0 and the entire distribution collapses to one value -- i.e., \(\lim_{n\to\infty} MSE(\hat{\theta}=0)\)
+
+\chapter{Matrix Algebra}\label{matrix-algebra}
+
+This review focuses on matrix algebra. Please consult the following text
+-- it's great -- and I'll follow it closely here. This course closely
+tracks chapters 3 and 4, and I strongly encourage you to read these
+chapters in the not-too-distant future. In several places below, I refer
+you directly to this text.
+
+Gill, Jeff. 2006. \emph{Essential Mathematics for Political and Social
+Research}, Cambridge University Press.
+
+As a secondary source, please consult.
+
+Moore, Will and David Siegel. 2013. \emph{A Mathematics Course for Political
+and Social Research}. Princeton, NJ: Princeton University Press.
+
+\section{Introduction}\label{introduction}
+
+Much of quantitative political science -- and the social sciences, more
+generally -- aims to quantify the relationships between multiple
+variables. For instance, say we are interested in predicting the
+probability of voting, \(pr(Vote)\), given one's party identification
+(\(X_{PID}\)) and political ideology (\(X_{Ideology}\)). Let's just assume
+we observe these variables in the form of a survey, in which people
+report whether they voted, their party identification (on a seven point
+scale from 1, Strong Democrat, to 7, Strong Republican), and their
+ideology on a seven point scale from 1(Strong Liberal) to 7(Strong
+Conservative). There are a large number of ways that we might go about
+addressing this question. For instance, we might just count up the
+number of people who vote who are Republican, the number who are
+conservative, and so forth. From this, we could calculate a number of
+statistics, such as the proportion of people who vote who are Democrat.
+
+Regardless of how we go about addressing this issue, we must begin by
+understanding the data itself. The data, expressed in a spreadsheet or
+some other data form, can be envisioned in \emph{matrix form}. Each row of
+the data corresponds to a respondent (so, if there \(n=1000\) respondents,
+there are 1000 rows). Each column corresponds to the observed response
+-- here, ideology, pid, and voting.
+
+\[
+\begin{bmatrix}
+Vote&PID&Ideology \\\hline
+a_{11}&a_{12}&a_{13} \\
+a_{21}&a_{22}&a_{23} \\
+\vdots & \vdots & \vdots\\
+a_{n1}&a_{n2}&a_{n3}\\
+\end{bmatrix}
+\]
+
+In this case, we have an \(n \times 3\) matrix. What's more, we could
+generate a simple linear expression, in which
+\(y_{voting}=b_0+b_1 x_{Ideology}+b_2 x_{PID}\). Let's spend a little time
+considering what these components entail.
+
+The problem is there are three unknown quantities that we need to find,
+\(b_0, b_1, b_2\).
+
+\[\begin{bmatrix}
+y_{1}= & b_0+ b_1 x_{Ideology,1}+b_2 x_{PID,1}\\
+y_{2}= & b_0+ b_1 x_{Ideology,2}+b_2 x_{PID,2}\\
+y_{3}= &  b_0+ b_1 x_{Ideology,3}+b_2 x_{PID,3}\\
+y_{4}= &  b_0+ b_1 x_{Ideology,4}+b_2 x_{PID,4}\\
+\vdots\\
+y_{n}= &  b_0+ b_1 x_{Ideology,n}+b_2 x_{PID,n}\\
+\end{bmatrix}\]
+
+In this case, we have a number of equations -- one for each value of the
+dependent and independent variables. We have fewer unknowns. But, we
+need to develop the tools to solve this system of equations. In other
+words, what consistutes a reasonably good guess of \(b_0, b_1, b_2\)? In
+fact, there are an infinite number of potential values for
+\(b_0, b_1, b_2\). But, we'd like the one that most accurately predicts
+\(y\). After all, we would like to come up with a reasonable prediction of
+y given our covariates, here ideology and party id. Put another way, we
+expect that our prediction of \(y\) knowing these covariates is more
+accurate than our prediction of \(y\), absent these covariates.
+
+This is just one reason why we need to explore the properties of
+matrices. Over the next couple days, we will explore linear algebra, and
+we'll develop some of the techniques needed to solve problems such as
+the one above. Some of this will seem a bit obscure; like much of math,
+it may not be immediately clear why we're exploring these techniques.
+Some of you may convince yourselves this is tangential to what you'll
+need to succeed in this program. This is incorrect -- as an instructor
+of 2 of the 4 required methods courses, I promise every aspect of what
+we'll look at will resurface. That said, don't become overly frustrated.
+Some of this may be foreign, and maybe it won't all make sense. That's
+okay and expected. With practice, I think you'll find this material
+isn't all that technical. Often these concepts are best understood
+through applications (and practice).
+
+Typically, when we represent any matrix, the first number corresponds to
+the row, the second to the column. If we called this matrix
+\(\texttt{A}\), we could use the following notation \(\textbf{A}_{Nx3}\).
+More generically, we might represent a \(\textbf{A}_{NxN}\) matrix as:
+
+\[
+\begin{bmatrix}
+a_{11}&a_{12}&\cdots &a_{1n} \\
+a_{21}&a_{22}&\cdots &a_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+a_{n1}&a_{n2}&\cdots &a_{nn}\\
+\end{bmatrix}
+\]
+
+It is worthwhile to consider what constitutes the entries of this matrix
+We can think of a matrix as being made up of a series of vectors. A
+vector encodes pieces of information using a string of numbers.
+Returning to our running example, there are three column vectors,
+corresponding to the variable. There are 1000 row vectors, which map
+each individual's vote propensity, PID in a three dimensional space.
+Vectors are typically denoted with lowercase letters \(\textbf{a}\).The
+length\}of a vector is simply how many elements it encodes. For instance,
+each row vector is of length 3. Another way to write this is
+\(\textbf{a} \in R^{3}\), which denotes that the vector is a three
+dimensional real number.
+
+\section{Vectors}\label{vectors}
+
+Single numbers are called scalars; vectors are different. Vectors
+include multiple elements. More formally, a scalar only provides a
+single piece of information, magnitude or strength. Vectors exist in
+\(\mathbb{R}^{k}\) and encode \emph{strength} (its norm) as well as direction or
+location. Think of plotting a straight line in a two dimensional space,
+starting at the origin. The vector encodes the magnitude -- how long is
+the line -- it also encodes the direction (where it the line going). So,
+a vector is made up of multiple elements. It's most easy to envision a
+vector geometrically. Let's see this on the board.
+
+Assume \(\textbf{a}=[3,2,1]\) and \(\textbf{b}=[1,1,1]\). Or, more simply,
+let's deal in \(\mathbb{R}^{2}\). Consider two vectors: \(\textbf{a}=[9,2]\) and
+\(\textbf{b}=[1,1]\). These are just two locations in a two dimensional
+space. The vectors traverse different paths, and they are have different
+magnitudes (one is longer, right?). A natural question is then, what is
+the distance between these vectors? If \(\textbf{a}=[x_1,y_1]\) and
+\(\textbf{b}=[x_2,y_2]\), then we can defined the Euclidean distance
+between these vectors as
+
+\[Distance(a,b)^{Euclidean}=\sqrt{(x_1-x_2)^2+(y_1-y_2)^2} \]
+
+This is really just an extension of what you likely learned in
+high-school using the Pythogorean Theorem -- this is why it's useful to
+envision things geometrically, rather than simply trying to remember a
+bunch of formula. Let's see what's going on here. Drop point from (9,2)
+that forms a right triangle. The line that connects \(\textbf{a}\) and
+\(\textbf{b}\) is the hypotenuse, and can be solved by \(c^2=a^2+b^2\). Plug
+in the differences with respect to \(x\) then \(y\) to find their
+hypotenuse.
+
+This is related to another important characteristic: The \emph{norm} of a
+vector. This is measure of distance from the beginning point to the
+ending point of a vector. Think of it as the length of a line starting
+at the origin -- i.e., it's most useful to think of a vector and moving
+it so that the beginning point is (0,0). The norm is a measure of
+strength or magnitude. I hesitate to use ``length'' since sometimes that's
+reserved for the dimension of the vector, but it more or less is the
+length. It's the length of that vector is how far the point is from 0,0.
+Again, just envision the point defined by the vector and the distance of
+that point from the origin. Notice, this is really just the same thing
+as the distance formula if we knew two vectors, the one we're interested
+in -- call it a -- and the zero vector, defined by 0,0. Then, simply
+define the norm as:
+
+\[
+|a|=\sqrt{x_1^2+y_1^2}
+\]
+
+If we know the x,y coordinates for the beginning and end point of this
+vector, we can move it anywhere and the norm will be the same -- it
+doesn't change lengths, only it's relative location. It should be fairly
+intuitive, since the length doesn't change, only it's general location
+in space. Also,
+
+\[Distance(a,b)^{Euclidean}=\sqrt{\|a\|^{2}+\|b\|^{2}}\]
+
+This should make intuitive sense. We can find distance using two norms,
+since the norm is just the same vector, beginning at the origin.
+
+From this, we can generate further operations which have a relatively
+clear geometric basis. Vector addition and subraction simply involves
+adding (or subtracting) each element. So
+
+\(\textbf{a}-\textbf{b}=[3-1, 2-1, 1-1]=[2,1,0]\)
+
+or \(\textbf{a}+\textbf{b}=[3+1, 2+1, 1+1]=[2,1,0]\).
+
+In this example, the vectors are said to be \textbf{conformable},
+because they have the same number of elements.
+With this in mind, we cannot subtract or add vectors of different lengths;
+for example, if \(\textbf{a}=[3,2]\) and \(\textbf{b}=[1,1,1]\). In this
+case, the vectors are \textit{non-conformable}. It's useful to
+remember that order generally doesn't matter for addition, but it will
+for subtraction.
+
+We can multiply or divide a vector by a scalar, i.e., a single number.
+For instance, \(2 \times \textbf{a}=[3,2,1]=[6,4,2]\). From Gill (2006,
+p.86), let's then explore the basic properties of vector algebra.
+
+\[\textbf{Commutative}=\textbf{a}+\textbf{b}=(\textbf{b}+\textbf{a})\]
+
+\[\textbf{Additive}=(\textbf{a}+\textbf{b})+\textbf{c}=\textbf{a}+(\textbf{b}+\textbf{c})\]
+
+The order of vector addition doesn't matter
+
+\[\textbf{Distributive I}=c(\textbf{a}+\textbf{b})=c\textbf{a}+c\textbf{b}\]
+
+\[\textbf{Distributive II}=(c+d)\textbf{a}= c\textbf{a}+c\textbf{b}\]
+
+Adding and then multiplying by a scalar is the same as multiplying by a
+scalar and then adding.
+
+Zero-Multiplication\(=0\textbf{a}=0\)
+
+\[\textbf{Unit}=1\textbf{a}=\textbf{a}\]Geometrically, adding two
+vectors, \(\textbf{a}+\textbf{b}\) completes the third side of the
+triangle. So, knowing the location of a and b in \(\mathbb{R}^{2}\), then the sum,
+\(\textbf{a}+\textbf{b}\), forms the third side.
+
+We can extend this further to higher dimensions -- i.e., vectors that
+reside in a higher dimensional space, \(\mathbb{R}^{N}\), have more than two
+components, etc. Let's consider \(\mathbb{R}^{3}\); vectors with three components.
+If we were to plot this, we would have x, y, and z, axes. Again, let's
+just consider two vectors, \(\textbf{a}, \textbf{b}\), with three
+components.
+
+\[Distance(a,b)^{Euclidean}=\sqrt{(x_1-x_2)^2+(y_1-y_2)^2+(z_1-z_2)^2}\]
+
+This is the Euclidean distance in \(\mathbb{R}^3\). The norm is also just a slight
+modification from our previous calculation.
+
+\[\|a\|=\sqrt{x_1^2+y_1^2+z_1^2}\]
+
+Also, notice that when we divide a vector by its magnitude -- its norm
+-- then the norm of that new matrix is 1. Just explore the R code above.
+Because of this property, we have a normed vector. Sometimes this is
+called a unit vector. This is often a useful thing to do in applied
+settings, because it standardizes the vector. Regardless of the
+components of the vector, a normed vector always has this property.
+These calculations are all above.
+
+\subsection{Similarity}\label{similarity}
+
+Although it is easy to multiply a string with a vector, there are
+several ways to multiply vectors. Let's define multiplication in a few
+ways, starting with the \(\textbf{inner product}\), then the
+\(\textbf{cross product}\), then the \(\textbf{outer product}\).
+
+The inner product is a useful place to start (see Gill 2006). Suppose,
+\(\textbf{a}\)={[}3,2,1{]} and \(\textbf{b}\)={[}1,1,1{]}. To calculate the
+inner product -- or dot product -- we multiply each element and add, here \([3*1+2*1+1*1]=6\). The shorthand notation for this is then, \(\sum_k=a_ib_i\), which reads ``multiply
+the \emph{i}th element in a with the ith element in b and then sum from 1
+to k, where k is the length of the vectors'' (Gill, 2006, p.~87). It
+turns out that the inner product is related to another statistic: it is
+a measure of covariance, or how two vectors (aka, ``variables''), go
+together! It's the mean centered inner product.\} Also, the correlation
+is the standardized covariance; here, it is the mean centered
+inner product over the product of the norm of mean centered x and the
+norm of mean centered y.
+
+\[cov(x,y)=E(x-\bar{x})(y-\bar{y}))={{\sum(x-\bar{x})(y-\bar{y})}\over{n-1}}={{inner.product(x-\bar{x}, y-\bar{y})}\over{n-1}}\]
+
+\[r_{x,y}={{cov(x,y)}\over{sd(x)sd(y)}}={{inner.product(x-\bar{x}, y-\bar{y})}\over{\|x-\bar{x}\|\|y-\bar{y}\|}}\]
+
+Geometrically, if two vectors are orthogonal (independent), this inner product will be zero, noted as \(\textbf{a} \perp \textbf{b}\). Maybe this is useful place to start. Or, put another, way, the covariance/correlation will be zero. Let's see this using the`law
+of cosines.
+
+If you know two sides of a triangle, as well as the angle where these
+two sides meet, then you can calculate the third side of the triangle
+using this formula, \(c^2=a^2+b^2-2 a b cos(\theta)\). \textbackslash theta must be
+greater than 0 and less than \(\pi\). Recall the circumference of a
+circle is \(2\pi r\). Assume a \textbf{unit circle}, where \(r=1\). Then,
+we know that a triangle can only be formed if \(\theta\) is less than
+180 degrees, which in radians is \(\pi\). Again, it's worthwhile
+staring at this a bit -- we can always find the unknown side of the
+triangle by knowing the angle where a and b meet.
+
+Now, how does this relate to the ``inner product'\,'? If \(\textbf{a}\),
+and \(\textbf{b}\) are independent vectors, and we calculate their inner
+product, this really just the same thing as calculating this:
+
+\[inner.product(a,b)=\|a\|\|b\|cos(\theta\]
+
+The inner product of \(\textbf{a}\) and \(\textbf{b}\) is a function of
+the vector norms and the angle in which they're related. Put another
+way, the only way that the inner product of the two non-zero vectors
+will equal zero is if cos(\textbackslash theta)=0. This only occurs when
+\(\theta=\pi/2\). Thus, we only can have two independent, or orthogonal
+vectors, when the angle at which they connect is 90 degrees, or in
+radians \(\pi/2\). Similarly,
+
+\[\|a-b\|=\|a\|^2+\|b\|^2+cos(\theta)\]
+
+And rearrange the terms,
+
+\[cos(\theta)={{inner.product(a,b)}\over {\|a\|\|b\|}}\]
+
+\[\theta={{arccos(inner.product(a,b)}\over{\|a\|\|b\|}}\]
+
+But what this also means is that the inner product generally viewed as a
+measure of association. Hold onto this idea as you proceed through our
+program. Note the relationship between inner product is the covariance
+between two variables. If that covariance is zero, geometrically that
+means a right angle is formed.
+
+Just a quick digression: It can be useful to ask the question: ``why
+should I care''? The vector norm is a measure of magnitude, strength,
+consistency, length, etc. We could view it is an indicator of cohesion.
+Gill (2006) cites Castevaans (1970). I won't rehash his argument, but
+say we have a legislative vote. Conservatives vote yea/nea 2, 100,
+whereas liberals vote 72, 33. We could calculate the normed values,
+which gives a measure of cohesion. We could also calculate the value
+\(\theta\) and compare it to other votes.
+
+Again, from Gill (2006), here are the ``inner product rules''
+
+\[\textbf{Commutative}=\textbf{a} x \textbf{b}=\textbf{b} x \textbf{a}\]
+
+\[\textbf{Associative}=d(\textbf{a}+\textbf{b})=(d\textbf{a}) x \textbf{b}=\textbf{a} x d(\textbf{b})\]
+
+\[\textbf{Distributive}=\textbf{c}(\textbf{a}+\textbf{b})=\textbf{c}\textbf{a}+\textbf{c}\textbf{b}\]
+
+\[\textbf{Zero}=\textbf{a}0=0\]
+
+\[\textbf{Unit}=1\textbf{a}=\sum a_i\]
+
+\section{The Cross Product}\label{the-cross-product}
+
+The cross product is another common matrix multiplication operation.
+There are several steps to follow:
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\item
+  Stack the vectors.
+\item
+  Pick a row or column.
+\item
+  Calculate the determinant on the smaller, \(2 \times 2\) submatrix
+  involved in by deleting the \(i\)th entry.
+\end{enumerate}
+
+Say we have \(\textbf{a}=[3,2,1]\) and \(\textbf{b}=[1,4,7]\)
+
+\[
+\begin{bmatrix}
+3&2&1\\
+1&4&7\\
+\end{bmatrix}
+\]
+
+The cross product is, {[}2\emph{7-4}1, 1\emph{1-3}7, 3\emph{4-2}1{]}. The only ``trick'\,'
+is that if the entry is an even numbered location we flip the order of
+subtraction. So, we get {[}10,-20,10{]}. The cross product is orthogonal to
+both the original vectors (Gill 2006). We'll soon see that the
+cross-product is useful to calculate the inverse of a matrix. The way we
+calculate it is to find the determinant (see below).
+
+\section{The Outer Product}\label{the-outer-product}
+
+The outer product involves taking one vector -- transposing it -- and
+then multiplying that vector by the second vector.
+
+\[
+\begin{bmatrix}
+3 \\
+2\\
+1\\
+\end{bmatrix}
+\begin{bmatrix}
+1&4&7\\
+\end{bmatrix}
+\]
+
+If we multiply these by taking the ith row and multiplying by the jth
+column, then adding, we get:
+
+\[
+\begin{bmatrix}
+3&12&21\\
+2&8&14\\
+1&4&2\\
+\end{bmatrix}
+\]
+
+\section{Matrices}\label{matrices}
+
+As noted, we can combine row or column vectors in a matrix. For an
+\(i \times j\) matrix, typically the first number corresponds to the
+number of rows, the second number is the number of columns. Let's also
+follow the convention that vectors are written as lower-case bold
+letters, matrices are written in upper-case bold letters. Like vectors,
+it's important to establish different types of matrices, their
+properties, and matrix operations.
+
+First, two matrices are equal, \(\textbf{A}=\textbf{B}\), for
+\(i=j,\forall i,j\). All the elements of each matrix are identical. A
+\(\textbf{square}\) matrix has an equal number of rows and columns. A
+\(\textbf{symmetric}\) matrix has the same off-diagonal matrix. A
+\(\textbf{skew-symmetric}\) is a symmetric matrix, with the notable
+difference that the signs of the off-diagonals change -- i.e., the
+entries are the same, but the sign changes.
+
+Thinking back to the outer-product, the transpose of a matrix is a
+matrix where we change the rows to columns, or columns to rows. This is
+denoted \(\textbf{A}^T\) or \(\textbf{A}^\prime\).
+
+Squaring a matrix is the same as multiplying it by itself,
+\(\textbf{A}^2=\textbf{A} \textbf{A}\). I know this seems like an obvious
+statement -- it is -- but the mechanics involved in doing this is
+different than multiplying two scalars.
+
+An \(\textbf{idempotent}\) matrix means that if we multiply a matrix by
+itself, this product is the original matrix, or
+\(\textbf{A}^2=\textbf{A} \textbf{A}= \textbf{A}\).
+
+An \(\textbf{identity}\) matrix, \(\textbf{I}\) is analagous to
+multiplying a scalar by 1. So, \(\textbf{A}I= \textbf{A}\). The identity
+matrix has zeros on the off diagonal, and 1s on the diagonal. The
+\(\textbf{trace}\) of a matrix is the sum of all the diagonal elements
+of a matrix. Thus, the \(tr(I)\) corresponds to the number of rows in the
+matrix.
+
+How do we add or subtract matrices? First, they must be conformable --
+i.e., the same dimensions. To add, or subtract, just add (or subtract)
+the \(i\) and \(j\) elements.
+
+\[
+\begin{bmatrix}
+a_{11}&a_{12}&\cdots &a_{1n} \\
+a_{21}&a_{22}&\cdots &a_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+a_{n1}&a_{n2}&\cdots &a_{nn}
+\end{bmatrix}+
+\begin{bmatrix}
+b_{11}&b_{12}&\cdots &b_{1n} \\
+b_{21}&b_{22}&\cdots &b_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+b_{n1}&b_{n2}&\cdots &b_{nn}
+\end{bmatrix}=
+\begin{bmatrix}
+a_{11}+b_{11}&a_{12}+b_{12}&\cdots &a_{1n}+b_{1n} \\
+a_{21}b_{21}&a_{22}+b_{22}&\cdots &a_{2n}+b_{2n} \\
+\vdots & \vdots & \ddots & \vdots\\
+a_{n1}+b_{n2}&a_{n2}+b_{n2}&\cdots &a_{nn}+b_{n}\\
+\end{bmatrix}
+\]
+
+A matrix multiplied by a scalar is every element multiplied by that
+scalar.
+
+Again, from Gill (2006), here are the properties of conformable
+matrices,
+
+\[\textbf{Commutative}=\textbf{X} + \textbf{Y}=\textbf{Y} + \textbf{X}\]
+
+\[\textbf{Additive Associative}=(\textbf{X}+\textbf{Y})+\textbf{Z}=\textbf{X} + (\textbf{Y}+\textbf{Z}) \]
+
+\[\textbf{Distributive}=\textbf{c}(\textbf{X}+\textbf{Y})=\textbf{c}\textbf{X}+\textbf{c}\textbf{Y}\]
+
+\[\textbf{Scalar Distributive}=(c+t)\textbf{X}=s\textbf{X}+s\textbf{Y}\]
+
+\[\textbf{Zero}=\textbf{A}+0=\textbf{A}\]\#\#\# Matrix Multiplication and
+Inversion
+
+We need to elaborate on this general algebra to now multiply two
+matrices, as well as invert two matrices. A critical component that
+makes matrix multiplication different from scalar multiplication is that
+order absolutely matters. It is entirely conceivable that
+\(\textbf{A}\textbf{B}\) differs from \(\textbf{B}\textbf{A}\). It is also
+possible that \(\textbf{A}\textbf{B}\) can be multiplied but
+\(\textbf{B}\textbf{A}\) cannot!
+
+Why? To multiply two matrices we have to multiply and add the ith row
+with the jth column.
+
+\[
+\begin{bmatrix}
+1&3 \\
+2&4\\
+\end{bmatrix}
+\begin{bmatrix}
+3&5 \\
+2&4\\
+\end{bmatrix}=
+\begin{bmatrix}
+1*3+3*2&1*5+3*4 \\
+2*3+4*2&2*5+2*4\\
+\end{bmatrix}
+\]
+
+So, if we multiply two 2x2 matrices, we end up with a 2x2 matrix. We can
+tell if two matrices are conformable for multiplication if the first
+matrix has the same number of columns as rows in the second matrix. We
+can also determine the dimensions of the resulting matrix by taking the
+rows of the first matrix and columns of the second.
+
+For example, if we multiply a 2x2 matrix with a 3x2 matrix, this is not
+conformable. If we switch the order, 3x2 multiplied by 2x2, we are left
+with a 2x2 matrix. If we multiply a 9x2 with a 2x11, we end up with a
+9x11. This is just one reason why order matters?
+
+We can always permute rows and columns by using a
+\textbf{permutation} matrix. For instance, perform this
+multiplication
+
+\[
+\begin{bmatrix}
+0&1\\
+1&0
+\end{bmatrix} \textbf{A}
+\]
+
+Note, that the rows switch. Row and column permutations are important
+because they help us invert a matrix. We can always take an identity
+matrix, and if we permute a row or column then that will permute the row
+or column in the post-multiplied matrix.
+
+In scalar form, when we multiply a scalar by it's inverse, it's 1,
+\(3 \times 1/3=1\). The process is not as straightforward with matrices.
+But, we want to find a matrix \(\textbf{A}^{-1}\), such that
+\(\textbf{A}\textbf{A}^{-1}=1\). The properties of this
+not-yet-established inverse matrix is, \((\textbf{A}^{-1})^{-1}=A\),
+\(\textbf{AB}^{-1}=\textbf{B}^{-1}\textbf{A}^{-1}\),
+\((\textbf{A})^{-1}=(\textbf{A}^-1)^{T}\),
+\((\textbf{A}^{T})^{T}=\textbf{A}\),
+\((\textbf{AB})^T=\textbf{B}^T\textbf{A}^T\),
+\((\textbf{A}+\textbf{B})^{T}=\textbf{A}^T+\textbf{B}^T\).
+
+In some cases, a matrix may not be invertable. We call these
+singular matrices. This means there is no unique matrix
+\(\textbf{A}^{-1}\), such that \(\textbf{A}\textbf{A}^{-1}=1\). Take a
+really simple example:
+
+\[
+J=\begin{bmatrix}
+2&0\\
+2&0\\
+\end{bmatrix} 
+\]
+
+This matrix does not have an inverse, here \(\textbf{J}^{-1}\) does not
+exist. We don't even need to know much math to show why. We don't know
+the inverse, but let's assume the following.
+
+\[
+J^{-1}=\begin{bmatrix}
+w&x\\
+y&z\\
+\end{bmatrix} 
+\]
+
+We don't know x,y,w, and z, but we assume there is some value that
+satisfies the properties of an inverted matrix. Multiply the two, which
+gives four equations:
+
+\[
+\begin{aligned}
+2w+0y=1\\
+2w+0y=0\\
+2x+0z=0\\
+2x+0z=1\\
+\end{aligned}
+\]
+
+Try to solve for any of the unknowns. For instance, \(w=1/2\), but also
+\(w=0\); there is not a unique value of \(w\) that solves this equation.
+Singular matrices are not uncommon in applied research settings. In
+fact, we encounter them in any of the following circumstances:
+
+When matrices may not be inverted:
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\item
+  If all elements of a row or column equal zero.
+\item
+  If two rows or columns are identical.
+\item
+  If a row or columns are proportional.
+\item
+  If one row or columns can be written as a perfect linear combination
+  of another row or column.
+\end{enumerate}
+
+Assuming we meet these requirements, now let us establish how to find
+the inverse of a matrix.
+
+\subsection{Gauss Jordan Elimination}\label{gauss-jordan-elimination}
+
+What we want to do is establish a method that gives us the inverse. The
+first thing we'll do is create a \(\textit{pivot}\) matrix. This is done
+by row and column addition/permutation. A pivot matrix means that zeros
+reside on the lower diagonal and a non-zero element on the diagonal.
+Let's take a simple 3x3 matrix.
+
+We'll create an \(\textit{augmented}\) matrix by simply attaching the
+identify matrix to our 3x3 matrix. Now, what we first want to do is
+eliminate the 6 in the \{2,1\} position. We can do this by multiplying the
+first row by -6 and adding this to the second row.
+
+\[
+\textbf{A}=\begin{bmatrix}
+1 & 2 |& 1 & 0\\
+6 & 1 |& 0 & 1\\
+\end{bmatrix}
+\]
+
+Then, we get:
+
+\[
+\begin{bmatrix}
+1 & 2 &  |& 1 & 0\\
+0 & -11& |& -6 & 1\\
+\end{bmatrix}
+\]
+
+Now, we, need to eliminate the 2 in the \{2,1\} position. Do this by
+multiplying the second row by 2/11 and then add to the first row.
+
+\[
+\begin{bmatrix}
+1 &  0  &|& -1/11 & 2/11\\
+0 & -11 &|& -6 &    1\\
+\end{bmatrix}
+\]
+
+We want the left hand side to be the identity matrix. So now multiply
+the second row by -1/11. Notice what's happened:
+
+\[
+\begin{bmatrix}
+1 &  0  |& -1/11 & 2/11\\
+0 &  1|&    6/11 & -1/11\\
+\end{bmatrix}
+\]
+
+We now have \(\textbf{I}|\textbf{A}^{-1}\).
+
+\section{Projections}\label{projections}
+
+I find it intuitive to think of matrices as combined vectors. With this
+in mind, it's useful to think about how one vector is projected onto
+another vector. Recall the ``norm'\,' is just the distance of a vector
+to the origin. Plot the vector in \(\mathbb{R}^2\) for instance, then drop a line
+to the x (or y axis) that forms a right angle. We then have a right
+angle and the hypotenuse is the same as the norm.
+
+Assume two vectors, \(\textbf{a}\) and \(\textbf{b}\), each with a
+distinct location in two dimensional space. We can find the projection
+of vector \(\textbf{a}\) on \(\textbf{b}\)
+
+Alternatively, drop a line from \(\textbf{a}\) to some place on the line
+\(\textbf{b}\), which will form a right angle. The distance from the
+origin to this point, \(p\), is the projection of \(a\) onto \(b\). Because a
+right-angle is formed, this is called an ``orthogonal projection.''
+
+\[projection \textbf{a} \rightarrow \textbf{b}={{inner.product(b,a)}\over{\|\textbf{b}\|}}{\textbf{b}\over{\|\textbf{b}\|}}\]
+
+Don't be too concerned about memorizing this formula, but do be familiar
+with what it says. On the right we just have the normed vector of
+\(\textbf{b}\). Think of it as the standardized measure of how far
+\(\textbf{b}\) is from the origin. On the right, we know what the inner
+product is -- it's a general measure of association. So, if the two
+vectors are orthogonal -- i.e., unrelated -- then the projection must be
+0. And, again, we're just standardizing this value by the scalar value
+of the norm of \(\textbf{b}\) (Gill 2006, 135).
+
+It's useful to note the inverse of orthogonality, which is collinearity.
+What if \(\textbf{b}\) is a scalar multiple of \(\textbf{a}\)? In other
+words, we perfectly know what \(\textbf{b}\) is by multiplying
+\(\textbf{a}\) by some value. Geometrically, this idea of ``projection'\,'
+is uninformative, because both vectors reside on the same line.
+
+We'll deal with the concept of linear projections in POL 682. It's
+useful to understand how it relates to the general ideas here. Also, you
+should graphically recognize what is meant by collinearity. This
+is a common issue in applied statistics -- one variable can be
+represented as some linear composite of some other variable. Students
+often think of this as a simple correlation between two variables.
+Generally, this is fine, but when we are in \(\mathbb{R}^{+2}\), then it's not
+quite enough. Instead, envisioning these as vectors, what it means is
+one vector is a perfect composite of other vectors, meanining it resides
+on the same line.
+
+\section{Summarizing Matrices}\label{summarizing-matrices}
+
+A matrix encodes a lot of information; there are several statistics that
+convey important bits of information about a matrix. The first is the
+trace:
+
+\[tr(\textbf{A})=\sum_{i=1}^k x_{ii}\]
+
+If we have a square matrix, the number of rows equal the number of
+columns. This is captured by \(k\). What this says, is simply sum across
+the diagonal. Again, if we square a matrix, we multiply it by its
+transpose, \(AA^{T}\), meaning that the diagonal elements of this matrix
+\textbf{are simply the square of every value and the off-diagonals are the
+products of every ith value with every jth value.} As such, the
+\(tr(AA^{T})\) is the \texttt{sum\ of\ squares.\ We\ use\ the"}sum of squares'\,'
+frequently in statistics, particularly pertaining to the ``errors'\,' in
+linear regression. This calculation is simply the trace of the product
+of the same matrix -- really, \(AA^{T}\) (Gill 2006, 140). Following Gill
+(2006, 150), here are some trace rules:
+
+\[\textbf{Identity Trace}: tr(\textbf{I})=n\]
+
+\[\textbf{Zero Trace}: tr(0)=0\]
+
+\[\textbf{Scalar-Matrix Trace}: tr(s\textbf{A})=s tr(\textbf{A})\]
+
+\[\textbf{Additive Trace}: tr(\textbf{A}+\textbf{B})=tr(\textbf{A})+tr(\textbf{B})\]
+
+\[\textbf{Multiplicative Trace}: tr(\textbf{A}\textbf{B})=tr(\textbf{B}\textbf{A})\]
+
+\[\textbf{Transposition Trace}: tr(\textbf{A}^T)=tr(\textbf{A})\]
+
+\subsection{Determinants}\label{determinants}
+
+The determinant is also a useful statistic -- because it also captures
+the structure of a matrix, it is often used in other calculations. For
+instance, we can find the inverse by using determinants, and their
+logical extensions (below).
+
+\[
+|\textbf{A}|=\begin{vmatrix}
+w&x\\
+y&z\\
+\end{vmatrix}
+\]
+
+\(=wz-xy\). It's the product of the diagonal minus the product of the
+off-diagonal. The determinant of a larger square matrix is more
+involved.
+
+\[
+|\textbf{A}|=\begin{vmatrix}
+a_{11}&a_{12}& a_{13}\\
+a_{21}&a_{22}& a_{23}\\
+a_{31}&a_{32}& a_{33}\\
+\end{vmatrix}
+\]
+
+To find the determinant here, follow these steps:
+
+\begin{enumerate}
+\def\labelenumi{(\arabic{enumi})}
+\item
+  Choose a row or column,
+\item
+  Calculate the \emph{minor} by removing the row and column corresponding
+  to the i,j entry,
+\item
+  Calculate the cofactor for every \(x_{ij}\) element that was removed,
+  then
+\item
+  Sum.
+\end{enumerate}
+
+\[|\textbf{A}|=\sum_{i=1}^n (-1)^{i+j} x_{ij} |\textbf{A}_{ij}|\]
+
+It's not that bad; it's just a few steps. Let's take the above matrix
+and give it some actual values.
+
+\[
+|\textbf{A}|=\begin{vmatrix}
+3&1&0\\
+2&2&1\\
+1&3&5\\
+\end{vmatrix}
+\]
+
+Let's just operate on the first row, so let's start with \{1,1\}. If we
+delete the first row and the first column, we're left with the following
+2x2 matrix:
+
+\[
+|\textbf{A}|=\begin{vmatrix}
+2&1\\
+3&5\\
+\end{vmatrix}
+\]
+
+This is the minor of \(minor(a_{11})=1\). So, the minor is just the 2x2
+submatrix obtained by deleting the \(i\)th row and \(j\)th column. If we
+continue along with top row, we obtain 2 remaining minors. The
+cofactor is just the minor element signed according to its
+location in the matrix,
+\(cofactor(a_{11})=1(2\times 5-3\times 1) ; cofactor(a_{12})=-1(2\times 1-1\times 1); cofactor(a_{13})=1(2\times 3-2\times 1)\).
+Then multiply the cofactor by the deleted \(a_{ij}\) element and sum, so
+\(3*1+1*-10*0*4=12\). It doesn't matter what row or column you pick.
+
+Another method to calculate the inverse of a matrix is
+
+\[\textbf{A}^{-1}={{1}\over{|A|}}adj(A)\]
+
+cofactor matrix.
+
+\[
+cofactor(\textbf{A})=\begin{vmatrix}
+7&-9&4\\
+-5&15&-8\\
+1&-3&4\\
+\end{vmatrix}
+\]
+
+You've probably noticed a pattern here, in terms of what entries are
+positive and negative
+
+  \bibliography{book.bib,packages.bib}
+
+\end{document}

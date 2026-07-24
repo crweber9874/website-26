@@ -1,0 +1,959 @@
+# Heteroskedasticity and Weighted Least Squares {#heteroskedasticity}
+
+## Data and Setup
+
+```{r}
+#| label: setup-het
+#| include: false
+library(ggplot2)
+library(dplyr)
+library(car)
+```
+
+We'll continue with the **Arizona precinct data** introduced in the previous chapter. This is a natural setting for heteroskedasticity -- precincts vary enormously in size, from a few hundred voters to tens of thousands, and we'd expect the variance of election margins to depend on precinct characteristics.
+
+```{r}
+#| label: tbl-het-data-intro
+#| echo: true
+#| message: false
+#| warning: false
+
+load("precinct_voter_summary.rda")
+load("precinct_tract_data.rda")
+
+# Convert raw counts to percentages (as in the previous chapter)
+precinct_voter_summary <- precinct_voter_summary |>
+  dplyr::mutate(
+    pct_latino = (tract_acs_latino / tract_acs_total_population) * 100,
+    pct_white  = (tract_acs_non_latino_white / tract_acs_total_population) * 100
+  )
+```
+
+## Recall the Gauss Markov Theorem
+
+Now, let's explore the issues that emerge with heteroskedasticity. To understand the consequences, it's useful to recall the Gauss-Markov theorem and its assumptions. The G-M theorem states that under certain conditions, the OLS estimator is the Best Linear Unbiased Estimator (BLUE). The key assumptions are summarized in @tbl-gm-assumptions.
+
+| # | Assumption | Mathematical Representation | Purpose/Implications |
+|:--:|:-----------|:-----------------------|:--------|
+| 1 | **Linearity** | $y_i = \mathbf{x}_i^T\boldsymbol{\beta} + \epsilon_i$ | Estimation / Unbiasedness |
+| 2 | **Exogenous (fixed) IVs** | $\text{cov}(X_i, \epsilon_i) = 0$ | Estimation / Unbiasedness |
+| 3 | **Zero mean error** | $E(\epsilon_i) = 0$ | Inference |
+| 4 | **Homoskedasticity** | $\text{var}(\epsilon_i) = \sigma^2$ for all $i$ | Inference |
+| 5 | **Normality** | $\epsilon_i \sim N(0, \sigma)$ | Inference |
+| 6 | **Independent errors** | $\text{cov}(\epsilon_i, \epsilon_j) = 0$ for $i \neq j$ | Inference |
+| 7 | **Variation in X** | $\text{var}(X) > 0$ | Estimation |
+| 8 | **Correct specification** | No omitted variables, no extraneous variables | Estimation |
+| 9 | **No perfect multicollinearity** | No predictor is a perfect linear combination of others | Estimation |
+
+: The Nine Gauss-Markov Assumptions {#tbl-gm-assumptions}
+
+Assumptions 1--2 and 7--9 are needed for OLS to produce **unbiased** coefficient estimates. Assumptions 3--6 are needed for valid **inference** -- hypothesis tests and confidence intervals. In this chapter, we focus on what happens when Assumption 4 (homoskedasticity) is violated.
+
+If $\mathbf{b}$ is a linear function of $\mathbf{y}$, then $E(\mathbf{b})=\boldsymbol{\beta}$. This is just the matrix version of the unbiasedness property of the OLS estimator. To see this, we can write $\mathbf{b}$ as a function of $\mathbf{y}$:
+
+$$\mathbf{b}=(\mathbf{X^T X})^{-1}(\mathbf{X^T X \boldsymbol{\beta}+\boldsymbol{\epsilon}})$$
+
+Which is,
+
+$$(\mathbf{X^T X})^{-1}\mathbf{X^T X} \boldsymbol{\beta}+(\mathbf{X^T X})^{-1}\mathbf{X^T} \boldsymbol{\epsilon}$$
+
+By taking expectations, $E(\mathbf{b})=\boldsymbol{\beta}$.
+
+As in scalar form, the minimum variance component is the most involved. We need to show that the OLS estimator has the *smallest* variance among all linear unbiased estimators -- this is what makes it "best." We start by specifying a variance-covariance matrix for $\mathbf{b}$.
+
+$$\text{var-cov}(\mathbf{b})=E[(\mathbf{b}-\boldsymbol{\beta})(\mathbf{b}-\boldsymbol{\beta})^T]$$
+
+Substituting $\mathbf{b} - \boldsymbol{\beta} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\boldsymbol{\epsilon}$ and expanding:
+
+$$E[(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T\mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}]$$
+
+Since $E(\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T) = \sigma^2\mathbf{I}$ under the Gauss-Markov assumptions (homoskedastic, uncorrelated errors), we can pull $\sigma^2\mathbf{I}$ out and simplify:
+
+$$(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T \cdot \sigma^2\mathbf{I} \cdot \mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1} = \sigma^2 (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1} = \sigma^2 (\mathbf{X}^T\mathbf{X})^{-1}$$
+
+The middle term $\mathbf{X}^T\mathbf{X}$ cancels with one of the inverses, leaving us with $\sigma^2 (\mathbf{X}^T\mathbf{X})^{-1}$. This is the variance-covariance matrix of the OLS estimator. What does it tell us?
+
+- The **diagonal entries** give the variance of each coefficient: $\text{var}(b_k) = \sigma^2 [(\mathbf{X}^T\mathbf{X})^{-1}]_{kk}$. Taking the square root gives the standard error. A larger diagonal entry means less precision -- the estimate is noisier.
+
+- The **off-diagonal entries** give the covariance between pairs of coefficients: $\text{cov}(b_j, b_k) = \sigma^2 [(\mathbf{X}^T\mathbf{X})^{-1}]_{jk}$. When predictors are correlated, this covariance grows, meaning the estimates "move together" -- knowing that one coefficient is too high tells you the other is likely too low (or vice versa).
+
+- The entire matrix depends on $\mathbf{X}^T\mathbf{X}$, which is the cross-product of the design matrix. More data (larger $n$) makes $\mathbf{X}^T\mathbf{X}$ larger, its inverse smaller, and the variances shrink. More collinear predictors inflate $(\mathbf{X}^T\mathbf{X})^{-1}$, making the variances blow up -- this is the VIF problem.
+
+::: {.callout-warning title="Why This Matters" appearance="simple"}
+The simplification *only works* because $E(\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T) = \sigma^2\mathbf{I}$. If the errors are heteroskedastic -- $E(\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T) = \sigma^2\boldsymbol{\Omega}$ -- then the $\boldsymbol{\Omega}$ sits in the middle of the formula things don't simplify. The variance becomes a much longer expression, and the OLS formula $\sigma^2 (\mathbf{X}^T\mathbf{X})^{-1}$ is incorrect. The OLS estimator is unbiased, but **does not have minimum variance** -- it's not BLUE.
+:::
+
+### An Alternative?
+
+Recall, that to show minimum variance, we suppose there exists *any* other linear unbiased estimator $\tilde{\mathbf{b}} = \mathbf{Cy}$ where $\mathbf{C}$ is some matrix (not necessarily $(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T$). Remember, there are numerous ways to construct a linear estimator -- we've been following the objective function that the linear estimator should minimize the sum of squared residuals.
+
+Instead, let's assume $\mathbf{C} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T + \mathbf{L}$, where $\mathbf{L}$ captures how $\tilde{\mathbf{b}}$ differs from OLS. 
+
+$$\text{var}(\tilde{\mathbf{b}}) = \sigma^2(\mathbf{X}^T\mathbf{X})^{-1} + \sigma^2\mathbf{LL}^T$$
+
+The term $\sigma^2\mathbf{LL}^T$ is estimable -- LL can be inverted, so $\text{var}(\tilde{\mathbf{b}}) \geq \text{var}(\mathbf{b})$. The OLS estimator achieves the smallest variance -- it is *best*.
+
+The variance-covariance matrix for $\mathbf{b}$ is:
+
+$$
+\text{var}(\mathbf{b})=E[(\mathbf{b}-\boldsymbol{\beta})(\mathbf{b}-\boldsymbol{\beta})^T]
+$$
+
+$$E(\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T)=\sigma^2 \mathbf{I}$$
+
+Where we may use $\hat{\sigma}^2$ when $\sigma^2$ is not known.
+
+Then, $\mathbf{y} \sim N(\mathbf{Xb}, \sigma^2 \mathbf{I})$.
+
+And $\text{var}(\epsilon_i)=\sigma^2$ $\forall\, i$. **Every respondent has the same error component and zero covariance with all other responses.**
+
+$$
+\begin{bmatrix}
+\sigma^2&\cdots & 0\\
+0&\sigma^2 & 0\\
+\vdots & \vdots & \vdots\\
+0&\cdots &\sigma^2\\
+\end{bmatrix}
+$$
+
+## Heteroskedasticity
+
+If the variance is not constant, then the OLS estimator is not BLUE. It will be unbiased, but not efficient.
+
+The estimator under the Gaussian assumptions is **unbiased**, but not efficient (thus not BLUE). As a consequence, inferences will be quite imprecise, why? The key thing to remember is this:
+
+$$
+\begin{bmatrix}
+\sigma^2&\cdots & 0\\
+0&\sigma^2 & 0\\
+\vdots & \vdots & \vdots\\
+0&\cdots &\sigma^2\\
+\end{bmatrix}
+$$
+
+It encapsulates the properties of the error term, for every unit.Constant diagonal elements mean that the variance is constant; off-diagonal zeros mean that the errors are uncorrelated. If either of these conditions fails, the OLS estimator is no longer BLUE.
+
+* **Units (respondents) are heterogeneous.** Consider a model predicting political contributions from income. Low-income individuals cluster tightly near zero, but high-income individuals vary quite a lot -- some donate thousands, others nothing. The variance of contributions fans out as income increases. It looks like a "megaphone" when plotted against income.
+
+* **Outliers exist.** Sometimes we observe extreme cases; outliers; a handful of extreme observations. Imagine in our voting precinct data, a few precincts with different demographic profiles or spikes in turnout (maybe some politically active precincts vote at high rates). This can inflate the residual variance in certain regions of the predictor space while leaving it small elsewhere.
+
+* **Models are incorrectly specified.** If the true relationship is nonlinear (e.g., imagine the nonlinear relationship between age and turnout) but we fit a linear model, the residuals will be systematically larger where the misspecification is worst. The model looks homoskedastic in some regions, but heteroskedastic in others.
+
+* **Learning occurs.** In panel or repeated-measures designs, respondents may become more consistent over time. Early survey waves show high variability in responses as people form opinions, but later waves converge. The variance of the error term shrinks across time periods.
+
+## Building the Weighted Least Squares Estimator
+
+Let's start with this: $E(\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T)=\sigma^2 \boldsymbol{\Omega}$
+
+If this omega matrix is just the identity matrix -- no heteroskedasticity, no autocorrelation -- then $\boldsymbol{\Omega}=\mathbf{I}$, and the  estimator is BLUE.
+
+But if not, then the $\text{var}(\mathbf{b})$ is wrong, because $E(\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T)\neq\sigma^2 \mathbf{I}$.
+
+Instead, the $\text{var}(\mathbf{b})$ is
+
+$$\sigma^2(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\boldsymbol{\Omega} \mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}$$
+
+And:
+
+$$
+\text{var}(\mathbf{b}) \neq \sigma^2 (\mathbf{X}^T\mathbf{X})^{-1}
+$$
+
+Only if $\boldsymbol{\Omega} = \mathbf{I}$ will the variance estimate be correct; otherwise, we'll either under and/or over-estimate the variance. This results in several important consequences:
+
+* Wrong t-values
+* Incorrect statistical tests
+* Wrong, imprecise estimates
+* Larger confidence intervals
+* Type II Error
+
+::: {.callout-important title="The Key Point" appearance="simple"}
+If $\boldsymbol{\Omega}$ is $\mathbf{I}$ then this reduces to the OLS estimator of the variance; if it doesn't, the term doesn't simplify, the variance is not $\sigma^2 (\mathbf{X}^T\mathbf{X})^{-1}$, and the OLS estimator is not BLUE. The OLS estimator is unbiased, but inefficient. The SEs, Confidence Intervals, p-values, etc. are **WRONG**! Inference is suspect. Hypothesis testing won't be accurate.
+:::
+
+::: {.callout-note title="Where Do Weights Come From? Common Weighting Schemes" appearance="simple" collapse="true"}
+WLS and GLS are not just tools for fixing heteroskedasticity -- they appear whenever observations carry unequal information. The `weights` argument in R's `lm()` expects $w_i = 1/\text{var}(\epsilon_i)$: observations with *larger* weights count *more*.
+
+**Frequency weights.** When a single row in your dataset represents multiple identical units, the weight is the count. A row representing 500 households gets 500 times the influence of a row representing 1. Weights can be frequency weights.
+
+**Probability (sampling) weights.** In survey designs, respondents are sampled with unequal probabilities $\pi_i$. The weight $w_i = 1/\pi_i$ corrects for this: a respondent sampled with probability 0.01 (representing 100 people in the population) gets weight 100 -- `svydesign()` specifies the sampling design and `svyglm()` produces design-consistent estimates. Most large-scale surveys (ANES, CPS, ACS) provide sampling weights in the data.
+
+**Propensity score weights (causal inference).** In observational studies, inverse probability of treatment weighting (IPTW) uses the propensity score $e(\mathbf{x}_i) = P(\text{treated} \mid \mathbf{x}_i)$ to construct weights that balance treatment and control groups [@rosenbaum1983]. Treated units get weight $1/e(\mathbf{x}_i)$ and control units get weight $1/(1 - e(\mathbf{x}_i))$. The resulting weighted regression estimates the average treatment effect as if treatment had been randomly assigned. This connects WLS to the broader causal inference toolkit -- the weights don't correct for heteroskedasticity per se, but they use the same mathematical machinery of weighted estimation.
+:::
+
+### Modeling Variation
+
+The core insight behind GLS/WLS is that the errors need not be constant. Instead of assuming 
+constant variance, transform the data in such a way that the *transformed data have constant variance*. *Then* apply OLS to the transformed data. 
+
+The transformed OLS estimator will be BLUE.
+
+Recall the problem is $E(\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T)=\sigma^2 \boldsymbol{\Omega}$, where $\boldsymbol{\Omega} \neq \mathbf{I}$. 
+
+The diagonal entries of $\boldsymbol{\Omega}$ tell us how much each observation's error variance deviates from the average -- some observations are "noisier" than others. Some observations fall far from the regression line. Our goal is to find a transformation that produces new errors $\boldsymbol{\epsilon}^*$ -- how can we change the data to restore the property we need:
+
+$$E(\boldsymbol{\epsilon}^{*}\boldsymbol{\epsilon}^{*T})=\sigma^2 \mathbf{I}$$
+
+Think of it this way: if observation $i$ has a large error variance (it's noisy, unreliable), we want to *downweight* it -- make it count less in the estimation. If observation $j$ has a small error variance (it's precise, reliable), we want to *upweight* it. Of course, the question is, how do we calculate these weights? 
+
+* **Specify the weight matrix.** We need $\boldsymbol{\Omega}$, the matrix that describes how the error variance differs across observations, as well as its inverse $\boldsymbol{\Omega}^{-1}$. **The diagonal entries $\omega_{ii}$ represent the relative variance of each observation.**  For instance, a precinct with $\omega_{ii} = 4$ has four times the error variance of the baseline.
+
+* **Decompose the inverse.** Define $\boldsymbol{\rho}$ such that $\boldsymbol{\rho}^T\boldsymbol{\rho}=\boldsymbol{\Omega}^{-1}$.
+
+    Why do we need this step? Recall what we're trying to do: transform the regression equation so that the errors become homoskedastic. In scalar algebra, if the variance of $\epsilon_i$ is $\sigma^2 \omega_{ii}$ instead of $\sigma^2$, we'd just divide the entire equation by $\sqrt{\omega_{ii}}$. Basically, we're multiplying the regression variance by a weight that adjusts for the heteroskedasticity. 
+    
+    The transformed error $\epsilon_i^* = \epsilon_i / \sqrt{\omega_{ii}}$ would then have variance $\sigma^2 \omega_{ii} / \omega_{ii} = \sigma^2$ -- problem solved.
+
+    But in matrix form, we can't "divide by" $\boldsymbol{\Omega}$. Matrix division doesn't exist the way scalar division does. What we *can* do is premultiply by a matrix. So we need a matrix $\boldsymbol{\rho}$ that, when we premultiply the regression equation by it, has the same effect as dividing each observation by the square root of its variance weight.
+
+    The requirement is that $\boldsymbol{\rho}$ "undoes" $\boldsymbol{\Omega}$ in the error covariance. Start from the transformed errors: $\boldsymbol{\epsilon}^* = \boldsymbol{\rho}\boldsymbol{\epsilon}$. Their covariance is:
+
+    $$E(\boldsymbol{\epsilon}^*\boldsymbol{\epsilon}^{*T}) = E(\boldsymbol{\rho}\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T\boldsymbol{\rho}^T) = \boldsymbol{\rho}\, E(\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T)\, \boldsymbol{\rho}^T = \boldsymbol{\rho}\,(\sigma^2\boldsymbol{\Omega})\,\boldsymbol{\rho}^T = \sigma^2 \boldsymbol{\rho}\boldsymbol{\Omega}\boldsymbol{\rho}^T$$
+
+    For this to equal $\sigma^2 \mathbf{I}$, we need $\boldsymbol{\rho}\boldsymbol{\Omega}\boldsymbol{\rho}^T = \mathbf{I}$, which means $\boldsymbol{\rho}^T\boldsymbol{\rho} = \boldsymbol{\Omega}^{-1}$.
+
+    Since $\boldsymbol{\Omega}$ is diagonal (no correlation between errors -- just unequal variances), the decomposition is simple. Each diagonal entry of $\boldsymbol{\rho}$ is:
+
+    $$\rho_{ii} = \frac{1}{\sqrt{\omega_{ii}}}$$
+
+    A concrete example: suppose we have three observations with $\omega_{11} = 1$, $\omega_{22} = 4$, $\omega_{33} = 9$. Then:
+
+    $$\boldsymbol{\Omega} = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 4 & 0 \\ 0 & 0 & 9 \end{bmatrix}, \quad \boldsymbol{\rho} = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1/2 & 0 \\ 0 & 0 & 1/3 \end{bmatrix}$$
+
+    Observation 1 (low variance, $\omega = 1$) gets multiplied by 1 -- no change. Observation 2 (moderate variance, $\omega = 4$) gets multiplied by $1/2$ -- halved. Observation 3 (high variance, $\omega = 9$) gets multiplied by $1/3$ -- shrunk the most. Noisy observations are downweighted; precise observations are left intact.
+
+    You can check this out for yourself. Just verify that  $\boldsymbol{\rho}^T\boldsymbol{\rho} = \begin{bmatrix} 1 & 0 & 0 \\ 0 & 1/4 & 0 \\ 0 & 0 & 1/9 \end{bmatrix} = \boldsymbol{\Omega}^{-1}$. And you could then easily show ${\Omega\Omega}^{-1} = \mathbf{I}$.
+
+* **Premultiply and estimate.** Multiply every variable in the regression -- both $\mathbf{y}$ and $\mathbf{X}$ -- by $\boldsymbol{\rho}$. Then run OLS on the transformed equation. Observations with large variance get multiplied by a small weight (shrunk toward zero), while precise observations get multiplied by a large weight (amplified).
+
+Here, we are effectively weighting the observations according to how much they vary around $\hat{y}_i$. Noisy observations contribute less to the sum of squared residuals; precise observations contribute more. The result is an estimator that extracts the maximum information from each data point.
+
+### More Elaboration
+
+
+Okay, so to recap, we want this matrix: 
+
+$$\boldsymbol{\Omega}=
+\begin{bmatrix}
+w_{11}&\cdots & 0\\
+0&w_{22}& 0\\
+\vdots & \vdots & \vdots\\
+0&\cdots &w_{nn}\\
+\end{bmatrix}
+$$
+
+And we can calculate the inverse,
+
+$$\boldsymbol{\Omega}^{-1}=
+\begin{bmatrix}
+1/w_{11}&\cdots & 0\\
+0&1/w_{22}& 0\\
+\vdots & \vdots & \vdots\\
+0&\cdots &1/w_{nn}\\
+\end{bmatrix}
+$$
+
+$$\boldsymbol{\rho}=
+\begin{bmatrix}
+1/\sqrt{w_{11}}&\cdots & 0\\
+0&1/\sqrt{w_{22}}& 0\\
+\vdots & \vdots & \vdots\\
+0&\cdots &1/\sqrt{w_{nn}}\\
+\end{bmatrix}
+$$
+
+And, $\boldsymbol{\rho}^{T}\boldsymbol{\rho} = \boldsymbol{\Omega}^{-1}$.
+
+Now premultiply the entire regression equation $\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\epsilon}$ by $\boldsymbol{\rho}$. We apply $\boldsymbol{\rho}$ to each term separately:
+
+$$\boldsymbol{\rho}\mathbf{y} = \boldsymbol{\rho}\mathbf{X}\boldsymbol{\beta} + \boldsymbol{\rho}\boldsymbol{\epsilon}$$
+
+Let's write out each transformed component.
+
+**Transforming $\mathbf{y}$:**
+
+$$\mathbf{y}^{*} = \boldsymbol{\rho} \mathbf{y} = \begin{bmatrix}
+1/\sqrt{w_{11}}&\cdots & 0\\
+0&1/\sqrt{w_{22}}& 0\\
+\vdots & \vdots & \vdots\\
+0&\cdots &1/\sqrt{w_{nn}}\\
+\end{bmatrix}
+\begin{bmatrix}
+y_1 \\ y_2 \\ \vdots \\ y_n
+\end{bmatrix}
+= \begin{bmatrix}
+y_{1}/\sqrt{w_{11}}\\
+y_{2}/\sqrt{w_{22}}\\
+\vdots\\
+y_{n}/\sqrt{w_{nn}}\\
+\end{bmatrix}
+$$
+
+Each $y_i$ gets divided by the square root of its variance weight. Observations with large $w_{ii}$ (noisy) are shrunk; observations with small $w_{ii}$ (precise) are left relatively unchanged.
+
+**Transforming $\mathbf{X}$:**
+
+$$\mathbf{X}^{*} = \boldsymbol{\rho}\mathbf{X} = \begin{bmatrix}
+1/\sqrt{w_{11}}&\cdots & 0\\
+0&1/\sqrt{w_{22}}& 0\\
+\vdots & \vdots & \vdots\\
+0&\cdots &1/\sqrt{w_{nn}}\\
+\end{bmatrix}
+\begin{bmatrix}
+1 & x_{11} & x_{12} & \cdots \\
+1 & x_{21} & x_{22} & \cdots \\
+\vdots & \vdots & \vdots & \ddots \\
+1 & x_{n1} & x_{n2} & \cdots
+\end{bmatrix}
+= \begin{bmatrix}
+1/\sqrt{w_{11}} & x_{11}/\sqrt{w_{11}} & x_{12}/\sqrt{w_{11}} & \cdots \\
+1/\sqrt{w_{22}} & x_{21}/\sqrt{w_{22}} & x_{22}/\sqrt{w_{22}} & \cdots \\
+\vdots & \vdots & \vdots & \ddots \\
+1/\sqrt{w_{nn}} & x_{n1}/\sqrt{w_{nn}} & x_{n2}/\sqrt{w_{nn}} & \cdots
+\end{bmatrix}
+$$
+
+Notice something important: every entry in observation $i$'s row -- including the intercept column of 1's -- gets divided by $\sqrt{w_{ii}}$. The intercept is no longer a column of ones; it becomes $1/\sqrt{w_{ii}}$. This is why WLS changes the intercept estimate as well.
+
+**Transforming $\boldsymbol{\epsilon}$:**
+
+$$\boldsymbol{\epsilon}^{*} = \boldsymbol{\rho}\boldsymbol{\epsilon} = \begin{bmatrix}
+\epsilon_1/\sqrt{w_{11}} \\ \epsilon_2/\sqrt{w_{22}} \\ \vdots \\ \epsilon_n/\sqrt{w_{nn}}
+\end{bmatrix}
+$$
+
+And this is the whole point. The variance of $\epsilon_i^*$ is:
+
+$$\text{var}(\epsilon_i^*) = \text{var}\left(\frac{\epsilon_i}{\sqrt{w_{ii}}}\right) = \frac{1}{w_{ii}} \cdot \text{var}(\epsilon_i) = \frac{1}{w_{ii}} \cdot \sigma^2 w_{ii} = \sigma^2$$
+
+The heteroskedasticity is gone. Every transformed error has the same variance $\sigma^2$.
+
+**The transformed equation** is now:
+
+$$\mathbf{y}^{*}  = \mathbf{X}^{*} \boldsymbol{\beta} + \boldsymbol{\epsilon}^{*}$$
+
+where $E(\boldsymbol{\epsilon}^*\boldsymbol{\epsilon}^{*T}) = \sigma^2\mathbf{I}$. We can now safely apply OLS to this transformed system. The OLS estimator for the transformed equation is:
+
+$$\mathbf{b}^{*} = (\mathbf{X}^{*T}\mathbf{X}^{*})^{-1}\mathbf{X}^{*T}\mathbf{y}^{*}$$
+
+Substituting $\mathbf{X}^* = \boldsymbol{\rho}\mathbf{X}$ and $\mathbf{y}^* = \boldsymbol{\rho}\mathbf{y}$:
+
+$$\mathbf{b}^{*} = ((\boldsymbol{\rho}\mathbf{X})^T(\boldsymbol{\rho}\mathbf{X}))^{-1}(\boldsymbol{\rho}\mathbf{X})^T(\boldsymbol{\rho}\mathbf{y})$$
+
+$$= (\mathbf{X}^T\boldsymbol{\rho}^T\boldsymbol{\rho}\mathbf{X})^{-1}\mathbf{X}^T\boldsymbol{\rho}^T\boldsymbol{\rho}\mathbf{y}$$
+
+Since $\boldsymbol{\rho}^T\boldsymbol{\rho} = \boldsymbol{\Omega}^{-1}$:
+
+$$\mathbf{b}^{*}  = (\mathbf{X}^{T} \boldsymbol{\Omega}^{-1}\mathbf{X})^{-1}\mathbf{X}^{T}\boldsymbol{\Omega}^{-1}\mathbf{y}$$
+
+If we were to estimate this model -- OLS with weights corresponding to the nature of heteroskedasticity -- this produces the *weighted least squares* estimator. The estimator -- after the necessary transformations -- is BLUE. For instance, $E(\mathbf{b}^*) = \boldsymbol{\beta}$.
+
+## Properties
+
+If we can make this adjustment, then $E(\boldsymbol{\epsilon}^{*}\boldsymbol{\epsilon}^{*T})=\sigma^2 \mathbf{I}$.
+
+Because,
+
+$$E(e_i \cdot e_j)=0 \quad \forall\, i \neq j$$
+
+And because:
+
+$$E(e^2_i/\omega_i)=(1/\omega_i )E(e_i^2)= (1/\omega_i )\sigma^2 \omega_i=\sigma^2$$
+
+Then the WLS estimator is BLUE. The $\text{var}(\mathbf{b})$ is:
+
+$$\sigma^2(\mathbf{X}^T\boldsymbol{\Omega}^{-1}\mathbf{X})^{-1}\mathbf{X}^T \boldsymbol{\Omega}^{-1}\boldsymbol{\Omega} \boldsymbol{\Omega}^{-1}\mathbf{X}(\mathbf{X}^{T}\boldsymbol{\Omega}^{-1}\mathbf{X})^{-1}$$
+
+This simplifies to: $\sigma^2(\mathbf{X}^T\boldsymbol{\Omega}^{-1}\mathbf{X})^{-1}$.
+
+## Practical Concerns and Limitations
+
+There's a catch with WLS that isn't always made explicit: **to construct the weights, we need to know what's causing the heteroskedasticity.** The entire procedure depends on $\boldsymbol{\Omega}$, but $\boldsymbol{\Omega}$ isn't given to us -- we have to specify it. That means we need a theory (or at least a working hypothesis) about *which variable(s)* drive the non-constant variance. Is the error variance proportional to income? To population size? To the square of age? Each assumption produces a different $\boldsymbol{\Omega}$ and therefore a different set of weights.
+
+If we get $\boldsymbol{\Omega}$ right, WLS is BLUE -- the best we can do. If we get it wrong, WLS may actually perform *worse* than OLS, because we're weighting observations according to a pattern that doesn't match the true variance structure. We trade one problem (inefficiency from ignoring heteroskedasticity) for another (inefficiency from mis-specifying the weights). This is the fundamental tension with GLS/WLS.
+
+For example, suppose we believe $\sigma^2_i=\sigma^2 x_{2i}$ -- the variance is proportional to $x_2$.
+
+Then,
+
+$$\boldsymbol{\Omega}^{-1}=
+\begin{bmatrix}
+1/x_{21}&\cdots & 0\\
+0&1/x_{22}& 0\\
+\vdots & \vdots & \vdots\\
+0&\cdots &1/x_{2n}\\
+\end{bmatrix}
+$$
+
+And,
+
+$$\boldsymbol{\rho}=
+\begin{bmatrix}
+1/\sqrt{x_{21}}&\cdots & 0\\
+0&1/\sqrt{x_{22}}& 0\\
+\vdots & \vdots & \vdots\\
+0&\cdots &1/\sqrt{x_{2n}}\\
+\end{bmatrix}
+$$
+
+## Some Additional Methods
+
+In many circumstances, we may have little idea about the nature of heteroskedasticity, making it difficult to specify $\boldsymbol{\Omega}$.
+
+An alternative is the method proposed by the economist Halbert White [Wikipedia](https://en.wikipedia.org/wiki/Halbert_White)  @white1980.
+
+We may estimate $\sigma^2_i$:
+
+$$(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T \boldsymbol{\epsilon} \boldsymbol{\epsilon}^T \mathbf{X}(\mathbf{X}^{T}\mathbf{X})^{-1}$$
+
+$$(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T \boldsymbol{\Sigma} \mathbf{X}(\mathbf{X}^{T}\mathbf{X})^{-1}$$
+
+@white1980 shows that we may estimate $\boldsymbol{\Sigma}$ -- i.e., $\hat{\boldsymbol{\Sigma}}$ as,
+
+$$
+\begin{bmatrix}
+e_{1}^2&\cdots & 0\\
+0&e_{2}^2& 0\\
+\vdots & \vdots & \vdots\\
+0&\cdots &e_{n}^2\\
+\end{bmatrix}
+$$
+
+## Trade-Offs
+
+GLS/WLS is only BLUE under heteroskedasticity when we correctly specify $\boldsymbol{\Omega}$. This makes the method somewhat harder to implement. 
+
+White's method allows us to calculate $\boldsymbol{\Sigma}$ as $\hat{\boldsymbol{\Sigma}}$ and use OLS. If in fact $\boldsymbol{\Sigma}=\sigma^2 \mathbf{I}$, then White's method will give us the same results as OLS assuming homoskedasticity.
+
+White's method is easier to implement and requires no a priori knowledge about the nature of non-constant variation. Less is known about the small sample properties of both methods (e.g., estimating $\hat{\boldsymbol{\Sigma}}$ from the residuals).
+
+Typically, it is recommended to attempt multiple approaches and examine if they converge on the same solution.
+
+## Detection
+
+Let's assume that heteroskedasticity is a function of a single variable, so $\sigma^2_i=\sigma^2 X_{2i}$.
+
+$$Y_i=\beta_1+\beta_2X_{2i}+\beta_3X_{3i}+\epsilon_i$$
+
+### Goldfeld-Quandt Test
+
+The Goldfeld-Quandt test proceeds in four steps:
+
+1. Construct the null hypothesis: *no heteroskedasticity*.
+2. Sort the data in ascending order of $X_{2i}$.
+3. Remove $C$ observations in the middle of the distribution and create two datasets, one with small values of $X_{2i}$ and one with large values.
+4. Run two regression models, $RSS_{2}/RSS_{1} \sim F\left(\frac{n-c}{2}-K-1,\; \frac{n-c}{2}-K-1\right)$. If $F_{\text{computed}}>F_{\text{critical}}$, then reject the null.
+
+### Breusch-Pagan and Cook-Weisberg Tests
+
+There are important limitations of the GQ test. First, we must know something about the nature of heteroskedasticity. This is often doubtful, particularly in exploratory work.
+
+Second, it's not **powerful** in small samples, which can be read: It's difficult to reject a false null because of the lack of power, increasing Type II error.
+
+Third, remember, the null is homoskedastic variance, but if we retain the null, does that mean it is true? This leads to an alternative, the BP test. The logic of this test is somewhat different. It's nearly identical to another test, the Cook-Weisberg test. Here, we'll examine if particular variables are systematically related to the variance.
+
+BP/CW both use the residuals from a fitted regression model as a proxy for the variance. The residuals are regressed on the independent variables and the null is $H_{0}: \beta_2=\beta_3=\cdots=\beta_k=0$.
+
+Let's assume that heteroskedasticity is expected to be a function of several variables in our model, so:
+
+$$U_i=\beta_1+\beta_2X_{2i}+\beta_3X_{3i}+\omega_i$$
+
+### BP Test in Five Steps
+
+1. Construct the null hypothesis: $H_0:\beta_2=\beta_3=\cdots=\beta_k=0$
+2. Estimate a regression model and obtain residuals $e_1, \ldots, e_n$
+3. Define $\tilde{\sigma}^2=\frac{\sum e_i^2}{n}$. We use this to standardize/normalize the residuals. One thing to note: this is the variance for the maximum likelihood estimator.
+4. Calculate $U_i=\frac{e_i^2}{\tilde{\sigma}^2}$
+5. Estimate $U_i=\beta_1+\beta_2X_{2i}+\beta_3X_{3i}+\omega_i$ and obtain the regression sum of squares. Breusch and Pagan show that $\text{RegSS}/2 \sim \chi^2_{K}$. If $\chi^2_{\text{computed}}>\chi^2_{\text{critical}}$, reject the null.
+
+### Cook-Weisberg (1983) Test
+
+The test follows an almost identical set of steps, but instead of regressing $U_i$ on all the predictors, regress $U_i$ on $\hat{Y}_i$:
+
+$$U_i=\beta_1+\beta_2 \hat{Y}_i+\omega_i$$
+
+Still use the formula: $\text{RegSS}/2$, which is distributed $\chi^2_{1}$. If $\chi^2_{\text{computed}}>\chi^2_{\text{critical}}$, reject the null.
+
+::: {.callout-note title="Comparing BP and CW" appearance="simple"}
+These are useful tests. One doesn't need to know as much about the nature of heteroskedasticity. CW is a one-degree-of-freedom test, so is somewhat more powerful. It does not tell us which variable(s) lead to non-constant variance. Be careful when applying BP/CW in small samples.
+:::
+
+### White's Test
+
+Recall that heteroskedasticity means $E(\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T) \neq \sigma^2 \mathbf{I}$. @white1980 proposes estimating $E(\boldsymbol{\epsilon} \boldsymbol{\epsilon}^{T})$ directly, $\hat{\boldsymbol{\Sigma}}$. This doesn't require knowledge of $\boldsymbol{\Omega}$ in the variance equation: $\sigma^2_i=\sigma^2 \omega_i$.
+
+White's test is no more than a modification/extension of the BP test.
+
+**White's Test in Four Steps:**
+
+1. Construct the null hypothesis: no heteroskedasticity.
+2. Estimate a regression model and obtain residuals $e_1, \ldots, e_n$, then square the residuals $e_i^2$.
+3. Regress $e_i^2$ on all variables, their squares, and their products:
+$$e_i^2=\beta_1+\beta_2X_{2i}+\beta_3X_{3i}+\beta_4X_{2i}^2+\beta_5X_{3i}^2+\beta_6X_{2i}X_{3i} +\omega_i$$
+4. By this logic, there will be $P=[K(K+3)/2]+1$ parameters in this regression equation, where $K$ is the number of variables (the 1 accounts for the intercept). Then, obtain $R^2$ from this model.
+
+@white1980 shows $n \times R^2 \sim \chi^2_P$. So, compare $\chi^2_{\text{computed}}$ to $\chi^2_{\text{critical}}$ with $P$ degrees of freedom. If the computed value is larger, then reject the null. Its strength is also a weakness -- it doesn't require a priori knowledge about the nature of heteroskedasticity.
+
+::: {.callout-tip title="My Practical Advice" appearance="simple"}
+Arguably the most common solutions to heteroskedasticity are WLS and White's (robust) standard errors. It is recommended to attempt multiple approaches and examine if they converge on the same solution.
+:::
+
+## Applied Analysis: Arizona Precinct Data
+
+Now let's put everything together with the Arizona precinct data we introduced at the beginning of the chapter. We follow the diagnostic workflow recommended by @fox2015 -- estimate the model, examine residual plots, run formal tests, and apply corrections. The `car` package [@fox2015] provides convenient functions that integrate these steps.
+
+### Estimation and Rescaling
+
+We first fit the model with the raw predictors, then rescale to make the coefficients comparable.
+
+```{r}
+#| label: tbl-het-model
+#| echo: true
+#| message: false
+#| warning: false
+
+fit_az_raw <- lm(trump_harris_margin ~ tract_acs_median_household_income +
+                   pct_latino + tract_acs_median_age + tract_acs_gini_index,
+                 data = precinct_voter_summary)
+summary(fit_az_raw)
+```
+
+The coefficient for income is tiny (on the order of $10^{-6}$) because these variables are on vastly different scales. Median income ranges in the tens of thousands, while the Gini index sits between 0 and 1. We fix this by rescaling each predictor to a 0--1 range and mean-centering.
+
+```{r}
+#| label: tbl-het-model-scaled
+#| echo: true
+#| message: false
+#| warning: false
+
+# Rescale to 0-1 range, then mean-center
+rescale01 <- function(x) {
+  r <- (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+  r - mean(r, na.rm = TRUE)
+}
+
+precinct_voter_summary <- precinct_voter_summary |>
+  dplyr::mutate(
+    income_sc = rescale01(tract_acs_median_household_income),
+    latino_sc = rescale01(pct_latino),
+    age_sc    = rescale01(tract_acs_median_age),
+    gini_sc   = rescale01(tract_acs_gini_index)
+  )
+
+fit_az <- lm(trump_harris_margin ~ income_sc + latino_sc + age_sc + gini_sc,
+             data = precinct_voter_summary)
+summary(fit_az)
+```
+
+Now the coefficients are directly comparable -- each represents the effect of moving across the full range of that predictor (0 to 1), centered at zero.
+
+### Predicted Margins by Latino Population
+
+What does the model actually predict? @fig-het-latino-predictions shows predicted Trump–Harris margins at incremental levels of percent Latino, holding all other predictors at their means. Each line represents a different "slice" of the Latino population distribution (10th, 25th, 50th, 75th, and 90th percentiles of the raw `pct_latino` variable), translated back to the scaled predictor.
+
+```{r}
+#| label: fig-het-latino-predictions
+#| fig-cap: "Predicted Trump–Harris margin across the range of percent Latino. Jittered observed data in the background. Lines show predictions at five representative levels of percent Latino, with other predictors at their means."
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+#| message: false
+#| warning: false
+
+# Get the complete-case data used by the model
+model_data <- fit_az$model
+
+# Define representative percentiles of pct_latino (raw scale)
+latino_quantiles <- quantile(precinct_voter_summary$pct_latino,
+                              probs = c(0.10, 0.25, 0.50, 0.75, 0.90),
+                              na.rm = TRUE)
+
+# Convert raw pct_latino to scaled values using the same transformation
+raw_range <- range(precinct_voter_summary$pct_latino, na.rm = TRUE)
+to_scaled <- function(x) {
+  r <- (x - raw_range[1]) / (raw_range[2] - raw_range[1])
+  r - mean((precinct_voter_summary$pct_latino - raw_range[1]) /
+           (raw_range[2] - raw_range[1]), na.rm = TRUE)
+}
+
+# Create prediction grid: vary latino_sc across its full range,
+# hold other predictors at their means
+latino_seq <- seq(min(model_data$latino_sc), max(model_data$latino_sc),
+                  length.out = 200)
+
+pred_grid <- expand.grid(
+  latino_sc = latino_seq,
+  income_sc = mean(model_data$income_sc),
+  age_sc    = mean(model_data$age_sc),
+  gini_sc   = mean(model_data$gini_sc)
+)
+
+preds <- predict(fit_az, newdata = pred_grid, interval = "confidence", level = 0.95)
+pred_grid$yhat <- preds[, "fit"]
+pred_grid$lwr  <- preds[, "lwr"]
+pred_grid$upr  <- preds[, "upr"]
+
+# For the jittered background, map observed pct_latino back to labels
+# Bin each observation into the nearest quantile group
+latino_scaled_cuts <- to_scaled(latino_quantiles)
+labels <- paste0(round(latino_quantiles, 0), "%")
+
+model_data$latino_group <- cut(
+  model_data$latino_sc,
+  breaks = c(-Inf,
+             (latino_scaled_cuts[1] + latino_scaled_cuts[2]) / 2,
+             (latino_scaled_cuts[2] + latino_scaled_cuts[3]) / 2,
+             (latino_scaled_cuts[3] + latino_scaled_cuts[4]) / 2,
+             (latino_scaled_cuts[4] + latino_scaled_cuts[5]) / 2,
+             Inf),
+  labels = labels
+)
+
+# Build prediction lines at each quantile level
+pred_lines <- do.call(rbind, lapply(seq_along(latino_quantiles), function(i) {
+  sc_val <- latino_scaled_cuts[i]
+  df <- data.frame(
+    latino_sc = sc_val,
+    income_sc = seq(min(model_data$income_sc), max(model_data$income_sc),
+                    length.out = 200),
+    age_sc    = mean(model_data$age_sc),
+    gini_sc   = mean(model_data$gini_sc)
+  )
+  df$yhat <- predict(fit_az, newdata = df)
+  df$pct_label <- paste0(round(latino_quantiles[i], 0), "% Latino")
+  df
+}))
+
+# Single prediction line: vary latino, hold others at mean
+ggplot() +
+  geom_jitter(data = model_data,
+              aes(x = latino_sc, y = trump_harris_margin, color = latino_group),
+              alpha = 0.15, size = 1, width = 0.01) +
+  geom_ribbon(data = pred_grid, aes(x = latino_sc, ymin = lwr, ymax = upr),
+              fill = "steelblue", alpha = 0.2) +
+  geom_line(data = pred_grid, aes(x = latino_sc, y = yhat),
+            color = "black", linewidth = 1.2) +
+  geom_vline(xintercept = latino_scaled_cuts, linetype = "dashed",
+             alpha = 0.4, color = "gray40") +
+  annotate("text", x = latino_scaled_cuts,
+           y = max(model_data$trump_harris_margin, na.rm = TRUE) * 0.95,
+           label = labels, size = 3, angle = 0, hjust = -0.1) +
+  scale_color_brewer(palette = "RdYlBu", direction = -1, name = "% Latino\n(binned)") +
+  labs(x = "Percent Latino (scaled, mean-centered)",
+       y = "Trump–Harris Margin",
+       title = "Predicted Margin as Latino Population Increases",
+       subtitle = "Black line = model prediction (other predictors at means); dashed lines mark 10th–90th percentiles") +
+  theme_minimal() +
+  theme(legend.position = "right")
+```
+
+Notice how the **spread** of the jittered points changes across the range -- precincts with very low or very high Latino percentages show different amounts of variability in the margin. This is exactly the visual signature of heteroskedasticity that we'll test formally below.
+
+### Visual Diagnostics
+
+The first step in detecting heteroskedasticity should be visual [@fox2015, Ch. 12] -- arguably the first step should always be visual. @fig-het-residuals plots the fitted values against the residuals. Under homoskedasticit this should look like a random cloud shape with constant spread. It should look like there is **no relationship between the fitted values and the residuals**.
+
+Any systematic pattern  -- a funnel, a megaphone, a triangle shape -- suggests otherwise.
+
+```{r}
+#| label: fig-het-residuals
+#| fig-cap: "Residuals vs. fitted values for the Arizona precinct model. Notice the spread of residuals changes across the range of fitted values."
+#| echo: true
+#| fig-width: 10
+#| fig-height: 5
+
+plot_df <- data.frame(
+  fitted = fitted(fit_az),
+  residuals = residuals(fit_az)
+)
+
+ggplot(plot_df, aes(x = fitted, y = residuals)) +
+  geom_point(alpha = 0.3, size = 1.5, color = "gray40") +
+  geom_hline(yintercept = 0, color = "red", linewidth = 0.8) +
+  geom_smooth(method = "loess", se = FALSE, color = "steelblue", linewidth = 1) +
+  labs(x = expression(hat(Y) ~ "Fitted Values"),
+       y = "Residuals",
+       title = "Residuals v Fitted Values") +
+  theme_minimal()
+```
+
+We can also check whether specific predictors drive non-constant variance. @fig-het-by-predictor plots residuals against each predictor. 
+
+```{r}
+#| label: fig-het-by-predictor
+#| fig-cap: "Squared residuals plotted against each predictor. Systematic trends indicate heteroskedasticity driven by that variable."
+#| echo: true
+#| fig-width: 10
+#| fig-height: 8
+
+model_data <- fit_az$model
+model_data$resid_sq <- residuals(fit_az)^2
+
+p1 <- ggplot(model_data, aes(x = income_sc, y = resid_sq)) +
+  geom_point(alpha = 0.3, size = 1) +
+  geom_smooth(method = "loess", se = FALSE, color = "steelblue") +
+  labs(x = "Median Household Income (scaled)", y = expression(e[i]^2)) +
+  theme_minimal()
+
+p2 <- ggplot(model_data, aes(x = latino_sc, y = resid_sq)) +
+  geom_point(alpha = 0.3, size = 1) +
+  geom_smooth(method = "loess", se = FALSE, color = "steelblue") +
+  labs(x = "Latino Population (scaled)", y = expression(e[i]^2)) +
+  theme_minimal()
+
+p3 <- ggplot(model_data, aes(x = age_sc, y = resid_sq)) +
+  geom_point(alpha = 0.3, size = 1) +
+  geom_smooth(method = "loess", se = FALSE, color = "steelblue") +
+  labs(x = "Median Age (scaled)", y = expression(e[i]^2)) +
+  theme_minimal()
+
+p4 <- ggplot(model_data, aes(x = gini_sc, y = resid_sq)) +
+  geom_point(alpha = 0.3, size = 1) +
+  geom_smooth(method = "loess", se = FALSE, color = "steelblue") +
+  labs(x = "Gini Index (scaled)", y = expression(e[i]^2)) +
+  theme_minimal()
+
+gridExtra::grid.arrange(p1, p2, p3, p4, ncol = 2)
+```
+
+The `car` package provides two additional diagnostic tools: `residualPlots()` plots residuals against each predictor and the fitted values. `spreadLevelPlot()` plots $\log(|e_i|)$ against $\log(\hat{y}_i)$ -- if the slope is non-zero, the variance depends on the level of the response [@fox2015, Ch. 12].
+ 
+```{r}
+#| label: fig-het-car-residplots
+#| fig-cap: "Residual plots from car::residualPlots(). Each panel shows residuals against a predictor, with a fitted curve testing for non-linearity."
+#| echo: true
+#| fig-width: 10
+#| fig-height: 8
+#| message: false
+#| warning: false
+
+residualPlots(fit_az, tests = TRUE)
+```
+
+```{r}
+#| label: fig-het-car-ncvtest
+#| echo: false
+#| message: false
+#| warning: false
+
+# car::ncvTest implements the Cook-Weisberg score test
+cat("=== Cook-Weisberg Score Test (from car::ncvTest) ===\n")
+ncvTest(fit_az)
+
+cat("\n=== ncvTest against specific predictor (income) ===\n")
+ncvTest(fit_az, ~ income_sc)
+
+cat("\n=== ncvTest against specific predictor (latino) ===\n")
+ncvTest(fit_az, ~ latino_sc)
+```
+
+The `ncvTest()` function from `car` implements the Cook-Weisberg score test directly. A significant result rejects the null of constant variance. Testing against specific predictors helps identify *which* variable drives the heteroskedasticity.
+
+### Formal Tests
+
+Now let's apply the formal tests discussed above. We use `lmtest::bptest()` for the Breusch-Pagan test and construct White's test manually.
+
+```{r}
+#| label: tbl-het-tests
+#| echo: true
+#| message: false
+#| warning: false
+
+library(lmtest)
+
+# Breusch-Pagan Test
+cat("=== Breusch-Pagan Test ===\n")
+bptest(fit_az)
+
+# Cook-Weisberg (studentized BP against fitted values)
+cat("\n=== Cook-Weisberg Test (against fitted values) ===\n")
+aux_data <- fit_az$model
+aux_data$yhat <- fitted(fit_az)
+bptest(fit_az, ~ yhat, data = aux_data)
+
+# White's Test (BP against all predictors, squares, and cross-products)
+cat("\n=== White's Test ===\n")
+aux_data$inc2  <- aux_data$income_sc^2
+aux_data$lat2  <- aux_data$latino_sc^2
+aux_data$age2  <- aux_data$age_sc^2
+aux_data$gini2 <- aux_data$gini_sc^2
+
+bptest(fit_az, ~ income_sc + latino_sc + age_sc + gini_sc +
+                  inc2 + lat2 + age2 + gini2 +
+                  income_sc:latino_sc +
+                  income_sc:age_sc +
+                  income_sc:gini_sc +
+                  latino_sc:age_sc +
+                  latino_sc:gini_sc +
+                  age_sc:gini_sc,
+       data = aux_data)
+```
+
+### Robust Standard Errors
+
+Given heteroskedasticity, we can correct the standard errors using @white1980's HC estimator [@fox2015, Ch. 12]. The `sandwich` package provides several variants (HC0 through HC5). Compare the OLS standard errors to the heteroskedasticity-consistent (HC) standard errors:
+
+```{r}
+#| label: tbl-het-robust
+#| echo: true
+#| message: false
+#| warning: false
+
+library(sandwich)
+library(lmtest)
+
+cat("=== OLS Standard Errors ===\n")
+coeftest(fit_az)
+
+cat("\n=== HC1 (White) Robust Standard Errors ===\n")
+coeftest(fit_az, vcov = vcovHC(fit_az, type = "HC1"))
+```
+
+::: {.callout-note title="Interpreting the Comparison" appearance="simple"}
+If the robust SEs differ substantially from the OLS SEs, that's evidence of heteroskedasticity affecting inference. Coefficients that were significant under OLS may lose significance with robust SEs (or vice versa). The coefficient *estimates* don't change -- only the standard errors and therefore the t-statistics and p-values.
+:::
+
+::: {.callout-note title="Recap" appearance="simple"}
+We've now developed a full workflow for diagnosing and correcting heteroskedasticity:
+
+1. Fit the model and examine residual plots for visual signs of non-constant variance.
+
+2. Run formal tests (BP, CW, White) to statistically assess heteroskedasticity and identify potential drivers.
+
+3. If heteroskedasticity is present, apply corrections such as robust standard errors or WLS, and compare results to OLS.
+
+4. We've also directly seen how heteroskedasticity can distort inference by mis-estimating the standard errors. And also, notice that the point estimates, the slopes don't change.
+:::
+### Back to Precincts
+
+@fig-het-map shows the geographic distribution of residuals. If heteroskedasticity has a spatial pattern -- for instance, if residuals are larger in rural areas with fewer precincts -- this can help diagnose the source.
+
+```{r}
+#| label: fig-het-map
+#| fig-cap: "Arizona precincts colored by squared residuals from the margin model. Larger values indicate precincts where the model fits poorly."
+#| echo: false
+#| message: false
+#| warning: false
+
+library(sf)
+library(leaflet)
+
+load("precinct_tract_data.rda")
+
+az_resid <- data.frame(
+  dos_precinct_key = fit_az$model |> rownames(),
+  resid_sq = residuals(fit_az)^2,
+  margin = fit_az$model$trump_harris_margin
+)
+# Get the keys from the original data (matching model rows)
+model_rows <- as.integer(rownames(fit_az$model))
+az_resid$dos_precinct_key <- precinct_voter_summary$dos_precinct_key[model_rows]
+
+az_map <- precinct_tract_data |>
+  dplyr::left_join(az_resid, by = "dos_precinct_key") |>
+  dplyr::filter(!is.na(resid_sq))
+
+az_map <- st_transform(az_map, 4326)
+az_map <- az_map[st_geometry_type(az_map) %in% c("POLYGON", "MULTIPOLYGON"), ]
+
+pal <- colorNumeric(
+  palette = "YlOrRd",
+  domain = az_map$resid_sq
+)
+
+leaflet(az_map, width = "100%", height = 500) |>
+  addProviderTiles(providers$CartoDB.Positron) |>
+  addPolygons(
+    fillColor = ~pal(resid_sq),
+    fillOpacity = 0.7,
+    color = "#444", weight = 0.3, opacity = 0.5,
+    label = ~paste0(
+      "<b>", precinct_name, "</b> (", county, ")<br>",
+      "Margin: ", round(margin * 100, 1), " pts<br>",
+      "Squared Residual: ", round(resid_sq, 4)
+    ) |> lapply(htmltools::HTML),
+    highlightOptions = highlightOptions(weight = 2, color = "black", bringToFront = TRUE)
+  ) |>
+  addLegend("bottomright", pal = pal, values = ~resid_sq,
+            title = "Squared<br>Residual", opacity = 0.7)
+```
+
+### WLS Correction
+
+If we suspect the variance scales with a predictor -- say, precincts with larger Latino populations show more variability in margins -- we can apply WLS. Here we weight by the inverse of the estimated variance function:
+
+```{r}
+#| label: tbl-het-wls
+#| echo: true
+#| message: false
+#| warning: false
+
+
+# Build WLS data from the fitted model
+wls_data <- fit_az$model
+wls_data$resid_sq <- residuals(fit_az)^2
+
+# Estimate variance function: regress squared residuals on predictors
+var_model <- lm(resid_sq ~ income_sc + latino_sc + age_sc + gini_sc, data = wls_data)
+wls_data$sigma_hat <- sqrt(abs(fitted(var_model)))
+
+# The weight is 1/sigma_hat -- matching rho_ii = 1/sqrt(omega_ii).
+wls_data$w <- 1 / wls_data$sigma_hat
+
+# WLS model via glm
+fit_wls <- glm(trump_harris_margin ~ income_sc + latino_sc + age_sc + gini_sc,
+               data = wls_data,
+               weights = w,
+               family = gaussian())
+
+cat("=== WLS Estimates ===\n")
+summary(fit_wls)
+```
+
+```{r}
+#| label: tbl-het-compare
+#| echo: true
+#| message: false
+
+cat("=== Comparison of Standard Errors ===\n\n")
+ols_se <- sqrt(diag(vcov(fit_az)))
+robust_se <- sqrt(diag(vcovHC(fit_az, type = "HC1")))
+wls_se <- sqrt(diag(vcov(fit_wls)))
+
+comparison <- data.frame(
+  OLS = round(ols_se, 6),
+  Robust_HC1 = round(robust_se, 6),
+  WLS = round(wls_se, 6)
+)
+comparison
+```
+
+::: {.callout-tip title="What to Look For" appearance="simple"}
+Compare the three columns. Where the robust and WLS standard errors diverge from OLS, that's how heteroskedasticity distorts inference.
+:::
+
+::: {.callout-note title="Clarification and Tools" appearance="simple" collapse="true"}
+R offers several functions that can fit weighted models.
+
+**`lm(..., weights = w)`** fits weighted least squares directly. The `weights` argument specifies $w_i = 1/\text{var}(\epsilon_i)$. This is the simplest approach and works well when you can supply the weights yourself.
+
+**`glm(..., weights = w, family = gaussian())`** does the same thing when the family is Gaussian with an identity link -- this is the default. We'll use this approach in POL 683. The coefficient estimates, standard errors, and residuals are identical to `lm()` with the same weights. This approach is a little more flexible.
+
+:::
+
+## Concluding Remarks
+
+Heteroskedasticity is a commonly violated assumption of the Gauss-Markov assumptions. 
+
+### Steps to Address Heteroskedasticity
+
+1. **Understanding the problem.** When $E(\boldsymbol{\epsilon}\boldsymbol{\epsilon}^T) = \sigma^2\boldsymbol{\Omega}$ with $\boldsymbol{\Omega} \neq \mathbf{I}$, OLS remains unbiased but is no longer efficient -- **the standard errors are wrong**. Hypothesis tests and confidence intervals are based on the usual $\sigma^2(\mathbf{X}^T\mathbf{X})^{-1}$ which is wrong.
+
+2. **Detection.** Visual diagnostics (residual plots, spread-level plots) provide the first indication. Formal tests -- Breusch-Pagan, Cook-Weisberg, and White's test -- offer statistical confirmation and can help identify which predictors drive the non-constant variance.
+
+3. **Correction.** Two main strategies:
+   - **Robust standard errors** (HC1, HC3) correct the inference without changing the coefficient estimates. T
+   - **Weighted Least Squares** transforms the data so that OLS on the transformed data is BLUE. WLS is more efficient when the variance structure is correctly specified, but it requires knowing (or estimating) the weights.
+
+4. **Practical judgment.** The choice between robust SEs and WLS depends on how much you know about the variance structure. 
+

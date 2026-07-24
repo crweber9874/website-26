@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>5&nbsp; Model Fit, Uncertainty, and Inference – Linear Regression Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./06-interactions.html" rel="next">
+<link href="./04-matrix.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-27c261d06b905028a18691de25d09dde.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.12.0/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.25.2/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="site_libs/plotly-main-2.25.2/plotly-latest.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+<div id="cw-site-bar" style="position:sticky;top:0;z-index:99999;display:flex;gap:16px;align-items:center;justify-content:space-between;padding:8px 16px;background:#0a0a0a;color:#f5f5f4;font:600 13px/1.3 system-ui,sans-serif;border-bottom:1px solid rgba(255,255,255,.12)"><a href="/pedagogy/" style="color:#f5f5f4;text-decoration:none">← Teaching resources</a><a href="/" style="color:rgba(245,245,244,.7);text-decoration:none">christopher-weber.com</a></div>
+
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-simple-regression.html">Part I: Foundations</a></li><li class="breadcrumb-item"><a href="./05-inference-variables.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Model Fit, Uncertainty, and Inference</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Linear Regression Analysis</a> 
+        <div class="sidebar-tools-main">
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I: Foundations</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01-simple-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Understanding Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02-BLUE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Gauss-Markov Assumptions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03-estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Estimation in <code>R</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04-matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multivariate Regression and Linear Algebra</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05-inference-variables.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Model Fit, Uncertainty, and Inference</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II: Diagnostics and Extensions</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06-interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Interactions and Non-Additivity</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07-heteroskedasticity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Heteroskedasticity and Weighted Least Squares</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08-multicollinearity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Multicollinearity</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09-autocorrelation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Autocorrelation: Time Series and Panel Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10-application-panel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Application: Panel Data and Multilevel Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-measurement-error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Measurement Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./12-endogenous-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">The Exogeneity Assumption</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#model-fit-and-prediction" id="toc-model-fit-and-prediction" class="nav-link active" data-scroll-target="#model-fit-and-prediction"><span class="header-section-number">5.1</span> Model Fit and Prediction</a>
+  <ul class="collapse">
+  <li><a href="#ols-shiny-app" id="toc-ols-shiny-app" class="nav-link" data-scroll-target="#ols-shiny-app"><span class="header-section-number">5.1.1</span> OLS Shiny App</a></li>
+  </ul></li>
+  <li><a href="#from-bivariate-to-multiple-regression" id="toc-from-bivariate-to-multiple-regression" class="nav-link" data-scroll-target="#from-bivariate-to-multiple-regression"><span class="header-section-number">5.2</span> From Bivariate to Multiple Regression</a>
+  <ul class="collapse">
+  <li><a href="#deriving-the-multiple-regression-coefficients" id="toc-deriving-the-multiple-regression-coefficients" class="nav-link" data-scroll-target="#deriving-the-multiple-regression-coefficients"><span class="header-section-number">5.2.1</span> Deriving the Multiple Regression Coefficients</a></li>
+  <li><a href="#linear-algebra" id="toc-linear-algebra" class="nav-link" data-scroll-target="#linear-algebra"><span class="header-section-number">5.2.2</span> Linear Algebra</a></li>
+  </ul></li>
+  <li><a href="#interpretation-of-coefficients-in-multiple-regression" id="toc-interpretation-of-coefficients-in-multiple-regression" class="nav-link" data-scroll-target="#interpretation-of-coefficients-in-multiple-regression"><span class="header-section-number">5.3</span> Interpretation of Coefficients in Multiple Regression</a>
+  <ul class="collapse">
+  <li><a href="#in-practical-terms" id="toc-in-practical-terms" class="nav-link" data-scroll-target="#in-practical-terms"><span class="header-section-number">5.3.1</span> In Practical Terms</a></li>
+  </ul></li>
+  <li><a href="#dummy-variables-and-categorical-predictors" id="toc-dummy-variables-and-categorical-predictors" class="nav-link" data-scroll-target="#dummy-variables-and-categorical-predictors"><span class="header-section-number">5.4</span> Dummy Variables and Categorical Predictors</a>
+  <ul class="collapse">
+  <li><a href="#intercept-shifts" id="toc-intercept-shifts" class="nav-link" data-scroll-target="#intercept-shifts"><span class="header-section-number">5.4.1</span> Intercept Shifts</a></li>
+  </ul></li>
+  <li><a href="#revisiting-model-fit-r2-in-multiple-regression" id="toc-revisiting-model-fit-r2-in-multiple-regression" class="nav-link" data-scroll-target="#revisiting-model-fit-r2-in-multiple-regression"><span class="header-section-number">5.5</span> Revisiting Model Fit: <span class="math inline">\(R^2\)</span> in Multiple Regression</a>
+  <ul class="collapse">
+  <li><a href="#adjusted-r2" id="toc-adjusted-r2" class="nav-link" data-scroll-target="#adjusted-r2"><span class="header-section-number">5.5.1</span> Adjusted <span class="math inline">\(R^2\)</span></a></li>
+  <li><a href="#the-overfitting-problem" id="toc-the-overfitting-problem" class="nav-link" data-scroll-target="#the-overfitting-problem"><span class="header-section-number">5.5.2</span> The Overfitting Problem</a></li>
+  <li><a href="#k-fold-cross-validation" id="toc-k-fold-cross-validation" class="nav-link" data-scroll-target="#k-fold-cross-validation"><span class="header-section-number">5.5.3</span> K-Fold Cross-Validation</a></li>
+  <li><a href="#the-lewis-beck-vs.-achen-debate" id="toc-the-lewis-beck-vs.-achen-debate" class="nav-link" data-scroll-target="#the-lewis-beck-vs.-achen-debate"><span class="header-section-number">5.5.4</span> The Lewis-Beck vs.&nbsp;Achen Debate</a></li>
+  </ul></li>
+  <li><a href="#inference-about-the-population-regression-function" id="toc-inference-about-the-population-regression-function" class="nav-link" data-scroll-target="#inference-about-the-population-regression-function"><span class="header-section-number">5.6</span> Inference about the Population Regression Function</a></li>
+  <li><a href="#additional-tests" id="toc-additional-tests" class="nav-link" data-scroll-target="#additional-tests"><span class="header-section-number">5.7</span> Additional Tests</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">5.8</span> Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01-simple-regression.html">Part I: Foundations</a></li><li class="breadcrumb-item"><a href="./05-inference-variables.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Model Fit, Uncertainty, and Inference</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span id="inference" class="quarto-section-identifier"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Model Fit, Uncertainty, and Inference</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="model-fit-and-prediction" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="model-fit-and-prediction"><span class="header-section-number">5.1</span> Model Fit and Prediction</h2>
+<p>This chapter focuses on inference. What can we learn about the the population regression function from the sample regression function? How do we make inferences about the population parameters?</p>
+<p>The dashboard below includes several features: - The left-hand panel allows you to adjust the parameters of the data generating process (DGP) – the intercept, slope, error variance, and sample size.</p>
+<ul>
+<li><p>If you choose to run <code>monte carlo simulations</code> the dashboard will simulate datasets from the specified DGP, estimate the OLS coefficients, and then display the distributions.</p></li>
+<li><p>The dashboard <code>tabs</code> allow you to compare the OLS estimates to the true population parameters, and to examine how the OLS estimates vary across different parameter specifications.</p></li>
+</ul>
+<p>Let’s consider the OLS model by varying different parameters to see how this influences things like <span class="math inline">\(R^2\)</span></p>
+<section id="ols-shiny-app" class="level3" data-number="5.1.1">
+<h3 data-number="5.1.1" class="anchored" data-anchor-id="ols-shiny-app"><span class="header-section-number">5.1.1</span> OLS Shiny App</h3>
+<iframe src="https://azvoterproject.shinyapps.io/western24ft/" width="100%" height="1500px" style="border: none;" allowfullscreen="">
+</iframe>
+</section>
+</section>
+<section id="from-bivariate-to-multiple-regression" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="from-bivariate-to-multiple-regression"><span class="header-section-number">5.2</span> From Bivariate to Multiple Regression</h2>
+<p>The OLS estimator provides a point estimate – a single “best” prediction about <span class="math inline">\(y\)</span> given <span class="math inline">\(x\)</span>. We predict a single point – <span class="math inline">\(\hat{y}_i\)</span> – given a predictor value <span class="math inline">\(x_i\)</span>. With <em>multiple predictors</em>, the Sample Regression Function (SRF) expands from a line to a plane. The error term <span class="math inline">\(e_i\)</span> is still the vertical distance from the observed <span class="math inline">\(Y_i\)</span> to the predicted <span class="math inline">\(\hat{Y}_i\)</span>, but now <span class="math inline">\(\hat{Y}_i\)</span> is a linear combination of multiple predictors:</p>
+<p><span class="math display">\[
+Y_i - \underbrace{(a + b_1 X_1 + b_2 X_2)}_{\hat{Y}_{i}} = e_i
+\]</span></p>
+<p>We still find the coefficients that minimize <span class="math inline">\(\sum e^2\)</span>, but now the logic changes somewhat. Instead of fitting a <em>line</em> through a scatter of points in two dimensions, we are fitting a <em>plane</em> through a cloud of scatter points. Each coefficient <span class="math inline">\(b_j\)</span> represents the expected change in <span class="math inline">\(Y\)</span> for a one-unit change in <span class="math inline">\(X_j\)</span>, <strong>holding all other predictors constant</strong>. This “holding constant” interpretation is important for multiple regression – it allows us to isolate the partial effect of each variable. That is also we we say these are “control” variables. We are isolating the effect of one variable, while simultaneously controlling for the influence of other variables.</p>
+<p><a href="#fig-regression-plane-intro" class="quarto-xref">Figure&nbsp;<span>5.1</span></a> illustrates this with two independent variables. The black points are the observed data, the blue plane represents the fitted regression, and the red lines show the residuals – the vertical distance from each point to the plane.</p>
+<p>The OLS coefficients are chosen to minimize the sum of squared lengths of these red lines. We could move the plane up or down, or tilt it, but there is only one solution – the minimum value.</p>
+<p>Let’s just capture this with toy data.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">500</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">3</span>, <span class="dv">2</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">1</span>, <span class="dv">2</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fl">0.75</span> <span class="sc">*</span> x1 <span class="sc">-</span> <span class="fl">0.50</span> <span class="sc">*</span> x2 <span class="sc">+</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="fl">1.5</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(x1, x2, y)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2, <span class="at">data =</span> dat)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>dat<span class="sc">$</span>yhat <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell">
+<div id="fig-regression-plane-intro" class="cell-output-display quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-regression-plane-intro-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-17b62bb2686b1a099a1f" style="width:100%;height:454px;"></div>
+<script type="application/json" data-for="htmlwidget-17b62bb2686b1a099a1f">{"x":{"visdat":{"77d856a6f8ac":["function () ","plotlyVisDat"],"77d86c1010a5":["function () ","data"]},"cur_data":"77d86c1010a5","attrs":{"77d856a6f8ac":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"z":{},"type":"surface","x":{},"y":{},"opacity":0.40000000000000002,"colorscale":[[0,1],["#6baed6","#6baed6"]],"showscale":false,"inherit":true},"77d86c1010a5":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"z":{},"type":"scatter3d","mode":"markers","marker":{"size":2,"color":"black","opacity":0.5},"showlegend":false,"inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":"X1"},"yaxis":{"title":"X2"},"zaxis":{"title":"Y"}},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"colorbar":{"title":"z_mat<br />y","ticklen":2},"colorscale":[[0,"#6baed6"],[1,"#6baed6"]],"showscale":false,"z":[[1.3869041025347735,1.1504628618627448,0.91402162119071662,0.67758038051868841,0.44113913984665981,0.20469789917463138,-0.031743341497397062,-0.26818458216942548,-0.50462582284145396,-0.74106706351348217,-0.97750830418551082,-1.2139495448575395,-1.4503907855295677,-1.6868320262015959,-1.9232732668736245,-2.1597145075456532,-2.3961557482176814,-2.6325969888897096,-2.8690382295617378,-3.1054794702337669,-3.3419207109057951,-3.5783619515778233,-3.8148031922498524,-4.0512444329218802,-4.2876856735939084,-4.5241269142659366,-4.7605681549379648,-4.9970093956099939,-5.2334506362820221,-5.4698918769540503],[1.7074699381355365,1.4710286974635078,1.2345874567914796,0.99814621611945142,0.76170497544742277,0.52526373477539434,0.28882249410336597,0.052381253431337531,-0.18405998724069089,-0.4205012279127191,-0.65694246858474781,-0.89338370925677646,-1.1298249499288047,-1.3662661906008329,-1.6027074312728615,-1.8391486719448902,-2.0755899126169184,-2.3120311532889466,-2.5484723939609748,-2.7849136346330039,-3.0213548753050321,-3.2577961159770603,-3.4942373566490894,-3.7306785973211176,-3.9671198379931458,-4.2035610786651736,-4.4400023193372018,-4.6764435600092309,-4.9128848006812591,-5.1493260413532873],[2.0280357737362991,1.7915945330642704,1.5551532923922422,1.318712051720214,1.0822708110481853,0.84582957037615691,0.60938832970412848,0.37294708903210011,0.13650584836007168,-0.099935392311956542,-0.33637663298398518,-0.57281787365601389,-0.8092591143280421,-1.0457003550000703,-1.282141595672099,-1.5185828363441276,-1.7550240770161558,-1.991465317688184,-2.2279065583602122,-2.4643477990322413,-2.7007890397042695,-2.9372302803762977,-3.1736715210483268,-3.410112761720355,-3.6465540023923833,-3.8829952430644115,-4.1194364837364397,-4.3558777244084688,-4.592318965080497,-4.8287602057525252],[2.3486016093370621,2.1121603686650334,1.875719127993005,1.6392778873209768,1.4028366466489481,1.1663954059769197,0.92995416530489128,0.69351292463286285,0.45707168396083447,0.22063044328880627,-0.015810797383222389,-0.25225203805525104,-0.48869327872727925,-0.72513451939930751,-0.96157576007133605,-1.1980170007433648,-1.434458241415393,-1.6708994820874212,-1.9073407227594494,-2.1437819634314783,-2.3802232041035065,-2.6166644447755347,-2.8531056854475638,-3.089546926119592,-3.3259881667916202,-3.5624294074636484,-3.7988706481356767,-4.0353118888077057,-4.271753129479734,-4.5081943701517622],[2.6691674449378247,2.432726204265796,2.1962849635937678,1.9598437229217396,1.7234024822497109,1.4869612415776825,1.2505200009056541,1.0140787602336256,0.77763751956159721,0.541196278889569,0.30475503821754035,0.068313797545511729,-0.16812744312651648,-0.40456868379854471,-0.64100992447057337,-0.87745116514260202,-1.1138924058146302,-1.3503336464866584,-1.5867748871586866,-1.8232161278307157,-2.0596573685027439,-2.2960986091747722,-2.5325398498468012,-2.7689810905188295,-3.0054223311908577,-3.2418635718628859,-3.4783048125349141,-3.7147460532069432,-3.9511872938789714,-4.1876285345509991],[2.9897332805385872,2.7532920398665586,2.5168507991945304,2.2804095585225022,2.0439683178504735,1.8075270771784453,1.5710858365064169,1.3346445958343884,1.09820335516236,0.86176211449033169,0.62532087381830304,0.38887963314627444,0.15243839247424623,-0.084002848197781976,-0.32044408886981063,-0.55688532954183922,-0.79332657021386743,-1.0297678108858956,-1.2662090515579238,-1.5026502922299529,-1.7390915329019812,-1.9755327735740094,-2.2119740142460387,-2.4484152549180669,-2.6848564955900951,-2.9212977362621233,-3.1577389769341515,-3.3941802176061806,-3.6306214582782088,-3.867062698950237],[3.3102991161393502,3.0738578754673216,2.8374166347952934,2.6009753941232652,2.3645341534512365,2.1280929127792083,1.8916516721071797,1.6552104314351512,1.4187691907631228,1.1823279500910946,0.94588670941906594,0.70944546874703729,0.47300422807500914,0.23656298740298093,0.00012174673095227804,-0.23631949394107638,-0.47276073461310458,-0.70920197528513274,-0.94564321595716094,-1.1820844566291902,-1.4185256973012184,-1.6549669379732466,-1.8914081786452757,-2.1278494193173039,-2.3642906599893321,-2.6007319006613603,-2.8371731413333885,-3.0736143820054176,-3.3100556226774458,-3.546496863349474],[3.6308649517401128,3.3944237110680842,3.157982470396056,2.9215412297240277,2.6850999890519991,2.4486587483799709,2.2122175077079422,1.9757762670359138,1.7393350263638854,1.5028937856918572,1.2664525450198285,1.0300113043477999,0.79357006367577165,0.55712882300374345,0.32068758233171485,0.084246341659686197,-0.15219489901234201,-0.38863613968437022,-0.62507738035639837,-0.86151862102842747,-1.0979598617004558,-1.334401102372484,-1.5708423430445131,-1.8072835837165413,-2.0437248243885695,-2.2801660650605977,-2.5166073057326259,-2.753048546404655,-2.9894897870766832,-3.2259310277487114],[3.9514307873408758,3.7149895466688472,3.478548305996819,3.2421070653247908,3.0056658246527621,2.7692245839807335,2.5327833433087052,2.2963421026366766,2.0599008619646484,1.82345962129262,1.5870183806205913,1.3505771399485627,1.1141358992765344,0.87769465860450624,0.6412534179324777,0.40481217726044899,0.16837093658842078,-0.068070304083607425,-0.30451154475563563,-0.54095278542766467,-0.77739402609969288,-1.0138352667717212,-1.2502765074437503,-1.4867177481157785,-1.7231589887878067,-1.9596002294598349,-2.1960414701318629,-2.432482710803892,-2.6689239514759202,-2.9053651921479484],[4.2719966229416384,4.0355553822696102,3.799114141597582,3.5626729009255538,3.3262316602535251,3.0897904195814965,2.8533491789094683,2.6169079382374396,2.3804666975654114,2.1440254568933832,1.9075842162213543,1.6711429755493257,1.4347017348772975,1.1982604942052693,0.96181925353324071,0.72537801286121206,0.4889367721891838,0.25249553151715559,0.016054290845127391,-0.22038694982690171,-0.45682819049892992,-0.69326943117095807,-0.92971067184298717,-1.1661519125150155,-1.4025931531870437,-1.6390343938590719,-1.8754756345311001,-2.111916875203129,-2.3483581158751572,-2.5847993565471854],[4.5925624585424014,4.3561212178703723,4.1196799771983441,3.8832387365263163,3.6467974958542877,3.410356255182259,3.1739150145102308,2.9374737738382022,2.701032533166174,2.4645912924941458,2.2281500518221171,1.9917088111500882,1.75526757047806,1.5188263298060318,1.2823850891340032,1.0459438484619745,0.80950260778994643,0.57306136711791822,0.33662012644588996,0.10017888577386087,-0.13626235489816735,-0.37270359557019556,-0.6091448362422246,-0.8455860769142528,-1.0820273175862811,-1.3184685582583093,-1.5549097989303375,-1.7913510396023666,-2.0277922802743946,-2.2642335209464228],[4.9131282941431635,4.6766870534711353,4.4402458127991071,4.2038045721270789,3.9673633314550503,3.7309220907830216,3.4944808501109934,3.2580396094389648,3.0215983687669365,2.7851571280949083,2.5487158874228797,2.312274646750851,2.0758334060788228,1.8393921654067944,1.6029509247347657,1.3665096840627371,1.1300684433907089,0.89362720271868079,0.65718596204665258,0.42074472137462343,0.18430348070259522,-0.05213775996943297,-0.28857900064146208,-0.52502024131349023,-0.76146148198551844,-0.99790272265754665,-1.234343963329575,-1.4707852040016041,-1.7072264446736323,-1.9436676853456605],[5.2336941297439266,4.9972528890718984,4.7608116483998701,4.5243704077278419,4.2879291670558128,4.0514879263837846,3.8150466857117564,3.5786054450397278,3.3421642043676996,3.1057229636956714,2.8692817230236427,2.6328404823516141,2.3963992416795858,2.1599580010075576,1.9235167603355288,1.6870755196635001,1.4506342789914719,1.2141930383194437,0.9777517976474156,0.7413105569753865,0.5048693163033583,0.26842807563133003,0.03198683495930095,-0.20445440571272724,-0.44089564638475548,-0.67733688705678363,-0.91377812772881184,-1.150219368400841,-1.3866606090728693,-1.6231018497448975],[5.5542599653446896,5.3178187246726614,5.0813774840006332,4.844936243328605,4.6084950026565759,4.3720537619845476,4.1356125213125194,3.8991712806404908,3.6627300399684626,3.4262887992964344,3.1898475586244057,2.9534063179523771,2.7169650772803489,2.4805238366083207,2.244082595936292,2.0076413552642633,1.7712001145922349,1.5347588739202067,1.2983176332481785,1.0618763925761494,0.82543515190412131,0.5889939112320931,0.35255267056006395,0.11611142988803576,-0.12032981078399245,-0.35677105145602067,-0.59321229212804882,-0.82965353280007792,-1.0660947734721062,-1.3025360141441344],[5.8748258009454517,5.6383845602734235,5.4019433196013953,5.1655020789293671,4.929060838257338,4.6926195975853098,4.4561783569132816,4.2197371162412534,3.9832958755692247,3.7468546348971965,3.5104133942251678,3.2739721535531392,3.037530912881111,2.8010896722090828,2.5646484315370541,2.3282071908650255,2.0917659501929973,1.8553247095209688,1.6188834688489406,1.3824422281769115,1.1460009875048833,0.90955974683285523,0.67311850616082614,0.43667726548879787,0.20023602481676969,-0.036205215855258523,-0.27264645652728675,-0.50908769719931579,-0.745528937871344,-0.98197017854337221],[6.1953916365462147,5.9589503958741865,5.7225091552021583,5.4860679145301301,5.249626673858101,5.0131854331860728,4.7767441925140446,4.5403029518420164,4.3038617111699873,4.0674204704979591,3.8309792298259309,3.5945379891539022,3.358096748481874,3.1216555078098458,2.8852142671378171,2.6487730264657885,2.4123317857937603,2.1758905451217321,1.9394493044497036,1.7030080637776746,1.4665668231056463,1.2301255824336181,0.99368434176158915,0.75724310108956094,0.52080186041753274,0.28436061974550447,0.047919379073476286,-0.1885218615985528,-0.42496310227058104,-0.66140434294260919],[6.5159574721469777,6.2795162314749486,6.0430749908029204,5.8066337501308922,5.570192509458864,5.3337512687868358,5.0973100281148067,4.8608687874427785,4.6244275467707503,4.3879863060987221,4.151545065426693,3.9151038247546648,3.6786625840826366,3.4422213434106084,3.2057801027385797,2.9693388620665511,2.7328976213945229,2.4964563807224947,2.2600151400504664,2.0235738993784373,1.7871326587064089,1.5506914180343807,1.3142501773623516,1.0778089366903234,0.84136769601829531,0.6049264553462671,0.36848521467423884,0.13204397400220977,-0.10439726666981844,-0.34083850734184667],[6.8365233077477408,6.6000820670757117,6.3636408264036834,6.1271995857316552,5.890758345059627,5.6543171043875988,5.4178758637155697,5.1814346230435415,4.9449933823715133,4.7085521416994851,4.472110901027456,4.2356696603554278,3.9992284196833996,3.7627871790113714,3.5263459383393427,3.2899046976673141,3.0534634569952859,2.8170222163232577,2.5805809756512295,2.3441397349792004,2.1076984943071722,1.8712572536351437,1.6348160129631146,1.3983747722910864,1.1619335316190582,0.92549229094703012,0.68905105027500191,0.45260980960297276,0.21616856893094458,-0.020272671741083634],[7.1570891433485038,6.9206479026764747,6.6842066620044465,6.4477654213324183,6.21132418066039,5.9748829399883618,5.7384416993163327,5.5020004586443045,5.2655592179722763,5.0291179773002481,4.792676736628219,4.5562354959561908,4.3197942552841626,4.0833530146121344,3.8469117739401057,3.6104705332680771,3.3740292925960489,3.1375880519240207,2.9011468112519925,2.6647055705799634,2.4282643299079352,2.191823089235907,1.9553818485638776,1.7189406078918494,1.4824993672198212,1.246058126547793,1.0096168858757648,0.77317564520373583,0.53673440453170762,0.30029316385967936],[7.4776549789492659,7.2412137382772368,7.0047724976052086,6.7683312569331804,6.5318900162611522,6.295448775589124,6.0590075349170949,5.8225662942450667,5.5861250535730385,5.3496838129010102,5.1132425722289812,4.8768013315569529,4.6403600908849247,4.4039188502128965,4.1674776095408674,3.9310363688688392,3.694595128196811,3.4581538875247828,3.2217126468527546,2.9852714061807255,2.7488301655086973,2.5123889248366691,2.27594768416464,2.0395064434926118,1.8030652028205834,1.5666239621485551,1.3301827214765269,1.0937414808044978,0.85730024013246975,0.62085899946044154],[7.7982208145500289,7.5617795738779998,7.3253383332059716,7.0888970925339434,6.8524558518619152,6.616014611189887,6.3795733705178579,6.1431321298458297,5.9066908891738015,5.6702496485017733,5.4338084078297442,5.197367167157716,4.9609259264856878,4.7244846858136595,4.4880434451416304,4.2516022044696022,4.015160963797574,3.7787197231255458,3.5422784824535176,3.3058372417814885,3.0693960011094603,2.8329547604374321,2.596513519765403,2.3600722790933748,2.1236310384213466,1.8871897977493182,1.65074855707729,1.4143073164052609,1.1778660757332327,0.94142483506120456],[8.1187866501507919,7.8823454094787628,7.6459041688067346,7.4094629281347064,7.1730216874626782,6.93658044679065,6.7001392061186209,6.4636979654465927,6.2272567247745645,5.9908154841025363,5.7543742434305072,5.517933002758479,5.2814917620864508,5.0450505214144226,4.8086092807423935,4.5721680400703653,4.3357267993983371,4.0992855587263088,3.8628443180542806,3.6264030773822515,3.3899618367102233,3.1535205960381951,2.917079355366166,2.6806381146941378,2.4441968740221096,2.2077556333500814,1.971314392678053,1.7348731520060239,1.4984319113339957,1.2619906706619675],[8.4393524857515541,8.2029112450795267,7.9664700044074976,7.7300287637354694,7.4935875230634412,7.257146282391413,7.0207050417193839,6.7842638010473557,6.5478225603753275,6.3113813197032993,6.0749400790312702,5.838498838359242,5.6020575976872138,5.3656163570151856,5.1291751163431565,4.8927338756711283,4.6562926349991001,4.4198513943270719,4.1834101536550437,3.9469689129830146,3.7105276723109863,3.4740864316389581,3.237645190966929,3.0012039502949008,2.7647627096228726,2.5283214689508444,2.2918802282788162,2.0554389876067871,1.8189977469347587,1.5825565062627305],[8.7599183213523162,8.5234770806802889,8.2870358400082598,8.0505945993362324,7.8141533586642034,7.5777121179921751,7.341270877320146,7.1048296366481178,6.8683883959760896,6.6319471553040614,6.3955059146320323,6.1590646739600041,5.9226234332879759,5.6861821926159477,5.4497409519439186,5.2132997112718904,4.9768584705998622,4.740417229927834,4.5039759892558058,4.2675347485837767,4.0310935079117485,3.7946522672397203,3.5582110265676912,3.321769785895663,3.0853285452236348,2.8488873045516065,2.6124460638795783,2.3760048232075492,2.139563582535521,1.9031223418634926],[9.0804841569530801,8.844042916281051,8.6076016756090237,8.3711604349369946,8.1347191942649655,7.8982779535929382,7.6618367129209091,7.4253954722488809,7.1889542315768526,6.9525129909048244,6.7160717502327953,6.4796305095607671,6.2431892688887389,6.0067480282167107,5.7703067875446816,5.5338655468726534,5.2974243062006252,5.060983065528597,4.8245418248565688,4.5881005841845397,4.3516593435125115,4.1152181028404833,3.8787768621684542,3.642335621496426,3.4058943808243978,3.1694531401523696,2.9330118994803414,2.6965706588083123,2.4601294181362841,2.2236881774642558],[9.4010499925538422,9.1646087518818149,8.9281675112097858,8.6917262705377585,8.4552850298657294,8.2188437891937003,7.9824025485216721,7.7459613078496439,7.5095200671776157,7.2730788265055875,7.0366375858335584,6.8001963451615302,6.5637551044895019,6.3273138638174737,6.0908726231454446,5.8544313824734164,5.6179901418013882,5.38154890112936,5.1451076604573318,4.9086664197853027,4.6722251791132745,4.4357839384412463,4.1993426977692172,3.962901457097189,3.7264602164251608,3.4900189757531326,3.2535777350811044,3.0171364944090753,2.7806952537370471,2.5442540130650189],[9.7216158281546061,9.485174587482577,9.2487333468105497,9.0122921061385206,8.7758508654664915,8.5394096247944642,8.3029683841224351,8.0665271434504078,7.8300859027783787,7.5936446621063505,7.3572034214343214,7.1207621807622932,6.884320940090265,6.6478796994182368,6.4114384587462077,6.1749972180741795,5.9385559774021512,5.702114736730123,5.4656734960580948,5.2292322553860657,4.9927910147140375,4.7563497740420093,4.5199085333699802,4.283467292697952,4.0470260520259238,3.8105848113538956,3.5741435706818674,3.3377023300098383,3.1012610893378101,2.8648198486657819],[10.042181663755366,9.8057404230833392,9.5692991824113101,9.3328579417392827,9.0964167010672536,8.8599754603952245,8.6235342197231972,8.3870929790511681,8.150651738379139,7.9142104977071117,7.6777692570350826,7.4413280163630544,7.2048867756910262,6.968445535018998,6.7320042943469689,6.4955630536749407,6.2591218130029125,6.0226805723308843,5.7862393316588561,5.549798090986827,5.3133568503147988,5.0769156096427706,4.8404743689707415,4.6040331282987133,4.367591887626685,4.1311506469546568,3.8947094062826286,3.6582681656105995,3.4218269249385713,3.1853856842665431],[10.36274749935613,10.126306258684101,9.889865018012074,9.6534237773400449,9.4169825366680158,9.1805412959959884,8.9441000553239594,8.707658814651932,8.4712175739799029,8.2347763333078738,7.9983350926358456,7.7618938519638174,7.5254526112917892,7.289011370619761,7.0525701299477319,6.8161288892757037,6.5796876486036755,6.3432464079316473,6.1068051672596191,5.87036392658759,5.6339226859155618,5.3974814452435336,5.1610402045715045,4.9245989638994763,4.6881577232274481,4.4517164825554199,4.2152752418833916,3.9788340012113625,3.7423927605393343,3.5059515198673061],[10.683313334956893,10.446872094284865,10.210430853612836,9.9739896129408088,9.7375483722687797,9.5011071315967506,9.2646658909247233,9.0282246502526942,8.7917834095806651,8.5553421689086377,8.3189009282366086,8.0824596875645796,7.8460184468925522,7.609577206220524,7.3731359655484949,7.1366947248764667,6.9002534842044385,6.6638122435324103,6.4273710028603821,6.190929762188353,5.9544885215163248,5.7180472808442966,5.4816060401722675,5.2451647995002393,5.0087235588282111,4.7722823181561829,4.5358410774841547,4.2993998368121256,4.0629585961400974,3.8265173554680691]],"type":"surface","x":[-2.9861801663058696,-2.5752177212723399,-2.1642552762388108,-1.7532928312052811,-1.3423303861717517,-0.9313679411382223,-0.52040549610469267,-0.10944305107116348,0.30151939396236616,0.71248183899589579,1.123444284029425,1.5344067290629546,1.9453691740964842,2.3563316191300139,2.7672940641635426,3.1782565091970723,3.5892189542306019,4.0001813992641315,4.4111438442976612,4.8221062893311899,5.2330687343647195,5.6440311793982492,6.0549936244317788,6.4659560694653084,6.8769185144988381,7.2878809595323677,7.6988434045658973,8.1098058495994252,8.5207682946329548,8.9317307396664845],"y":[-5.7434781651010267,-5.2698889687881909,-4.796299772475356,-4.3227105761625211,-3.8491213798496853,-3.3755321835368499,-2.9019429872240146,-2.4283537909111792,-1.9547645945983438,-1.4811753982855089,-1.0075862019726731,-0.53399700565983732,-0.060407809347002406,0.41318138696583251,0.88677058327866831,1.3603597795915041,1.833948975904339,2.3075381722171739,2.7811273685300089,3.2547165648428455,3.7283057611556805,4.2018949574685154,4.6754841537813521,5.149073350094187,5.6226625464070219,6.0962517427198568,6.5698409390326917,7.0434301353455284,7.5170193316583633,7.9906085279711982],"opacity":0.40000000000000002,"frame":null},{"x":[5.741916894293337,1.8706036572078224,3.7262568226746784,4.2657252099220813,3.8085366462819983,2.7877509678170318,6.0230439948778773,2.8106819231738047,7.0368474277540827,2.8745718018951578,5.6097393084469704,7.5732907854022136,0.22227859777532144,2.4424224663652572,2.7333573272126839,4.2719007961401489,2.4314941571678554,-2.3129108418095523,-1.8809338571510379,5.6402266914603842,2.3867228118430508,-0.56261686796000099,2.6561652884807572,5.4293493983451979,6.7903869225299305,2.1390617367876006,2.4854612344621407,-0.52632617038956031,3.9201947096625429,1.7200102480797614,3.9109002464824387,4.4096746744576381,5.0702070439398446,1.7821472491855772,4.0099102465959406,-0.43401735814668596,1.4310819832410073,1.2981848116469632,-1.8284152998932646,3.0722452137845111,3.4119972004005077,2.2778854029026676,4.5163264713990339,1.5465903458468497,0.26343791116141091,3.8656360517774342,1.3772136476266568,5.8882025234425051,2.1371075947733091,4.3112957668044132,3.6438505304078932,1.4323221182392492,6.1514550395839542,4.2857986114346325,3.1795212931992114,3.553101494582926,4.3585776321105421,3.1796657731581632,-2.9861801663058696,3.5697659070613188,2.2655307145180492,3.3704611297312188,4.1636474547310138,5.7994736545853556,1.5454158810510701,5.6050852640882871,3.6716962395041488,5.0770121973952422,4.8414571365812922,4.4417563257337251,0.91376212286429004,2.8196272267785867,4.2470363239990867,1.092953284455312,1.9143423708522864,4.1619929953633648,4.536357475669182,3.9275351770803342,1.2284474051806411,0.80043820270428911,6.0254140196098565,3.5158428750640618,3.1768804583191725,2.7582069249218213,0.61134220967894359,4.2239937960807739,2.5657203085069584,2.6344865873361565,4.8666926571423197,4.6435462210164982,5.7842327518685419,2.0476521538906511,4.3006971214526093,5.7822209127800015,0.77842224110420233,1.2784148262443153,0.73652263829246012,0.081572000995208338,3.1599651064823222,4.3064086792983804,5.4019307511969883,5.0895021743354505,0.99358270632030399,6.6969638033454935,1.6664531824843658,3.211027624912139,2.155488236262288,2.7552996560900573,3.3763860690029959,3.2383219159940126,2.9498148982651942,3.2161454558840652,2.0291295283066644,1.9915657386241932,-0.32219815982962396,2.2353325462523639,1.974699484244399,8.4037820006895956,0.27576753762056239,3.2745124371172136,0.012749865367418955,0.059128517126406877,3.2494047723940138,1.0067217302319258,2.9963547713905836,2.1434822371483695,1.7726567871010097,-1.0493556908382153,0.55050409928002786,3.3590328822358759,4.1352411888470701,2.0142452928930505,3.0001257681307023,5.2457792867599329,5.87971148595238,0.80577246318835671,2.7653608794996463,5.4029968018394019,2.0605408388673983,2.8950610301220072,2.8277854035258208,1.2246419641871371,2.1106319902305239,2.9411102418235235,2.1722623018841531,5.2267720467364072,2.0380143166920361,2.1336619347985417,4.3937251531042048,0.88726317365818375,2.9186030496975701,-0.10308964469517923,5.3343390984713643,2.4527085972518385,2.0643093506554928,0.52349534402757048,2.9844759324453469,1.3994356440966811,1.933015340099127,5.5753504911691776,2.6489482595157452,0.8564352316986481,3.3264137649347645,2.2745231687441003,4.180027095974677,5.8648438554619791,1.0146149777810138,3.9093005951605653,3.1697961173569746,4.791131164529089,2.5404437221074669,4.6732381369212268,-0.49011172267338665,6.3789178426267465,4.7295559570371557,2.6984480222285043,0.1019857397216648,4.2860174000839635,3.9663877276295354,2.9872887471572227,3.3029117857248487,1.8317820593003913,3.737613465260484,3.5893086794390312,2.44148125331485,0.32752669021369218,4.4014976368800687,4.1083932445480666,1.3273868143971701,-0.18917632401248596,3.4099171611752679,2.3098240440542201,3.5052234067289092,0.41199506903089356,1.0816591112392739,5.1715497073598016,3.807549809431428,4.1729750734385958,6.6304568923079064,3.2576428572047664,-1.0018584754630222,3.6675543948671403,5.3426502547175891,7.1190784845986084,0.24627680351895753,0.69828886874578888,1.5883572104797579,0.89188843584561717,1.7085125537150172,2.629244064646993,0.59755589852002977,7.0739443339663,3.2155494897710932,2.8317837989888388,3.9912392832091879,3.0748303722359305,2.7358239260881803,5.9535748471041936,2.5659395798157929,0.4327955918155495,3.7713357808868047,2.2969742529418151,1.9564078132874616,0.86373759862565924,3.8567318065333849,2.6519635311460101,4.0313354572960591,2.531269445388157,1.6829931483564582,5.500473208157433,2.4564725697772065,4.8959039917503926,0.59683513978212455,2.0677678072489956,2.4612972096936403,2.2180691837382787,5.697414023983427,2.9544705974031746,3.4884517022069006,1.1152565842721545,1.5415654469808509,4.9961378171096964,5.5169633291911211,5.4977273776201923,0.23872590094933965,7.0999213872727882,5.0337456595990835,2.9465650717234841,4.4072155575965208,1.0572295416962727,0.80768751688228546,3.0981009018751942,0.60300828688444019,3.380037997119496,5.595411799209332,0.93225255407049801,1.5231184915738722,3.0931278789017269,0.96480776034778826,2.2334320802274439,4.7455108233427969,4.9390900279402343,3.7676933300541888,-0.7031113261349291,2.8920065263476689,5.1295464286765675,4.6263900748232096,2.6183670517914366,-2.3998596171274054,3.121933277602233,4.1475033949671563,3.0916071594501977,3.3148250803517509,3.8631307457375414,2.2069005278995757,5.6199564515030982,3.9407867997478858,0.51465945885079734,5.7631509127710654,5.4089178740196484,4.6481479273637625,-0.32525880437118859,1.8613873127890384,4.2710276345790525,3.0874440151557159,3.696024607322614,7.9191870977408296,1.3632393512006611,-1.2264002298582737,3.5473905448608294,1.6248063175131764,3.8920821059237314,1.3752305524188053,7.424110960670272,2.7525880568451404,2.0453289879398953,2.6674770170267834,4.7251267672528616,3.194680970405638,-0.25123347842257626,2.9907584643470844,4.5204843353241095,3.077981825745125,4.4701442832288816,2.7070547460022603,2.8842253292374349,3.9647389322090651,4.9858872735514685,0.50720900393591561,2.9330249503087806,2.8580756375000074,1.482158692538099,0.93128127812169437,1.7385360920583608,4.1736154400259906,2.1673546876326961,1.4302243809893596,3.3268326389721943,0.52657152978130073,5.0917475524733433,2.0308091675625812,3.3782576233613311,3.1020126631499463,2.9995186622271159,6.6187640848857319,1.3493440857801104,5.2909409044559705,3.063146375106486,1.3295883893865608,2.8624727019669751,4.4935433740249335,2.1489625312107918,1.4558355296130865,3.3055282134957893,4.9771936903575984,2.853083330655652,0.22594689288051617,0.3866481912492743,1.4632093498441228,1.9457837492510839,2.9571458699167508,4.340996141992564,2.1307659228551872,0.77224043337430626,4.2142119897569996,3.5509139374791827,5.3146941388294735,-0.36496171895651131,3.1746381777897485,5.7067237878853376,4.4483476013667378,1.334894348471577,4.4650569735368286,1.2561462600055746,2.0932049775404145,5.3750685572581549,2.4197093764198416,4.6570922899308727,2.4175445824416624,-0.15272480949581224,1.3023686061021562,0.82296027608561051,2.0314188577656531,2.3273775819808544,2.6932842186767125,2.5135055428503081,6.784404083200223,0.22800332542916024,2.1703513985844394,3.6981630562136623,6.2568845316308135,3.1770437914272325,5.4783014168011261,-0.28911107150741344,5.8927130507569592,1.6188796566696344,2.4471378290922958,0.78116248020112566,3.2677386328589035,6.5706781034631039,7.8443267105031795,0.84634219576317671,3.9718822208061981,5.7770434774885837,2.6086863654309123,2.5636504045875781,2.3904440909071094,4.1956654482228863,5.7948588216315198,4.3752395224799265,3.6403760285939373,2.3962601484454784,3.9966973711158991,1.9009261641664874,2.4414869927255145,5.1930268862234641,3.8840261763576223,3.4820325880522249,2.4887846892889636,4.8620658029697648,5.6698251707509453,1.2614564722491164,3.1109739093302053,3.0981338263838385,1.8432885432782062,1.0025226880079918,2.9951344399867965,4.3110237656259383,5.953684557953105,-0.81830557655842684,1.5951210533751816,2.3771395639761623,-0.32631406133475194,1.4989331164154198,1.4452964816369835,1.5548606002807954,-1.3776691982941358,3.4268371005731084,1.7361541274903369,6.040982387664326,4.5919118988301637,0.09294086973440141,3.1967908420116777,1.8124580315336931,4.7765623372690307,3.1061408309973331,1.8859527483106888,3.8767940723454402,3.3052163172848381,2.6707648365008714,7.0397812429519497,1.9412282273654775,2.0584260540319153,-0.091873848035047168,2.9189465534096457,4.780712610941352,-1.1427757018584277,2.4998697598539628,0.6366991466933638,5.8838745300338147,5.7157910777577232,3.6690056946812994,5.8586761608004547,1.2653642982426312,4.9013034499437715,1.8299769827335302,3.6419150450512578,2.4012079666701833,2.4429138334138627,4.0922303166590641,0.39235769271025589,2.4981710699150805,3.3420147474358193,2.1930650425049825,3.2093188816714542,2.3622384265319818,6.2366878717668541,4.4283772029772335,8.9317307396664845,1.4098447908815772,4.6287318293598254,7.196061620260747,3.6019601103051402,0.83384971632153793,0.98735499639343072,2.9291708701647763,5.6182487217068289,4.5008009732934386,-1.2767366552248385,1.5992917822667314,2.9818870494140293,0.083733025510463577,4.3890592929897387,-1.922670950372976,3.2865795280809116,2.2175557617458876,2.0176718287718489,2.4327050950958973,3.6295896094156852,3.7926531558779786,2.5487925779280798,-0.84990086068111914,0.12154140335604113,0.060684452055196569,4.5237268937838628,2.5127700362574394,3.5393532148360154,-0.11785504191163199,1.9288239866073724,4.1249039463469908,2.6433477531601635,2.7697280275946987,2.8558770557872668,5.4218196138526071,1.7702061984005935,4.3522529166294008,4.7971992110751032,0.62136419295796008,3.2425176996380176,2.977556627739177],"y":[3.0582814386275214,2.8295497354392269,0.99508746664087355,1.2720191048274545,-0.44030708988624934,0.60375133989756802,-1.0584176120965463,-0.93391179170523109,-1.4416261778381898,2.6724154078896736,3.2299435969908075,0.17411029414581847,-1.257954796013661,0.82413733644589737,5.483807386625247,5.0826263415009789,-2.439600673442905,0.2861866877552256,4.0665609843245889,0.92351180677952649,4.1948264846528502,0.33282921338023419,2.2099718478307553,1.4484824785005022,7.4581389909601148,2.8409051335450406,-1.4130781384318429,-0.20776233832653634,1.7404705692441249,-2.8020012933592127,-2.6088198899264845,-1.243645212710438,0.30414078688172053,3.47780429726396,0.4516048702954425,1.3247614311163858,0.87078618049387457,-0.41047419405028518,3.7243945375019805,-1.1930263761666335,0.54313296290621715,0.30434383877946247,2.0642572390134659,4.214469124522374,2.0276290522331877,3.7647463211460566,2.5261940970998062,-0.24916908926822257,1.1630876008579738,3.752158222729538,-2.1225315723140823,1.6495413211893981,0.68641936609552423,2.7555677214687035,2.5003331503612767,1.6021068076856604,3.9856222344586212,-2.050987600339401,2.8214351169720437,-2.1590640557150782,2.1754325142371629,1.1792845920014488,2.9345233138996796,1.1576247058296469,-2.13739967297218,-3.015646368032181,2.0819470484775251,0.85324680378314899,-0.14203678711616141,0.37786308029271853,-0.34283013420272934,0.68531909583804151,-0.86261014199973896,-2.9660189589402637,0.56080039150124383,3.0905517389247894,4.7546591325993406,1.0052123919143328,0.83866013058166899,2.9259645624797401,1.1071420330930348,0.13020318217992588,-2.4745945106846166,-1.5273911995648688,1.8126170241385466,-1.9193079355595151,3.0969147403093977,-1.6928610789004077,0.61285888377301112,0.99532808577264786,0.97434053226562378,1.3038946439687957,2.1970222628021574,0.74757512540344173,0.50292886830644867,1.3206547898092438,0.13271611680546114,4.0748248382005396,-3.3404931532321553,3.0540092385828617,0.50303413362013427,1.8446407716647866,2.9753065872793472,2.6711363440700464,-0.32104371809141097,4.1281389865836706,-2.2459518705830939,2.7277927469579759,-0.023205546872400173,-2.8347300508908027,-2.731627697239897,1.4903581268793773,5.447068603816132,1.5467521282889305,3.261569589056565,2.6773387481201985,-0.30923055575641056,2.9079219569587913,1.7059029309786451,1.4131985852992268,3.0022264686204969,2.4949039832805529,-0.25314967344627726,1.790447371873428,-0.78433590809115517,2.2616368201835453,0.13458963343086505,1.9042772884370336,1.735998090392691,0.45922502067618176,1.9310252354259574,2.1487124512539379,0.53860001968517812,3.3444850166049025,3.7854054134662434,-0.32398251141916945,-0.55473841345002839,2.0270771578175601,-0.8266244760825443,0.10115238949939875,2.6058653982072366,-0.14695370196220781,-2.8562503356966524,2.3287816676442965,-2.205080447588506,-1.7092005149076992,-5.0358653588357924,2.6624756444601259,1.5021941776946881,1.9245869318826592,2.6895844464464735,0.91605695135687581,-1.2111518114000552,2.1275513046617478,3.6067295116393412,-2.0004418755893147,-0.21397847023807226,0.41550986868684547,-1.579366686647206,2.3882116975493979,-0.19836380579423807,3.5138132879432744,1.107016027254726,2.4561850353437049,4.1221961364212145,1.5312495071943797,3.1534525184145346,1.4213958633584909,-2.0233470516447363,1.04480451982725,2.4362724120842065,1.9789140356845396,0.65222330824346075,-1.435398977336801,2.2927967374189242,-0.83291205669577972,-1.5036468848511326,2.1898554368110026,-1.465621330379653,1.4887288298122752,1.00554437068719,-1.65641937205113,3.3593928236655501,-0.1856099982978574,3.3999566326733439,0.049932640775730341,-0.1501141923016327,0.9375479507830019,0.28388600804308883,0.2867978447045374,-0.75532876686745221,-1.4257942503559256,2.2265732373740676,-0.61240668292495481,-1.7529138598177902,-0.015695798327094224,-0.60187097347467544,-3.3855713713401352,0.41812570146465033,1.3343482423210353,1.5893847129713754,1.7854825308414517,-1.0016874260016304,0.34854576035313223,-1.0166976108576851,-0.27086296406753219,-1.4196813759746849,-1.2329276013053807,2.2597623251518701,0.45495685964274879,0.4823176632426579,4.4591163597829873,0.88321566918525674,-0.074127569217837141,2.4945733923314797,0.025484329220534119,3.7458155629590104,0.24465527870755854,-0.23230522823678834,-1.3362501021493713,1.6572807171821715,3.9330212548803298,0.28798090982217484,1.5229352837548622,1.6666577103514624,3.8443864806190855,2.3277532013323454,-1.1473103113906209,-0.39380354933348016,-0.4922609138691223,1.2831457442644387,0.99210555853869387,1.7358750021835312,-0.31468582939449408,0.24730665967789589,2.4827201208501695,0.80078648710305966,-0.30857975721418973,2.942328748122542,1.026992623136773,-0.83306933404308992,4.4193771225232741,-1.3362019798933114,-2.5620725203050472,-3.5062648971364343,2.3022519390933986,-0.06566525120553468,0.44888128605543365,1.5792539452580914,0.067031876418471859,-2.2161203498893749,-2.8995675920839759,0.31860016353803844,1.3494510546626397,-3.5555551215544581,1.5810489618941679,1.8446127149472287,3.5894747264134295,1.3294280371479088,1.4099076816004703,2.2092072534516118,0.96171846166213715,0.84057130524238266,1.231968928805609,2.4883467280967757,0.13741879294461468,0.00094209617753115982,-0.73032415351142266,-0.91551456654374697,1.6535999426772754,4.0947444513703495,-0.93771913772886117,0.62311914748107433,-1.0600023229118372,2.8161728837209923,0.36523627058374297,1.3580079330808439,1.6960563754583542,-1.1085580425488804,0.79051142377859707,0.54331476581094118,2.3507111248550778,-1.4664893870126186,-1.3999230888455583,2.5317331532322154,-0.17619572256595384,-0.3205916599511518,1.2260270443946875,0.35920240062792252,4.732762993877575,1.5190629115355976,1.3231201418361398,2.8621498186707086,0.88010650148075775,1.0974794001549004,-1.1457508014679263,-3.5859428609613451,-1.4144137001286841,1.2282188595943824,-1.0665941582107541,2.3776155046841261,2.4501660353497274,1.4347604218781767,0.59668653676324424,-1.7313797211773654,0.38212478264568106,0.094194226925546465,2.3264582890395844,3.6172590734973933,2.0020806197889964,-1.2565770703947341,4.3419946107963323,3.0207060649042474,1.4470424317489168,-3.4129691864192448,-0.90917123710631609,0.8628538655795267,2.5226118031305402,-1.3598083999165809,7.4223979135345779,-4.1076497019016545,0.52813210133186983,0.48087471347713096,-0.32673383323838578,0.36201857834770212,2.4847903151446298,-0.74858535157154571,-3.1656275326065568,1.187535805620435,0.99636037599440874,0.97379869525685192,2.3359361491162085,0.97366459409567485,2.5520940609526068,-3.0214706652705106,-1.2563609899436021,1.6975991431714397,0.29420303580615204,2.8895491958352455,-1.009439705052928,2.4478054649936913,-0.33766548198072899,-1.2260803874315997,0.31438962126611003,1.0995586463374794,-1.4553639230510704,-0.52801182165489524,-1.4923641232357636,3.0335479555195448,2.4472252481177263,-1.0650542742102256,2.1146920082455161,0.48883715380095605,-1.2267835142933405,1.8423948792296079,0.3540993763072513,2.7603598023830451,0.61027278644819705,3.3761099642075552,-0.019529023535908241,1.4390960217465885,1.7405888427291165,1.5582167874612138,1.4038848746266475,0.97400691513731164,0.81826998784501992,3.7300627306376826,2.8162611377663325,-0.21977634280381197,3.7928744424389049,1.2895967466168918,-0.28121354319060421,1.3396045191170678,0.68562502515831159,1.2018791890922085,-0.94678830829656024,-0.63965055050639741,3.7258379380508524,2.9227418610625557,-0.76744894880222803,-0.80018423087264323,4.4466662655936613,4.8180843242578675,-0.55428239171052684,-1.6046105252262142,6.2469903336373589,1.4592578286936146,1.3734997842837708,1.1522732699005611,3.8097203726426652,0.61655552932736546,3.9187843283121828,0.55868909773091779,2.0102917725462808,-1.0669940121457571,1.3409469429184391,3.4013363217838526,0.67318817046852741,3.5649517262452761,6.4543927758225346,2.8838484346618491,0.50277192544088289,1.1929577194129704,0.13213811739652181,5.3573357349031312,-4.9175592382602487,1.1617764783982274,1.220275609234442,1.4268966526253051,-2.1156392252646441,1.432423092515515,1.3753276340528804,3.5172442504272006,2.0470355618179283,3.2309085549599175,-0.91500448434093862,0.75118884028913602,1.3834756580999357,1.5444345012066933,-0.38762892734650878,3.9583438417042665,-0.22353404328554238,-2.2286199487187015,1.804980221181341,2.3291108945789682,2.8882541419898731,-0.89252159541657727,0.50342310152220793,-1.656872937078155,2.6895274841978347,1.6953934648772955,2.8275251728622139,2.2165491067613621,-0.21509597560897387,1.3593161417436883,-2.8168188388347546,2.005892515378191,2.9377983069569984,-0.75147425154665481,-3.2720490773960105,-2.0456551631700259,-1.2262364157721417,3.481967791071793,1.0069638701259804,-1.4755891719861314,2.1113982377960498,-3.3662986987197954,0.50595108580550385,3.225713855172891,0.31665352598182739,3.6108766842821338,4.5906477428815871,-1.3356704549468961,-1.3045752499640337,-0.82891093869129873,2.0574560650672593,2.6701578540971642,3.4182739481830624,3.5989450907216307,3.1514646084197868,2.8796020470285946,1.3267493868135318,-0.77627711728078341,-0.4523219655127011,1.8151940112274771,4.367072678503586,4.4119596471292262,-2.852333401652162,-0.66799603045692924,3.8382650326663792,-1.1282194300384778,-2.2271549449608954,2.1996221773948541,4.4659294107741019,4.8690091249154648,2.0656411513415871,2.4393315120395691,2.1201867715103679,0.96382613668006589,-5.7434781651010267,2.5214064895195101,0.21754629551357929,3.0198024476236998,-0.25394629414749859,-2.2691547390037288,3.4904853040609667,1.3627548931108071,7.9906085279711982,2.8311838266538256,3.0970130348524876,2.5276498738697111,-0.20677475371879894,0.25914067459444834,3.1196518766672932,3.1102210596787767,2.1659443222406383,-0.97313487107907792,4.3692436234879608,-1.7336820913652597,0.13357130277777229],"z":[7.2648846919789367,1.7743611469128906,4.7532490082984582,4.1287444507567548,2.5826559348413891,1.8927131863419222,6.2943689368269098,-0.81774842963338168,5.7265773198668333,3.0175979158117006,3.1446487008919961,6.1674958765606949,3.0999653063114678,1.6032152545025287,1.2513191551632943,-0.47088926056346425,2.2021520045959195,-3.3889347488514234,-2.3173831616582548,4.4592256192499242,2.855436326978952,0.34894958726183561,3.9177697590908585,7.2656087233928988,1.6273133458551785,1.7665023482350981,2.303295106283556,1.816122093177732,1.4502702506990515,2.1512975183739882,5.6707751721933848,5.0652955911292104,5.0445196545808555,0.70171065744408345,2.9886645215139973,-0.18319698094635675,4.0681565137175415,2.1520330207751588,-4.2112428420948778,2.6338568575497843,1.634709110110613,1.2061069182760222,1.4634903543088236,-3.8860651566004072,1.1873625310403242,3.0069161421062121,0.39391253408342475,4.4550404617852619,0.8030144471568752,2.9554942177661605,5.1339990447820272,1.8819362977145537,5.2776385122263516,3.7650409704864005,2.7811753114476616,3.7012412723751984,3.0200640278616091,6.9030717414569907,-4.2329046015221792,7.0193434883235346,1.1101187937873445,2.8407324355700285,2.777096242168525,4.0984706947159317,-0.6029486781245561,6.2422383294037838,2.7748733834497958,1.7745436541484279,5.5270207355416208,3.2464751652639521,4.0283493683044043,3.1693630435613085,3.433408102325477,3.5543227738189089,2.5417312446904834,3.9442899282355923,1.7896299666199158,0.3929816241824553,-0.44749324602321683,-1.1485296191052059,5.6048874399651609,3.1445261705809529,3.6984047861268952,2.5650145452375765,0.78274058101824218,3.8505009011730564,0.77895125181119262,2.412329640530892,2.2612094388411075,5.4177725061711461,2.8747610927200222,1.9933355126730234,2.2747329368358233,3.3752021187075334,1.7213225543005304,1.8581854815573557,3.3830340742428344,-0.48839592425146594,4.8325194272153613,6.6065052361020555,3.8245043538558017,2.3900314024491514,-0.54513713321116308,4.5215328303089155,3.3110069998793392,1.9679688147902916,3.5809661424727754,0.4177345612193728,5.2348833266716914,6.220528894613591,3.4916056332323029,3.6970986598354738,0.47344153178884973,3.2881306489812356,-0.64798986274434123,-0.37377069417186592,3.8393889946909905,4.7558007255836321,1.1446881163188203,5.2595031935067613,-2.6197928656909308,2.139760597957868,5.5933699293957648,0.066772446699893573,3.2625248693695976,0.44802173833075787,1.4066462952291421,0.13029165997205727,-0.80355947861449684,3.0041673194696421,2.9200632079026323,1.2914687671114857,3.2529643898389726,5.6569532705469703,2.8400832978909771,0.57400026589962438,4.5398163908281877,4.6094174721123125,3.3123998416805001,4.0072019731224202,-0.29998894957758671,3.586902012558129,4.6919759788676059,3.4684113130751744,2.8339603801050934,3.0117692169869499,4.3195591172150225,-0.091261593666252194,6.8783404470873748,0.082954049738038438,1.5206492939929745,2.0591220709069038,6.5368500194239161,2.7853557734265042,4.6954316015944446,2.6420140438247905,6.2031094907544366,2.2223994006987131,1.0509118975165026,0.6465346576816553,4.0604184242855155,-1.6134550173504871,3.0042608855881809,4.1433654089462832,2.594696269776211,4.2023619687746114,-2.7026300040351741,2.0203038506813091,3.5255936577501643,5.0972547124887253,2.4123826069642038,3.5364166979097198,0.57667015581091063,6.0697029981757096,3.4461094334037474,3.8478032078134965,2.5020503883369534,5.8610268193030546,3.0395658945862589,4.7083132928373459,3.9816803441666289,0.88405341492920897,1.7079428451259306,2.8407720207702316,-0.26836805378016249,-1.0861510290699836,3.6350272494109497,2.9594809351142537,1.3682800923559937,-2.3769515937359111,4.5973560869584942,4.5647920280681777,3.7000952470966761,2.7713104037949639,2.9884607400839016,7.089035227200025,2.8419146178997798,3.9826099501673484,6.2705366984604689,3.4372941526242808,-1.6658608906881072,2.9128337113775156,5.9927958403435797,6.7345500318747771,3.007891151761104,3.0592301149475629,-0.74210268817646607,4.8773711626686511,1.8355072221261446,1.8889141000453922,-0.46492851099825994,5.4334964689290741,3.4621983059618922,4.7780365739222805,2.6556694356874,2.9281024716219939,4.541094004119044,2.288864039690619,3.6269789966044952,2.5699417592858276,3.6579048763861137,1.5934314153360514,1.9087058305883393,2.6357676755651616,-0.62219585268177102,-0.14156998113188601,2.6809081663758345,3.7169315909446188,3.0688658975784588,6.3304953565190996,-0.061994900857840207,4.187381121138988,1.3659408867454057,4.6976725774901773,2.5519679757824356,3.820916044973909,4.4503751260437721,3.2952956182937165,2.3854955935755915,0.56937528302773677,3.6466158254214673,0.51873384682581802,5.7973581388867723,5.593517968758368,2.1115662630056979,6.9009831514745406,6.386471393220944,5.3825229538188832,3.1200895059056566,1.8080073993833432,0.38645085107753907,4.1910903274115991,3.9391783166645049,2.2355113791627224,5.2248283770001436,0.97150678388344835,3.0897662065961065,-0.84184841034294,0.67816109400323432,2.671866032446268,6.4208244824650631,3.3000495978586715,5.6846167467360909,-0.79266074934671571,0.37830496861979546,3.0769486775510559,4.1376743199623442,3.2953153172433689,-0.82649017160963578,4.0929847264513484,2.3475670690829911,3.6288235251532686,2.2707275277242021,2.4833253238660173,-1.6919010039956421,5.3524667991172077,3.3145899384373472,2.5855011881988279,6.3132829182200236,5.8572592453145731,4.2759331241808436,-1.6467857401447636,3.5637461428447286,5.4129129373087412,0.82362733860553039,3.8169923439328173,10.100858629949188,-0.28448310372378183,2.1088665153969193,0.95355803697948116,3.6825391767300975,1.9929217467937974,0.5010550137949028,6.5948802172991217,2.3468160001012843,4.0949804001028527,4.5432869430865264,7.0643621232442131,3.0375304488333712,2.3835014246555648,0.27594069108007768,2.1776962977726528,4.2253680815570824,4.8174438557810308,3.6921209816897411,2.808932500169897,5.0588073263759856,3.2404693282138601,-0.31579002738687367,-0.27020380038791281,6.4328593110549059,1.089573587970269,1.4365396906552788,-1.2778054305403674,5.8054411589374935,2.4667007656053537,-0.42333810691293783,3.3249641392537601,3.9260290191499077,0.27777509877151818,4.233146459729662,5.83682015023847,0.61136028567837108,4.5293370914462576,5.3120317885190733,0.59664664465608719,4.4260368399695409,6.5252166161617087,-0.28732802739593444,4.0925885771354711,5.9929542072381068,-1.0187204394995604,-0.085311938661869258,3.0904173503991732,4.8091669211445511,2.7306981634439502,-0.3473685529523739,0.62615828304402832,1.7081796923346526,2.0595490172733877,2.1279822885627397,5.5308218033146446,0.90054546899953314,0.38753707542446136,4.9005698594631557,3.8260878036212631,1.447401309491708,0.18574692947468541,3.0882442659717828,3.4165468530164764,4.2618325780676471,0.72517092083721635,5.1835737053531989,1.8188653238218611,2.3626439511682555,5.7139822318690028,-0.093687235450113038,4.0948744725695061,0.31764580232079198,1.5206529938122411,-1.0051865404920419,3.0556806773508578,3.7634828824876267,0.7793070829200297,1.5281483647273908,1.1132629909960379,4.0184607343847851,-0.98868501974817213,2.9066093905648347,-0.93564127370061567,5.2856850971021361,3.5467336220617325,2.0380186111521117,0.8543138175452194,4.9010241533279766,2.3416938646046193,3.1353542111665837,0.30037668515890847,2.5095186196147679,5.6643139111305025,9.008604207306762,-0.64337477530626686,1.3661673708708686,7.0268508724384855,5.246882079191387,-1.2517619958313468,0.57661614608163347,2.4015721150370504,3.0063436412810329,-0.29522597207186863,3.8879155395393572,0.62013740575387111,4.6820031100101511,1.4180596933997687,3.9783566937330415,3.4802094722431569,0.7721895330245423,4.4421286926605541,2.2257935783358471,-1.1812153115087947,5.1263866384724199,-0.96535076693414679,2.6682205858244377,2.6652229301134085,-0.48828585962443738,5.8550282329660455,0.78263579986112708,3.2249044776573896,8.5817688272125601,-0.77336902871227942,0.54024789142754426,2.0336128224435961,-0.70342784146600634,0.30072365561153613,0.069469607221762708,4.2498694135590682,-0.67996453830273584,3.2557229754472132,2.0842116977467451,6.3351026435061488,3.203519532139163,1.2634215425220339,3.4488919916252434,1.3694472843942775,1.97273357230603,2.0255684971618741,2.338873658752644,3.4783823462796533,2.6587122707403288,1.2336952666433891,3.7975371905068998,0.433660267943208,2.2259058765399002,1.3992725744414458,3.8570955300594401,6.7258960680266053,-0.69204098628660815,2.903473187116302,3.6408366989234824,4.9498490855377968,7.6478924948734637,5.5318109344082549,5.0658949995848701,0.082337220167329583,9.0271684401652124,-2.574591643310002,5.4248801894194827,2.7250904354923895,0.99478245785881692,5.0326559062981362,-0.32511786226013067,-0.58877768982345913,6.2893962462886419,2.8562186945159667,4.7374625981073022,0.74318566757046334,2.7526126593708096,1.7033878793979218,4.3140633781078614,1.2813109979637305,0.70360892653443585,4.2659373238259279,4.1304361741092128,-0.72181020549813546,0.075587201942271198,0.55595779199543272,5.0268240708554908,5.415462394601116,-0.40848542717766556,-0.71449037809208837,4.4713565616187498,1.6972007687242816,2.3763151061395016,-3.0944780818995516,2.6282789841533507,3.9820893693570492,0.32891999712129749,1.7952180583327706,2.7540024511585033,9.5023229827220472,2.5370371812899011,-2.4171388693622231,-1.0699082206577906,-2.2666380814438831,5.3879246821624509,2.1952815551571607,1.6314030326864577,-5.0074557335312511,2.9147023378543331,1.0982264729514348,3.0803616995314034,3.5017938180591841,4.3338721386666865,5.010356269479967,2.4824098758126869,5.035271304813377,5.5275691090598782,-0.46095713161732288,2.8656453963679849,1.3507681378303953],"type":"scatter3d","mode":"markers","marker":{"color":"black","size":2,"opacity":0.5,"line":{"color":"rgba(255,127,14,1)"}},"showlegend":false,"error_y":{"color":"rgba(255,127,14,1)"},"error_x":{"color":"rgba(255,127,14,1)"},"line":{"color":"rgba(255,127,14,1)"},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-regression-plane-intro-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.1: The OLS regression plane in three dimensions. Black points are observations and the shaded surface is the fitted plane.
+</figcaption>
+</figure>
+</div>
+</div>
+<section id="deriving-the-multiple-regression-coefficients" class="level3" data-number="5.2.1">
+<h3 data-number="5.2.1" class="anchored" data-anchor-id="deriving-the-multiple-regression-coefficients"><span class="header-section-number">5.2.1</span> Deriving the Multiple Regression Coefficients</h3>
+<p>We’ve now used two methods to derive the OLS coefficients for a bivariate regression: the covariance method and the deviation form. The same methods apply to multiple regression, but the algebra is more complex.</p>
+<p>At the beginning of the term, we considered two variables and used scalar algebra to derive the OLS coefficients. Now, with multiple predictors, we can use matrix algebra to derive the coefficients in a more compact form; then we moved to <span class="math inline">\(k\)</span> independent variables, and the matrix solution is the most efficient way to derive the OLS coefficients.</p>
+<p>Recall that in deviation form, where <span class="math inline">\(y_i = Y_i - \bar{Y}\)</span>, <span class="math inline">\(x_{1i} = X_{1i} - \bar{X}_1\)</span>, and <span class="math inline">\(x_{2i} = X_{2i} - \bar{X}_2\)</span>, we set the partial derivatives of the sum of squared residuals to zero. Setting <span class="math inline">\(\frac{\partial SSR}{\partial b_1} = 0\)</span>:</p>
+<p><span class="math display">\[\begin{eqnarray*}
+0 &amp;=&amp; -2 \sum (Y_i - a - b_1 X_{1i} - b_2 X_{2i})(X_{1i}) \\
+b_1 &amp;=&amp; \frac{\sum x_{1i} y_i - b_2 \sum x_{1i} x_{2i}}{\sum x_{1i}^2}
+\end{eqnarray*}\]</span></p>
+<p>Setting <span class="math inline">\(\frac{\partial SSR}{\partial b_2} = 0\)</span>:</p>
+<p><span class="math display">\[\begin{eqnarray*}
+0 &amp;=&amp; -2 \sum (Y_i - a - b_1 X_{1i} - b_2 X_{2i})(X_{2i}) \\
+b_2 &amp;=&amp; \frac{\sum x_{2i} y_i - b_1 \sum x_{1i} x_{2i}}{\sum x_{2i}^2}
+\end{eqnarray*}\]</span></p>
+<p>Solving simultaneously yields the closed-form solutions:</p>
+<p><span class="math display">\[\begin{eqnarray*}
+b_1 &amp;=&amp; \frac{\sum y_i x_{1i} \sum x_{2i}^2 - \sum x_{1i} x_{2i} \sum x_{2i} y_i}{\sum x_{1i}^2 \sum x_{2i}^2 - (\sum x_{1i} x_{2i})^2} \\
+b_2 &amp;=&amp; \frac{\sum y_i x_{2i} \sum x_{1i}^2 - \sum x_{1i} x_{2i} \sum x_{1i} y_i}{\sum x_{1i}^2 \sum x_{2i}^2 - (\sum x_{1i} x_{2i})^2}
+\end{eqnarray*}\]</span></p>
+<p>Notice the denominator is the same for both coefficients. <strong>It equals zero when <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> are perfectly collinear</strong> – in which case the system has no unique solution. This foreshadows the multicollinearity problem.</p>
+<p>Because we’ve written everything in deviation form, let’s just write this in terms of covariances and variances:</p>
+<p><span class="math display">\[\begin{eqnarray*}
+b_1 &amp;=&amp; \frac{cov(Y, X_1) var(X_2) - cov(X_1, X_2) cov(Y, X_2)}{var(X_1) var(X_2) - cov(X_1, X_2)^2} \\
+b_2 &amp;=&amp; \frac{cov(Y, X_2) var(X_1) - cov(X_1, X_2) cov(Y, X_1)}{var(X_1) var(X_2) - cov(X_1, X_2)^2}
+\end{eqnarray*}\]</span></p>
+<p>So notice what the equation provides. <span class="math inline">\(b_1\)</span>, for instance, is based on several things</p>
+<ol type="1">
+<li>The covariance between <span class="math inline">\(Y\)</span> and <span class="math inline">\(X_1\)</span> (the bivariate relationship)</li>
+<li>The variance of <span class="math inline">\(X_2\)</span> (the “control” variable)</li>
+<li>The covariance between <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> (the correlation between the predictor of interest and the control variable)</li>
+</ol>
+<p>If <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> are uncorrelated, the second term in the numerator drops out, and the denominator simplifies to <span class="math inline">\(var(X_1) var(X_2)\)</span>, so <span class="math inline">\(b_1\)</span> reduces to</p>
+<p><span class="math display">\[
+b_1 = \frac{cov(Y, X_1)}{var(X_1)}
+\]</span></p>
+<p>which is the bivariate slope.</p>
+<p>But if <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span> are correlated, the second term in the numerator adjusts for that correlation, and the denominator accounts for the shared variance between <span class="math inline">\(X_1\)</span> and <span class="math inline">\(X_2\)</span>.</p>
+<div class="callout callout-style-simple callout-important callout-titled" title="The Importance of Model Specification">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>The Importance of Model Specification
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In order to accurately estimate the partial effect of <span class="math inline">\(X_1\)</span> on <span class="math inline">\(Y\)</span>, we need to include all relevant predictors that are correlated with both <span class="math inline">\(X_1\)</span> and <span class="math inline">\(Y\)</span>. The Sample Regression Function (SRF) must match the Population Regression Function (PRF). This means we need to include all relevant variables that <strong>affect</strong> <span class="math inline">\(y\)</span> and are correlated with <span class="math inline">\(X_1\)</span>. Proper specification <strong>does not mean</strong> including <strong>all</strong> variables that we think affect <span class="math inline">\(y\)</span>. Oversaturating the model will:</p>
+<ol type="1">
+<li>Inflate standard errors, making it difficult to obtain precise estimates.</li>
+<li>Not necessarily improve the model’s ability to estimate the partial effect of <span class="math inline">\(X_1\)</span> on <span class="math inline">\(Y\)</span> and can produce <strong>overfitted</strong> models. See below…</li>
+</ol>
+</div>
+</div>
+</section>
+<section id="linear-algebra" class="level3" data-number="5.2.2">
+<h3 data-number="5.2.2" class="anchored" data-anchor-id="linear-algebra"><span class="header-section-number">5.2.2</span> Linear Algebra</h3>
+<p>Of course, with <span class="math inline">\(k\)</span> predictors this all becomes needlessly tedious. So instead,</p>
+<p><span class="math display">\[
+\mathbf{b} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}
+\]</span></p>
+<p>The requirement is that <span class="math inline">\(\mathbf{X}^T\mathbf{X}\)</span> be invertible, which fails under perfect multicollinearity – when one column of <span class="math inline">\(\mathbf{X}\)</span> is an exact linear combination of the others. <a href="#tbl-matrix-verify" class="quarto-xref">Table&nbsp;<span>5.1</span></a> verifies that if we write it out, it’s the same as the <code>lm()</code> solution.</p>
+<div id="tbl-matrix-verify" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-matrix-verify-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.1
+</figcaption>
+<div aria-describedby="tbl-matrix-verify-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify: matrix solution matches lm()</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span>, x1, x2)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>b_matrix <span class="ot">&lt;-</span> <span class="fu">solve</span>(<span class="fu">t</span>(X) <span class="sc">%*%</span> X) <span class="sc">%*%</span> <span class="fu">t</span>(X) <span class="sc">%*%</span> y</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">matrix_solution =</span> b_matrix, <span class="at">lm_solution =</span> <span class="fu">coef</span>(fit))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              lm_solution
+    0.8487808   0.8487808
+x1  0.7800368   0.7800368
+x2 -0.4992539  -0.4992539</code></pre>
+</div>
+</div>
+</figure>
+</div>
+</section>
+</section>
+<section id="interpretation-of-coefficients-in-multiple-regression" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="interpretation-of-coefficients-in-multiple-regression"><span class="header-section-number">5.3</span> Interpretation of Coefficients in Multiple Regression</h2>
+<p>The linear regression model should be estimated with a <strong>continuous dependent variable</strong> (recall the assumption the independent and identically distributed errors). However, the independent variable(s) may be quantitative (i.e., continuous) or qualitative (i.e.,categorical).</p>
+<p>For a continuous independent variable, the interpretation of the coefficient is straightforward: the slope coefficient corresponds to the expected change in <span class="math inline">\(Y\)</span> for a one-unit increase in <span class="math inline">\(X\)</span>, holding all other predictors constant. The slope is the same for every observation, meaning that the relationship between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are said to be <strong>linear and additive</strong>. This phrase will come up often in POL 683, but for now, it simply means that the relationship between <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> does not change across the range of <span class="math inline">\(x\)</span> or any other variables in the regression model.</p>
+<p>In other words, it means <span class="math display">\[dy/dx = b\]</span> for all values of <span class="math inline">\(x\)</span> and all values of the other predictors. The effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span> is constant across the data.</p>
+<section id="in-practical-terms" class="level3" data-number="5.3.1">
+<h3 data-number="5.3.1" class="anchored" data-anchor-id="in-practical-terms"><span class="header-section-number">5.3.1</span> In Practical Terms</h3>
+<p><strong>Linearity and Additivity</strong> means that it is relatively simple to glean quite a lot of information from a linear regression table (see <a href="#tbl-trust-reg" class="quarto-xref">Table&nbsp;<span>5.3</span></a>).</p>
+<div class="callout callout-style-simple callout-note callout-titled" title="Data: 2020 Western States Survey">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Data: 2020 Western States Survey
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The examples throughout this chapter use the <strong>2020 Western States Survey (WSS)</strong>, a YouGov survey of 3,000 respondents across western U.S. states (Arizona, California, Colorado, Nevada, New Mexico, Idaho, Montana, Oregon, Utah, Washington, Wyoming), including a Latino oversample of 600 respondents. The sample was matched on gender, age, race, and education, and weighted using propensity scores and post-stratification. The survey was fielded around the 2020 presidential election.</p>
+<p><strong>Institutional trust</strong> is a composite of seven items, each measured on a 4-point scale (1 = no trust at all, 4 = a great deal of trust): trust in Congress, the President, the Supreme Court, the federal government, state legislatures, the police, and science. The composite averages across the seven items and is rescaled to 0–1.</p>
+<p><strong>Authoritarianism</strong> is the mean of four binary items (<code>auth_1</code>–<code>auth_4</code>), yielding a 0–1 scale where higher values indicate greater authoritarianism.</p>
+<p><strong>Party identification</strong> is a three-category measure: Republican, Independent, and Democrat, coded as dummy variables with Independents as the reference category.</p>
+</div>
+</div>
+<div id="tbl-trust-alpha" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-trust-alpha-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.2
+</figcaption>
+<div aria-describedby="tbl-trust-alpha-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">download.file</span>(<span class="st">"https://raw.githubusercontent.com/crweber9874/advancedRegression/main/data/wss20.rda"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">destfile =</span> <span class="st">"wss20.rda"</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"wss20.rda"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>wss20 <span class="ot">&lt;-</span> wss20 <span class="sc">|&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> contestation, <span class="at">values_from =</span> contestation_value) <span class="sc">|&gt;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">authoritarianism =</span> <span class="fu">rowMeans</span>(<span class="fu">cbind</span>(auth_1, auth_2, auth_3, auth_4), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">democrat =</span> <span class="fu">ifelse</span>(party_identification3 <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">republican =</span> <span class="fu">ifelse</span>(party_identification3 <span class="sc">==</span> <span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">independent =</span> <span class="fu">ifelse</span>(party_identification3 <span class="sc">==</span> <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Cronbach's alpha for the 7-item trust scale</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>trust_items <span class="ot">&lt;-</span> wss20 <span class="sc">|&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(trustCongress, trustPresident, trustSC, trustGovernment,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>         trustStateleg, trustPolice, trustScience) <span class="sc">|&gt;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>()</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">ncol</span>(trust_items)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>item_vars <span class="ot">&lt;-</span> <span class="fu">apply</span>(trust_items, <span class="dv">2</span>, var)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>total_var <span class="ot">&lt;-</span> <span class="fu">var</span>(<span class="fu">rowSums</span>(trust_items))</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> (k <span class="sc">/</span> (k <span class="sc">-</span> <span class="dv">1</span>)) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">sum</span>(item_vars) <span class="sc">/</span> total_var)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Cronbach's alpha for institutional trust (7 items):"</span>, <span class="fu">round</span>(alpha, <span class="dv">3</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Cronbach's alpha for institutional trust (7 items): 0.701 </code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>The alpha statistic measures internal consistency – how well the items in a scale hang together. Values above 0.70 are generally considered acceptable for a composite measure.</p>
+<div id="tbl-trust-reg" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-trust-reg-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.3
+</figcaption>
+<div aria-describedby="tbl-trust-reg-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build the trust composite and rescale to 0-1</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>wss20 <span class="ot">&lt;-</span> wss20 <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">trust_raw =</span> <span class="fu">rowMeans</span>(<span class="fu">cbind</span>(trustCongress, trustPresident, trustSC,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                               trustGovernment, trustStateleg, trustPolice,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                               trustScience), <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">institutional_trust =</span> (trust_raw <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">3</span>  <span class="co"># rescale from 1-4 to 0-1</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>fit_trust <span class="ot">&lt;-</span> <span class="fu">lm</span>(institutional_trust <span class="sc">~</span> survey_wave <span class="sc">+</span> presvote_trump_2020 <span class="sc">+</span> presvote_trump_2020<span class="sc">+</span>  authoritarianism , <span class="at">data =</span> wss20)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_trust)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = institutional_trust ~ survey_wave + presvote_trump_2020 + 
+    presvote_trump_2020 + authoritarianism, data = wss20)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.62223 -0.10847  0.01194  0.11696  0.56091 
+
+Coefficients:
+                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)          0.464002   0.008094  57.329  &lt; 2e-16 ***
+survey_wavepre      -0.024910   0.007787  -3.199  0.00139 ** 
+presvote_trump_2020  0.107560   0.007021  15.320  &lt; 2e-16 ***
+authoritarianism     0.050672   0.010055   5.040 4.95e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1755 on 2876 degrees of freedom
+  (720 observations deleted due to missingness)
+Multiple R-squared:  0.106, Adjusted R-squared:  0.105 
+F-statistic: 113.6 on 3 and 2876 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<p>Let’s use the institutional trust scale to illustrate the interpretation of coefficients. Both the dependent variable (institutional trust) and authoritarianism vary from 0 to 1, which makes interpretation straightforward: a one-unit change corresponds to moving from the minimum to the maximum of each scale.</p>
+<p><strong>It’s always a good idea to examine the scale and characteristics of your variables prior to more complex analysis.</strong></p>
+<p>Let’s take a closer look at the party identification variables. They are coded as binary indicators (0 or 1).</p>
+</section>
+</section>
+<section id="dummy-variables-and-categorical-predictors" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="dummy-variables-and-categorical-predictors"><span class="header-section-number">5.4</span> Dummy Variables and Categorical Predictors</h2>
+<p>OLS is restrictive in the sense that the dependent variable should generally be continuous, but the independent variables can be continuous or categorical.</p>
+<p>With a categorical predictor, we encode group membership using <strong>dummy variables</strong> – binary indicators coded 0 or 1. With <span class="math inline">\(k\)</span> categories, we include <span class="math inline">\(k-1\)</span> dummies; the omitted group serves as the <strong>reference category</strong>. Why omit one? One is is a perfect linear combination of the others.</p>
+<p>For instance, say party identification is coded as <span class="math inline">\(1 = Republican\)</span>, <span class="math inline">\(2 = Independent\)</span>, and <span class="math inline">\(3 = Democrat\)</span>. We shouldn’t include this as an independent variable, because it doesn’t make a lot of sense. <em>What is a unit change</em>? Is the movement from Republican to Independent the same as the movement from Independent to Democrat? Are Independents equidistant – in terms of ideology, voting, political behavior – from Republicans and Democrats?</p>
+<p>Instead, let’s not assume this restrictive structure and create <strong>dummy variables</strong> for each category. With <span class="math inline">\(k\)</span> categories, we include <span class="math inline">\(k-1\)</span> dummies; the omitted group serves as the <strong>reference category</strong>. Recall that in a regression model with an intercept this is the point when all the independent variables are 0. Well, an Independent according to this scheme is a case when both the Republican and Democrat dummies are 0. If we were to also include a dummy for Independents, then we would have perfect multicollinearity – the dummy variables would be perfectly linearly dependent on each other and the intercept.</p>
+<section id="intercept-shifts" class="level3" data-number="5.4.1">
+<h3 data-number="5.4.1" class="anchored" data-anchor-id="intercept-shifts"><span class="header-section-number">5.4.1</span> Intercept Shifts</h3>
+<p>Consider a model with a continuous predictor (authoritarianism) and party identification dummies (Republican, Democrat), with Independents as the reference category:</p>
+<p><span class="math display">\[
+Y_i = \alpha + \gamma_{\text{Rep}} D_{\text{Rep}} + \gamma_{\text{Dem}} D_{\text{Dem}} + \beta_{\text{Auth}} X_{\text{Auth}} + e_i
+\]</span></p>
+<p>The expected values for each group are:</p>
+<p><span class="math display">\[\begin{eqnarray*}
+E(Y \mid \text{Independent}) &amp;=&amp; \alpha + \beta_{\text{Auth}} X_{\text{Auth}} \\
+E(Y \mid \text{Republican}) &amp;=&amp; (\alpha + \gamma_{\text{Rep}}) + \beta_{\text{Auth}} X_{\text{Auth}} \\
+E(Y \mid \text{Democrat}) &amp;=&amp; (\alpha + \gamma_{\text{Dem}}) + \beta_{\text{Auth}} X_{\text{Auth}}
+\end{eqnarray*}\]</span></p>
+<p>The slope on authoritarianism is the <strong>same</strong> for every group – only the intercept shifts. The coefficients <span class="math inline">\(\gamma_{\text{Rep}}\)</span> and <span class="math inline">\(\gamma_{\text{Dem}}\)</span> represent the average difference in <span class="math inline">\(Y\)</span> between each group and the reference category (Independents), holding authoritarianism constant.</p>
+<p>While the choice of the baseline is arbitrary in terms of <span class="math inline">\(\hat{Y_i}\)</span>, it is meaningful in terms of how you interpret <span class="math inline">\(\gamma_1...\gamma_k\)</span>.</p>
+<div id="tbl-dummy-reg" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-dummy-reg-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.4
+</figcaption>
+<div aria-describedby="tbl-dummy-reg-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fit_dummy <span class="ot">&lt;-</span> <span class="fu">lm</span>(institutional_trust <span class="sc">~</span> authoritarianism <span class="sc">+</span> republican <span class="sc">+</span> democrat, <span class="at">data =</span> wss20)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_dummy)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = institutional_trust ~ authoritarianism + republican + 
+    democrat, data = wss20)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.60364 -0.11477  0.01496  0.12002  0.58308 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)      0.403791   0.008483  47.601  &lt; 2e-16 ***
+authoritarianism 0.052506   0.009472   5.543 3.20e-08 ***
+republican       0.147347   0.009239  15.949  &lt; 2e-16 ***
+democrat         0.044315   0.008715   5.085 3.88e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.1836 on 3427 degrees of freedom
+  (169 observations deleted due to missingness)
+Multiple R-squared:  0.1051,    Adjusted R-squared:  0.1044 
+F-statistic: 134.2 on 3 and 3427 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</figure>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-intercept-shift" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-intercept-shift-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="05-inference-variables_files/figure-html/fig-intercept-shift-1.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-intercept-shift-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.2: Intercept shifts by party identification. All three groups share the same slope on authoritarianism.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The three parallel lines in <a href="#fig-intercept-shift" class="quarto-xref">Figure&nbsp;<span>5.2</span></a> illustrate how the intercept moves about: all three groups share the same slope on authoritarianism, but they differ in their baseline levels of institutional trust.</p>
+</section>
+</section>
+<section id="revisiting-model-fit-r2-in-multiple-regression" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="revisiting-model-fit-r2-in-multiple-regression"><span class="header-section-number">5.5</span> Revisiting Model Fit: <span class="math inline">\(R^2\)</span> in Multiple Regression</h2>
+<p>Recall that we established that the total sum of squares can be decomposed into the regression and residual sum of squares: <span class="math inline">\(TSS = RegSS + RSS\)</span>:</p>
+<p><span class="math display">\[
+R^2 = 1 - \frac{RSS}{TSS} = 1 - \frac{\sum(Y_i - \hat{Y}_i)^2}{\sum(Y_i - \bar{Y})^2}
+\]</span></p>
+<p>A critical issue is that <span class="math inline">\(R^2\)</span> <strong>never decreases</strong> when you add a predictor – even a useless one.</p>
+<section id="adjusted-r2" class="level3" data-number="5.5.1">
+<h3 data-number="5.5.1" class="anchored" data-anchor-id="adjusted-r2"><span class="header-section-number">5.5.1</span> Adjusted <span class="math inline">\(R^2\)</span></h3>
+<p>We can adjust for this problem by using the <strong>adjusted <span class="math inline">\(R^2\)</span></strong>, which penalizes for model complexity. Adding predictors that explain little variation in <span class="math inline">\(y\)</span> may lead to a reduction in this value.</p>
+<p><span class="math display">\[
+\bar{R}^2 = 1 - \frac{RSS/(n-k-1)}{TSS/(n-1)} = 1 - (1-R^2)\frac{n-1}{n-k-1}
+\]</span></p>
+</section>
+<section id="the-overfitting-problem" class="level3" data-number="5.5.2">
+<h3 data-number="5.5.2" class="anchored" data-anchor-id="the-overfitting-problem"><span class="header-section-number">5.5.2</span> The Overfitting Problem</h3>
+<p><strong>In-sample</strong> fit (<span class="math inline">\(R^2\)</span>). This is the value we obtain from our regression model. The model parameters are estimated on these values of <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>. As we add more and more variables, <span class="math inline">\(R^2\)</span> increases. With <span class="math inline">\(n-1\)</span> predictors and <span class="math inline">\(n\)</span> observations, <span class="math inline">\(R^2 = 1\)</span>. It becomes difficult then to discern whether inclusion of a variable actually improves the model’s ability to explain variation in <span class="math inline">\(y\)</span>, or whether it just capitalizes on randomness in data. One solution – and a relatively simple one at that – is to estimate the model paramters on one dataset, and then evaluate the model’s performance on a different dataset.</p>
+<p><strong>Out-of-sample</strong> prediction measures how well the model generalizes to <em>new, unseen data</em>. What is our <span class="math inline">\(R^2\)</span> when we apply the model to a different dataset, using the parameter estimates from the original model? Is there a substantial discrepancy?</p>
+<p>If our <span class="math inline">\(R^2\)</span> is high in-sample but low out-of-sample, this suggests that the model is overfitting – it is capturing noise in the training data rather than the underlying signal. The gap between in-sample and out-of-sample performance is a diagnostic for overfitting.</p>
+</section>
+<section id="k-fold-cross-validation" class="level3" data-number="5.5.3">
+<h3 data-number="5.5.3" class="anchored" data-anchor-id="k-fold-cross-validation"><span class="header-section-number">5.5.3</span> K-Fold Cross-Validation</h3>
+<p>Cross-validation estimates out-of-sample prediction error using only the available data <span class="citation" data-cites="hastie2009">(<a href="#ref-hastie2009" role="doc-biblioref">Hastie, Tibshirani, and Friedman 2009</a>)</span>. The procedure works as follows.</p>
+<ol type="1">
+<li>Randomly partition the data into <span class="math inline">\(K\)</span> roughly equal-sized groups, called <strong>folds</strong></li>
+<li>For each fold <span class="math inline">\(k = 1, \ldots, K\)</span>: <strong>train</strong> the model on all data except fold <span class="math inline">\(k\)</span>. So if you partitioned the data into 3 folds, you might train the data on folds 1 and 2, and then test the model on fold 3. Next, you might train the model on folds 1 and 3, and test on fold 2. Finally, you might train the model on folds 2 and 3, and test on fold 1. In each case, you are training the model on a different subset of the data, and testing it on the remaining fold.</li>
+</ol>
+<p>More compactly, <strong>predict</strong> on fold <span class="math inline">\(k\)</span>, and compute <span class="math inline">\(\text{MSE}_k = \frac{1}{n_k}\sum_{i \in \text{fold } k}(Y_i - \hat{Y}_i)^2\)</span></p>
+<ol start="3" type="1">
+<li>Finally, average across folds: <span class="math inline">\(\text{CV}_{(K)} = \frac{1}{K}\sum_{k=1}^{K} \text{MSE}_k\)</span></li>
+</ol>
+<p>It’s common to see <span class="math inline">\(K = 10\)</span>. When <span class="math inline">\(K = n\)</span>, this is called <strong>leave-one-out cross-validation</strong> (LOOCV). It progresses in the same manner, but will instead iterate through the entire dataset, leaving one test observation out at a time.</p>
+<div class="callout callout-style-simple callout-note callout-titled" title="Why MSE and not $R^2$?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why MSE and not <span class="math inline">\(R^2\)</span>?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>It’s common to use the MSE rather than <span class="math inline">\(R^2\)</span> for cross-validation because <span class="math inline">\(R^2\)</span> is defined relative to <span class="math inline">\(\bar{Y}\)</span> and <span class="math inline">\(TSS\)</span> from the <em>training</em> data. When predicting on a held-out fold, that fold has its own <span class="math inline">\(\bar{Y}\)</span>. The MSE is useful because it just tells us how much we’re off on average.</p>
+</div>
+</div>
+<p>Note below that we’re doing a few things. First, we’re defining the number of folds. Then we’re sampling from these <span class="math inline">\(k\)</span> folds <span class="math inline">\(n\)</span> times to assign each unit to a fold. Next, we’re proceeding through a loop which simply defines the test and training set, calculates the MSE result, saves it, then moves on to the next fold. Finally, we display everything in a data frame.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>cv_data <span class="ot">&lt;-</span> wss20 <span class="sc">|&gt;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(institutional_trust), <span class="sc">!</span><span class="fu">is.na</span>(authoritarianism),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                           <span class="sc">!</span><span class="fu">is.na</span>(republican), <span class="sc">!</span><span class="fu">is.na</span>(democrat))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>folds <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>K, <span class="at">length.out =</span> <span class="fu">nrow</span>(cv_data)))</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>mse_simple <span class="ot">&lt;-</span> mse_full <span class="ot">&lt;-</span> <span class="fu">numeric</span>(K)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>K) {</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  train <span class="ot">&lt;-</span> cv_data[folds <span class="sc">!=</span> k, ]</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  test  <span class="ot">&lt;-</span> cv_data[folds <span class="sc">==</span> k, ]</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  fit_s <span class="ot">&lt;-</span> <span class="fu">lm</span>(institutional_trust <span class="sc">~</span> authoritarianism, <span class="at">data =</span> train)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  mse_simple[k] <span class="ot">&lt;-</span> <span class="fu">mean</span>((test<span class="sc">$</span>institutional_trust <span class="sc">-</span> <span class="fu">predict</span>(fit_s, test))<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  fit_f <span class="ot">&lt;-</span> <span class="fu">lm</span>(institutional_trust <span class="sc">~</span> authoritarianism <span class="sc">+</span> republican <span class="sc">+</span> democrat, <span class="at">data =</span> train)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  mse_full[k] <span class="ot">&lt;-</span> <span class="fu">mean</span>((test<span class="sc">$</span>institutional_trust <span class="sc">-</span> <span class="fu">predict</span>(fit_f, test))<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">Model =</span> <span class="fu">c</span>(<span class="st">"Authoritarianism only"</span>, <span class="st">"+ Party ID dummies"</span>),</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>           <span class="at">CV_MSE =</span> <span class="fu">round</span>(<span class="fu">c</span>(<span class="fu">mean</span>(mse_simple), <span class="fu">mean</span>(mse_full)), <span class="dv">4</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="tbl-cv-comparison" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-cv-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.5: 10-fold cross-validation MSE comparison.
+</figcaption>
+<div aria-describedby="tbl-cv-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">CV_MSE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Authoritarianism only</td>
+<td style="text-align: right;">0.0368</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">+ Party ID dummies</td>
+<td style="text-align: right;">0.0338</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>If the fuller model has lower CV-MSE (<a href="#tbl-cv-comparison" class="quarto-xref">Table&nbsp;<span>5.5</span></a>), it genuinely improves prediction – not just in-sample fit.</p>
+<p><span class="math display">\[
+\text{RMSE} = \sqrt{0.6143} \approx 0.78
+\]</span></p>
+</section>
+<section id="the-lewis-beck-vs.-achen-debate" class="level3" data-number="5.5.4">
+<h3 data-number="5.5.4" class="anchored" data-anchor-id="the-lewis-beck-vs.-achen-debate"><span class="header-section-number">5.5.4</span> The Lewis-Beck vs.&nbsp;Achen Debate</h3>
+<p>Scholars disagree about the role of <span class="math inline">\(R^2\)</span> in evaluating models. Recall that<strong>Lewis-Beck and Skalaban (1990)</strong> argued that <span class="math inline">\(R^2\)</span> is a useful and informative measure of model fit: a high <span class="math inline">\(R^2\)</span> indicates that the model accounts for a substantial share of variance in <span class="math inline">\(Y\)</span>, and comparing <span class="math inline">\(R^2\)</span> across models helps assess whether new predictors contribute. They emphasize that it serves as useful, comparable metric to compare how well a linear regression model performs.</p>
+<p><strong>Achen (1982, 1990)</strong> countered that <span class="math inline">\(R^2\)</span> is misleading and overemphasized. The argument is strongly tied to the notion of overfitting.</p>
+<ul>
+<li><span class="math inline">\(R^2\)</span> depends on the variance of <span class="math inline">\(X\)</span> in the sample – the same causal effect can yield very different <span class="math inline">\(R^2\)</span> values in different datasets</li>
+<li>Researchers may observe inflated <span class="math inline">\(R^2\)</span> by choosing samples with high variance in <span class="math inline">\(X\)</span>, or by adding irrelevant predictors</li>
+<li><span class="math inline">\(R^2\)</span> does not measure <em>causal</em> impact and may not be useful for testing substantively important theories in our field.</li>
+</ul>
+<p>The middle ground: <span class="math inline">\(R^2\)</span> is useful for <strong>prediction</strong> – how well does the model forecast <span class="math inline">\(Y\)</span>? Adjusted <span class="math inline">\(R^2\)</span> and cross-validation are better tools for model comparison than raw <span class="math inline">\(R^2\)</span>. Methods like cross-validation are more robust are also quite helpful to sort out whether a new predictor genuinely improves the model’s ability to predict <span class="math inline">\(Y\)</span>.</p>
+</section>
+</section>
+<section id="inference-about-the-population-regression-function" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="inference-about-the-population-regression-function"><span class="header-section-number">5.6</span> Inference about the Population Regression Function</h2>
+<p>We now have established the tools necessary to make inferences about the PRF.</p>
+<p>From the bivariate regression, recall the estimated variances of the slope and intercept. Note the “hat” notation (<span class="math inline">\(\hat{}\)</span>) – we use hats throughout to signify that a quantity is <em>estimated</em> from the sample rather than known from the population. So <span class="math inline">\(\hat{\sigma^2}\)</span> is our estimate of the error variance, and <span class="math inline">\(\hat{var(b)}\)</span> is the estimated sampling variance of the slope coefficient. The same notation applies to <span class="math inline">\(\hat{b}\)</span>, which is the estimated population slope coefficient.</p>
+<p><span class="math display">\[\begin{eqnarray*}
+\hat{var(b)} &amp;=&amp;  \frac{\hat{\sigma^2}}{\sum x_i^2}\\
+\hat{var(a)} &amp;=&amp;  \frac{\hat{\sigma^2} \sum x_i^2}{n\sum x_i^2}\\
+\end{eqnarray*}\]</span></p>
+<p>Then, construct a <span class="math inline">\(100(1-\alpha)\%\)</span> confidence interval:</p>
+<p><span class="math display">\[\begin{eqnarray*}
+\beta &amp;=&amp;  b\underline{+}t_{\alpha/2}SE(b)
+\end{eqnarray*}\]</span> Locate <span class="math inline">\(t_{\alpha/2}\)</span> using the student’s t-distribution with <span class="math inline">\(n-k-1\)</span> degrees of freedom (<span class="math inline">\(k\)</span> corresponds to number of IVs). The procedure is <strong>identical</strong> to t-testing in the single variable case. Instead, our goal is inference about the PRF from the SRF.</p>
+<p>It’s useful to think about how this logic and procedure is essentially identical to what you encountered in POL 681 regarding a single variable (a mean, and an inference about the population mean; remember the CLT). Likewise, we might conduct the <strong>Null Hypothesis Test</strong>, where for instance:</p>
+<p><span class="math display">\[H_a:\beta_k&lt;0\]</span> <span class="math display">\[H_0:\beta_k\underline{&gt;}0\]</span></p>
+<p>We use the standard error to generate a confidence interval and determine whether to reject or retain the null.</p>
+<p>As such, we could conduct one or two tailed hypothesis tests. If our expectation is that <span class="math inline">\(\beta\)</span> is positive, for instance, we might formulate:</p>
+<p><span class="math display">\[H_a:\beta_k&gt;0\]</span> <span class="math display">\[H_0:\beta_k\underline{&lt;}0\]</span></p>
+<p>If our expectation is that <span class="math inline">\(\beta\)</span> is negative, an inverse relationship:</p>
+<p><span class="math display">\[H_a:\beta_k&lt;0\]</span> <span class="math display">\[H_0:\beta_k\underline{&gt;}0\]</span></p>
+<p>Or, perhaps we cannot posit one way or another, and construct a two-tailed test.</p>
+<p><span class="math display">\[H_a:\beta_k \neq 0\]</span> <span class="math display">\[H_0:\beta_k = 0\]</span></p>
+<p>The t-statistic is distributed with <span class="math inline">\(n-k-1\)</span> degrees of freedom. If the computed value falls in the critical region, reject the null.</p>
+</section>
+<section id="additional-tests" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="additional-tests"><span class="header-section-number">5.7</span> Additional Tests</h2>
+<p>The steps required to calculate hypothesis tests and confidence intervals are the same as with a single variable. We could test <span class="math inline">\(H_0: \beta_1=\beta_2....\beta_k\)</span>, by comparing the <span class="math inline">\(R^2\)</span> of nested models.</p>
+<p><em>Model 1:</em> <span class="math inline">\(Y_i=\alpha+\beta_1X_1+\epsilon_i\)</span></p>
+<p><em>Model 2:</em> <span class="math inline">\(Y_i=\alpha+\beta_1 X_1+ \beta_2 X_2 +\epsilon_i\)</span></p>
+<p>And model 2, <span class="math inline">\(Y_i=\alpha+\beta_1 X_1+ \beta_2 X_2 +\epsilon_i\)</span>. The first model is nested within the second model, because <span class="math inline">\(\beta_2\)</span> is assumed to be 0.</p>
+<p><span class="math display">\[\begin{eqnarray*}
+F &amp;=&amp;\frac{RegSS_1-RegSS_2/q}{RSS_1/n-k-1}, where\\
+&amp;&amp;F \sim F[q, n-k-1]\\
+\end{eqnarray*}\]</span></p>
+</section>
+<section id="summary" class="level2" data-number="5.8">
+<h2 data-number="5.8" class="anchored" data-anchor-id="summary"><span class="header-section-number">5.8</span> Summary</h2>
+<p>This chapter reviewed the foundations of inference about the population regression function. In regression analysis, it is important to understand the characteristics of the variables that constitute the model. How variables are scaled influence the interpretation of the coefficients. The additive model – with its intercept shifts and parallel slopes – is a powerful starting point, but it assumes the effect of every predictor is constant across groups. In the next chapter, we relax this assumption by introducing <strong>interactions</strong>, which allow slopes to differ across groups or to vary with the level of another predictor.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-hastie2009" class="csl-entry" role="listitem">
+Hastie, Trevor, Robert Tibshirani, and Jerome Friedman. 2009. <em>The Elements of Statistical Learning: Data Mining, Inference, and Prediction</em>. 2nd ed. New York: Springer. <a href="https://doi.org/10.1007/978-0-387-84858-7">https://doi.org/10.1007/978-0-387-84858-7</a>.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/crweber9874\.github\.io\/linear_regression_class\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./04-matrix.html" class="pagination-link" aria-label="Multivariate Regression and Linear Algebra">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multivariate Regression and Linear Algebra</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./06-interactions.html" class="pagination-link" aria-label="Interactions and Non-Additivity">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Interactions and Non-Additivity</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

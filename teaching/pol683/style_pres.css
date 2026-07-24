@@ -1,0 +1,22 @@
+/* custom.css */
+
+/* Change background color */
+.reveal {
+  background-color:  "white";
+
+}
+
+/* Change font color */
+.reveal .slides {
+  color: black;
+}
+
+/* Change title color */
+.reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+  color: #0C234B;
+}
+
+/* Change link color */
+.reveal a {
+  color: #378DBD;
+}

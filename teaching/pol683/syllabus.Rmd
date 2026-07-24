@@ -1,0 +1,359 @@
+---
+---
+---
+
+# Syllabus
+
+## POL 683: Advanced Regression Analysis {.unnumbered}
+
+### Fall 2025 {.unnumbered}
+
+Tuesdays 4:00PM - 6:30PM
+
+**Instructor:**
+
+Christopher Weber, PhD   
+School of Government and Public Policy  
+University of Arizona 333 
+Social Sciences Building  
+[chrisweber\@arizona.edu](mailto:chrisweber@arizona.edu){.email}
+
+Office Hours: T 12:00PM-1:30PM (and by appointment).
+
+## Course Description  
+
+The purpose of this course is to introduce students to advanced techniques in regression, statistical computation, and techniques in scientific reproducibility and transparency. Students in this course should be very familiar with linear regression, as well as the Gauss-Markov assumptions underlying the classical linear model (i.e., POL 682). In this course, we will consider a variety of regression techniques for categorical and limited data. It is essential to remain up-to-date on the readings, as well as apply the reviewed methods to existing data.
+
+The course will progress through several related sections. The first part will focus on several theoretical factors pertaining to statistical inference. We will start by considering two fundamental approaches underlying inference, the likelihood principle and Bayes' rule. We will also re-consider the linear model, the Gauss-Markov assumptions, and we will review several concepts and statistical distributions. In this section we will also consider the practical trade off researchers encounter pertaining to efficiency and bias.
+
+In the second section, we will move to discrete dependent and limited variables. In practice, it is quite rare to encounter dependent variables that are continuous and normally distributed. In circumstances with binary, ordinal, and other multicategory dependent variables, the Gauss-Markov assumptions will be violated, thus rendering OLS an inappropriate choice. At this juncture, we will use both maximum likelihood (ML) and Bayesian methods to estimate logit, probit, multinomial logit/probit, and ordinal logit/probit models.
+
+Political scientists often encounter datasets that involve event counts (e.g., war casualties, number of conflict events, elections won by a candidate). These variables rarely follow a normal distribution; instead, they are heavily skewed. After the logit/probit weeks, we'll consider several type of count-oriented regression models, including the Poisson, Negative Binomial, and "Hurdle" models. We will then transition to censored and sample selection models.
+
+In the final section, we will consider a variety of topics that extend the models from the previous weeks. For instance, "endogeneity" is a common problem to arise in applied settings -- an independent variable is correlated with the error term. We'll look this problem in several ways, followed with several common solutions. We will examine two-stage least squares, three-stage least squares, and matching methods. Finally, we will examine hierarchical models.
+
+Three major points need to be emphasized. First, many of the statistical methods build on models discussed in previous weeks. It is essential to keep up-to-date on readings, and if there is something that confuses you, please see me as soon as possible. Second, I find that the best way to learn these techniques is to implement them. I strongly recommend you find a dataset and work with this dataset throughout the semester. Even if your analysis is not always substantively interesting, at the very least, you will have the code for future use. Third, I strongly encourage you to give yourself sufficient time to complete the course requirements. One of the worst ways to learn statistics is through cramming and completing assignments at the very last minute. As you likely know, I am flexible with due dates and generally accept late assignments. Don't take advantage of this policy! Handing things in late and consistently placing other obligations before this class has the potential to adversely impact what you learn.
+
+### Learning Objectives  
+
+In this class, students will complete the following.
+
+-   Identify the tools involved in advanced regression analysis.
+
+-   Use these methods in applied settings.
+
+-   Understand the appropriate regression analysis in various settings.
+
+## Course Readings and Software
+
+Long, J. Scott. 1997. *Regression Models for Categorical and Limited Dependent Variables*. Sage: New York.
+
+- McElreath, Richard 2020. Statistical Rethinking: A Bayesian Course with Examples in Stan and R.Cambridge: Cambridge University Press.
+
+I have assigned a number of journal articles, which may be accessed through the University of Arizona Library. They are all available for download through JSTOR and/or e-journals.
+
+**Recommended Readings**
+
+- Eliason, Scott. 1993. Maximum Likelihood Estimation: Logic and Practice. Thousand Oaks, CA: Sage.
+
+- Fox, John. 2008. Applied Regression Analysis and Generalized Linear Models, Second Edition. Thousand Oaks, California: Sage.
+
+- Gelman, Andrew, John Carlin, Hal Stern, David Dunson, Aki Vehtari, and Donald Rubin. 2014. Bayesian Data Analysis, Third Edition. CRC Press: New York.
+
+- King, Gary. 1998. Unifying Political Methodology: The Likelihood Theory of Statistical Inference. Michigan University Press: Ann Arbor.
+
+- Berry, William and Stanley Feldman. 1985 Multiple Regression In Practice. Newbury, CA: Sage.
+
+- Gelman, Andrew and Jennifer Hill. 2007.Data Analysis Using Regression and Multilevel/Hierarchical Models. Cambridge: Cambridge University Press.
+
+- William H. Greene. Econometric Analysis, 8th Edition. New York: Pearson. (From 682)
+
+**Statistical Software**
+
+There are many statistical software packages available, all of which will perform the functions explored in this class. We will be relying on *R*, a free statistical program available for Mac, Windows, and Linux. R may be downloaded from the CRAN website (<http://www.r-project.org>). The CRAN site also includes a variety of user's manuals, which I suggest you consult early in the semester (if you are unfamiliar with the R language).
+
+We will explore a variety of R functions throughout the semester. I will assume that you know the basics, such as opening a dataset, accessing variables, and creating new variables. I will also assume that you can run and estimate simple linear regression models, manipulate/recode data, and access saved objects.
+
+We will also rely heavily on the $\texttt{stan}$ language for Bayesian models. Stan can be run on a variety of platforms; I would recommend using R. Please follow the instructions on this page:
+
+[*https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started*](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started){.uri}
+
+Also, download and start following the $\texttt{stan}$ User's Manual:
+
+[*http://mc-stan.org/documentation/*](http://mc-stan.org/documentation/){.uri}
+
+I strongly recommend you install Stan in the first week of the semester. Occasionally, problems arise. These should be addressed early in the semester.
+
+There is a really easy-to-use package in R called $\texttt{brms}. We'll use it throughout the term -- it follows the structure of a $\texttt{lm}$ call, but compiles and runs a stan regression model.
+
+**Open Science**
+
+This class strives to advance an open science framework, a shift in the basic and social sciences to make research, data, code, and publications open and accessible. In this class, we will discuss scientific techniques that promote collaboration, transparency, and reproducibility. This means we will generally rely on free tools -- like R -- public repositories and develop research protocols that are transparent and well documented. In practice, this means:
+
+-   We will regularly use open source software, like $\texttt{R}$.
+
+-   We will develop open source code, by posting code on $\texttt{github}$.
+
+-   We will generate modular computer code.
+
+-   We will generate code that produces reproducible examples.
+
+-   We will generate clear clear documentation.
+
+-   In addition to a variety of packages in R, we will rely on one built for this class (and very much, in production). It is called $\texttt{advancedRegression}$. You will periodically need to re-install package, as we'll make updates through the semester.
+
+**Collaboration**. I tend to find that the most useful way to learn statistics is to practice statistics. I suspect this class will be far easier if you take the time (i.e., a few hours every week) to implement the procedures we discuss in class. I will make most of my code for this class available through github. We'll spend some time on basic github operations in this cousre, so there is no need to set up anything in advance (simply be sure you have a github acct.)
+
+**$\texttt{Github}$** is a tool for version control and collaboration. You should create agithub user account during the first week, in addition to acquainting yourself with the service. Please also read some of the online tutorials regarding github and how to set it up with Rstudio orR. If you use an email other than your University of Arizona email, please let me know.
+
+## Expectations and Grades
+
+-  If you feel sick, or may have been in contact with someone who is infectious, stay home. Except for seeking medical care, avoid contact with others and do not travel.
+
+- The UA policy regarding absences on and accommodation of religious holidays is available here: (<http://deanofstudents.arizona.edu/religiousobservanceandpractice>. Visit the UArizona COVID-19 page for regular updates.
+
+- Life challenges: If you are experiencing unexpected barriers to your success in your courses, please note the Dean of Students Office is a central support resource for all students and may be helpful. The Dean of Students Office can be reached at 520-621-2057 or [DOS-deanofstudents\@email.arizona.edu](mailto:DOS-deanofstudents@email.arizona.edu){.email}.
+
+- Physical and mental-health challenges: If you are facing physical or mental health challenges this semester, please note that Campus Health provides quality medical and mental health care. For medical appointments, call (520-621-9202. For After Hours care, call (520) 570-7898. For the Counseling and Psych Services (CAPS) 24/7 hotline, call (520) 621-3334.
+
+- Equipment and software requirements: For this class you will need daily access to the following hardware: laptop or web-enabled device with webcam and microphone; regular access to reliable internet signal; ability to download and run the following software: $\texttt{R/RStudio}$. You should install $\texttt{rstan}$, $\texttt{tidy}$, $\texttt{dplyr}$, $\texttt{ggplot2}$, $\texttt{pscl}$, and nnet packages within the first week of the course.
+
+- Staying current: You are required to complete course assignments by the due date.
+
+- Students who turn in an assignment on the due date but after the beginning of class will lose a minimum of one letter grade. An additional letter grade will be deducted for each day the assignment is late. Depending on where we are in the class, I may decide to alter a due date. Any changes will be announced in classes. Makeup exams or assignments will be allowed only in the case of university excused absences. Again, documentation must be provided.
+
+- Threatening behavior is unacceptable and will be reported. The Arizona Board of Regents’ Student Code of Conduct, ABOR Policy 5-308, prohibits threats of physical harm to any member of the University community, including to one's self. See: <http://policy.arizona.edu/threatening-behavior-students>.
+
+- It is the University's goal that learning experiences be as accessible as possible. If you anticipate or experience physical or academic barriers based on disability, please let me know immediately so that we can discuss options. You are also welcome to contact Disability Resources (520-621-3268) to establish reasonable accommodations. Please be aware that the accessible table and chairs in this room should remain available for students who find that standard classroom seating is not usable.
+
+- It is your responsibility to complete all works assigned in this course (e.g., tests, assignments) in full observation of the Student Code of Academic Integrity. Students are encouraged to share intellectual views and discuss freely the principles and applications of course materials. However, graded work/exercises must be the product of independent effort unless otherwise instructed. Students are expected to adhere to the UA Code of Academic Integrity as described in the UA General Catalog. See: <http://deanofstudents.arizona.edu/codeofacademicintegrity>.
+
+- In addition, the University Libraries have some excellent tips for avoiding plagiarism available at: [www.library.arizona.edu/help/tutorials/plagiarism/index.html](http://\url%7Bwww.library.arizona.edu/help/tutorials/plagiarism/index.html){.uri}.
+
+- According to Section D (6) (a) of the University's Intellectual Property Policy (which is available at <http://www.ott.arizona.edu/uploads/ip_policy.pdf>. faculty own the intellectual property for their course notes and course materials. The instructor holds the copyright to his/her lectures and course materials, including student notes or summaries that substantially reflect them. Student notes and course recordings are for individual use or for shared use on an individual basis. Selling class notes and/or other course materials to other students or to a third party for resale is not permitted without the instructor’s express written consent. Violations to the instructor’s copyright are subject to the Code of Academic Integrity and may result in course sanctions. Additionally, students who use D2L or UA email to sell or buy these copyrighted materials are subject to Code of Conduct Violations for misuse of student email addresses.
+
+- For more information on the confidentiality of student records, please see <http://www.registrar.arizona.edu/ferpa/default.htm>
+
+-  Requests for incompletes (I) and withdrawal (W) must be made in accordance with university policies which are available at <http://catalog.arizona.edu/2012-13/policies/grade.htm#I> and <http://catalog.arizona.edu/2012-13/policies/grade.htm#W>, respectively.
+
+-  The UA's policy concerning Class Attendance and Administrative Drops is available at: <http://catalog.arizona.edu/2012-13/policies/classatten.htm>
+
+### Grades
+
+90%-100% A
+
+80%-89% B
+
+70%-79% C
+
+60%-69% D
+
+59% and below E
+
+**Graded Items**
+
+| **Component** | **Description** | **Percent of Final Grade** |
+|------------------------|------------------------|------------------------|
+| Midterm Paper | Literature review, analytic plan for final paper | 15% |
+| Midterm Exam | Short Answer/Problems | 25% |
+| Final Exam |  Short Answer/Problems | 25% |
+| Final Paper | Full research paper | 25% |
+| Final Paper Presentation | 12-15 minute conference style presentation| 10% |
+
+### File Uploads
+
+Please upload all assignments here: <https://arizona.box.com/s/2ktlg1w6ifbz0z2cqtitev5q0vj89jdl>
+
+### Description of Graded Items
+
+Written projects comprise 40% percent of your grade. For both the midterm and the final project, you will apply the techniques from this class to an actual data. The midterm paper consists of the literature review and analytic plan for your final paper. You should complete an 8-10 paper that reviews the research in the relevant area, and then describes your empirical strategy. Be sure to outline the data you will use, the variables you will include, and the models that you propose to estimate. It is advised to meet with me periodically throughout the semester to discuss your project. 
+
+The final paper should be a complete research paper, including introduction, literature review, theory/hypotheses, data/methods, results, and conclusion. The paper should build on your midterm paper. For both projects, you are free to choose the topic, but you must be able to provide me with the data used in your report. Your code should be shared on $\texttt{github}$ If you or your advisor has proprietary data which I cannot access, you should not use this. I must be able to verify that you did all the necessary calculations honestly and accurately, which requires me being able to access any data you use. Also, if you rely on your own data, you must adhere to the University of Arizona's Institutional Review Board requirements.
+
+The paper should include all the elements of a research paper. That said, my primary interest rests in your analyses. I ask that you be quite thorough when presenting the results. It is not sufficient to just run a regression and present the point estimates. Your paper should include detailed interpretation, robustness checks, and post-estimation clarification (which often come in the form of graphics). It should be a high quality paper; if you would not be comfortable presenting it at a conference, you should not feel comfortable handing it in for a grade. *Do not just cut and paste R output. Tables and figures should be presented in a professional manner. I will deduct points for cut-and-pasted output from R.*
+
+Your statistical models should be theoretically informed. I do not require a full-fledged introduction/literature review, though you should spend a page or two briefly describing the relevant literature. It is essential to include the formal hypotheses you will test, which should relate to this one/two page review. I will need to verify that your empirical tests match your expectations. Please follow American Psychological Association (APA) style or American Journal of Political Science (AJPS) style. The references should appear at the end of your manuscript. Please do not place the references in footnotes.
+
+There will be a midterm exam (25%) and a final exam (25%). The final will be cumulative, and will cover all material from the semester. The midterm and final should be completed in-class. You may use your notes and the course materials to complete the both exams. The exam must be completed independently.
+
+### Important Due Dates for Graded Material
+
+Please adhere to the following due dates.
+
+-   October 28: Midterm Exam (in-class).
+
+-   November 11: Midterm project is due.
+
+-   December 15: Final Exam (in-class).
+
+-   December 16: Final Project. Please upload to D2L.
+
+<https://arizona.box.com/s/2ktlg1w6ifbz0z2cqtitev5q0vj89jdl>
+
+## Course Outline
+
+Please read all assigned readings prior to the listed meeting times. Please note that the course schedule is subject to change at my discretion. You are responsible for announced changes.
+
+*Key*
+
+$\bullet$ indicates a required reading
+
+$\rightarrow$ indicates a recommended reading
+
+$\star$ indicates an assignment.
+
+### Introduction {.unnumbered}
+
+**Week 1 (8/26)**: Introduction
+
+$\bullet$ Long, Chapter 1.
+
+$\bullet$ McElreath, Chapter 1
+
+
+**Week 2 (9/2)**: Introduction to Maximum Likelihood and the Generalized Linear Model, I
+
+$\bullet$ Long, Chapter 2.
+
+$\bullet$ McElreath, Chapter 2
+
+$\rightarrow$ Gelman and Hill, Chapters 3 and 4.
+
+**Week 3 (9/9)**: Introduction to Maximum Likelihood and the Generalized Linear Model, II
+
+$\bullet$ Long, Chapter 3.
+
+$\bullet$ McElreath, Chapter 3
+
+$\rightarrow$ Eliason, Scott R. 1993. Maximum Likelihood Estimation: Logic and Practice. Sage Monographs.
+
+$\rightarrow$ Fox, John. 2008. Applied Regression Analysis and Generalized Linear Models, Second Edition. Sage: New York. Chapter 15.
+
+### Building a Statistical Model {.unnumbered}
+
+**Week 4 (9/16)**: Building a Model
+
+$\bullet$ McElreath, Chapter 4, and (pp. 323 - 345)
+
+$\bullet$ Freedman, Paul, Michael Franz, and Kenneth Goldstein. 2004. "Campaign Advertising and Democratic Citizenship." American Journal of Political Science, 48(4): 723-741.
+
+$\bullet$ King, Gary and Langche Zeng. 2001. "Logistic Regression in Rare Events Data." Political Analysis, 9(2): 137-173.
+
+$\rightarrow$ John Fox. 2008. Applied Regression Analysis and Generalized Linear Models, Second Edition. Sage: New York. Chapter 14.
+
+$\rightarrow$ King, Chapters 5, 6.
+
+### Estimation and Model Fit {.unnumbered}
+
+**Week 5 (9/23)**: Estimation, Prediction, Simulation
+
+$\bullet$ McElreath, Chapter 5
+
+$\bullet$ King, Gary, Michael Tomz and Jason Wittenberg. 2000. "Making the Most of Statistical Analyses: Improving Estimation and Interpretation." American Journal of Political Science 44(2): 341-355.
+
+$\bullet$ Greenhill, Brian, Michael Ward, and Audrey Sacks. 2011. "The Separation Plot: A New Visual Method for Evaluating the Fit of Binary Models." American Journal of Political Science, 55(4): 991-1002.
+
+$\bullet$ Herron, Michael. 2000. "Post Estimation Uncertainty in Limited Dependent Variable Models." Political Analysis, 8(1): 83-98.
+
+### Simulation Based Approaches {.unnumbered}
+
+**Week 6 (9/30)**: Introduction to Causal Inference and the Directed Acyclic Graph (DAG)
+
+$\bullet$ McElreath, Chapter 6
+
+$\bullet$ Jackman, Simon. 2000. "Estimation and Inference via Bayesian Simulation: An Introduction to Markov-Chain Monte Carlo." American Journal of Political Science, 44(2): 375-404.
+
+$\bullet$ Western, Bruce and Simon Jackman. 1994. "Bayesian Inference for Comparative Research." American Political Science Review, 88(2): 412-423.
+
+$\bullet$ Adrian Raftery. 1995. "Bayesian Model Selection in Social Research." Sociological Methodology, 25, 111-163.
+
+$\rightarrow$ Stan User's Manual, Chapter 6.
+
+$\rightarrow$ Fox, John. 2008. Applied Regression Analysis and Generalized Linear Models, Second Edition. Sage: New York. Chapter 22.
+
+
+### Models with Multi-category Discrete Variables {.unnumbered}
+
+**Week 7 (10/7)**: Multicategory models
+
+$\bullet$ Long, Chapters 5 and 6
+
+$\bullet$ McElreath, pp. 359 - 368
+
+$\bullet$ Alvarez, Michael and Jonathan Nagler. 1998. "When Politics and Models Collide: Estimating Models of Multiparty Elections." American Journal of Political Science, 42(1): 55-96.
+
+**Count Data**
+
+**Week 8 (10/14)**:
+
+$\bullet$ Long, Chapter 8.
+
+$\bullet$ McElreath, pp. 345-359; pp. 369-380
+
+$\bullet$ King, Gary. 1988. "Statistical Models for Political Science Event Counts: Bias in Conventional Procedures and Evidence for the Exponential Poisson Regression Model." American Journal of Political Science, 32(3): 838-863.
+
+**Week 9 (10/21)**: Poisson, Overdispersion, and Underdispersion
+
+$\bullet$ McElreath, pp. 369-380
+
+$\bullet$ Wilson, Matthew and James Piazza. 2013. "Autocracies and Terrorism: Conditioning Effects of Authoritarian Regime Type on Terrorist Attacks." American Journal of Political Science, 57(4): 941-955.
+
+$\bullet$ Box-Steffensmeier, Janet M., and Bradford S. Jones. 1997. "Time is of the Essence: Event History Models in Political Science." American Journal of Political Science, 41(4): 1414-1461.
+
+
+**Week 10 (10/28): Midterm Exam**
+
+**Midterm Exam.** You may use notes and/or the textbook, though no computers, tablets, or phones may be used. (Frankly, AI does a great job answering my questions, and I need to protect the integrity of the exam). The exception is your phone can be used as a calculator.
+
+**Censored Data and Selection Bias**
+
+**Week 11 (11/4)**: Censoring, Selection Bias
+
+$\bullet$ Long, Chapter 7.
+
+$\bullet$ Goren, Paul, Christopher Federico and Miki Caul Kittilson. 2009. "Source Cues, Partisan Identities, and Political Value Expression." American Journal of Political Science, 53(4): 805-820.
+
+$\bullet$ Boehmke, Frederic, Daniel Morey, and Megan Shannon. 2006. "Selection Bias and Continuous-Time Duration Models: Consequences and Proposed Solutions." American Journal of Political Science, 50(1): 192-207.
+
+**Week 12 (11/11)**: No Class, Veteran's Day
+
+$\star$ Midterm paper is due by 11/12, 5PM. Upload to our class $\texttt{UABox}$ folder: <https://arizona.box.com/s/2ktlg1w6ifbz0z2cqtitev5q0vj89jdl>
+
+### Multilevel Data Structures {.unnumbered}
+
+**Week 13 (11/18)**: Multilevel Analysis, Continued
+
+$\bullet$ McElreath, Chapter 13
+
+
+**Week 14 (11/25):** Multilevel Analysis, Continued
+
+$\bullet$ McElreath, Chapter 14.
+
+$\bullet$ Steenbergen, Marco and Bradford Jones. 2002. "Modeling Multilevel Data Structures." American Journal Political Science, 46(1): 218-237.
+
+$\bullet$ Stegmuller, Daniel. 2014."How Many Countries for Multilevel Modeling? A Comparison of Frequentist and Bayesian Approaches."American Journal Political Science, 57(3): 748-761.
+
+**Regularization and Non-Linearity**
+
+**Week 15 (12/2)**: The Ridge and Lasso Models
+
+$\bullet$ McElreath, Chapter 7
+
+$\bullet$ Please read Chapter 6 in An Introduction to Statistical Learning. This chapter can be downloaded for free here: [http://web.stanford.edu/\\\~hastie/pub.htm](http://web.stanford.edu/~hastie/pub.htm){.uri}
+
+$\bullet$ Please read Chapter 5 in The Elements of Statistical Learning, Chapter 5. This chapter can be downloaded for free here: [http://web.stanford.edu/\\\~hastie/pub.htm](http://web.stanford.edu/~hastie/pub.htm){.uri}
+
+**Week 16 (12/9)**:
+
+$\bullet$ Gelman and Hill, Chapter 20.
+
+$\star$ Class presentation. Please upload your slides to <https://arizona.box.com/s/2ktlg1w6ifbz0z2cqtitev5q0vj89jdl>
+
+### End of Semester {.unnumbered}
+
+$\star$ **Final** **Exam**. You may use notes and/or the textbook, though no computers, tablets, or phones may be used. (Frankly, AI does a great job answering my questions, and I need to protect the integrity of the exam). The exception is your phone or tablet may be used as a calculator. The exam will take place on Monday, 12/15 from 6-8PM in our regular classroom.
+
+$\star$ **Final Paper** is due by 12/16, 5PM. Please upload paper to \url{https://arizona.box.com/s/2ktlg1w6ifbz0z2cqtitev5q0vj89jdl} and code should be uploaded to your personal github repository.
+
+**Have a wonderful break**

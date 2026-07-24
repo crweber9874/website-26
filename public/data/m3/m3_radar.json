@@ -1,0 +1,646 @@
+{
+  "meta": {
+    "file_date": "2024-07-19",
+    "source": "avp_survey.rda",
+    "min_cell": 25,
+    "generated": "2026-07-22"
+  },
+  "rows": [
+    {
+      "party": "Dem",
+      "measure": "affpol",
+      "label": "Affective polarization",
+      "value_pct": 62.5
+    },
+    {
+      "party": "Ind",
+      "measure": "affpol",
+      "label": "Affective polarization",
+      "value_pct": 35.7
+    },
+    {
+      "party": "Rep",
+      "measure": "affpol",
+      "label": "Affective polarization",
+      "value_pct": 56.3
+    },
+    {
+      "party": "Dem",
+      "measure": "inwarm",
+      "label": "In-party warmth",
+      "value_pct": 73.7
+    },
+    {
+      "party": "Ind",
+      "measure": "inwarm",
+      "label": "In-party warmth",
+      "value_pct": 52.4
+    },
+    {
+      "party": "Rep",
+      "measure": "inwarm",
+      "label": "In-party warmth",
+      "value_pct": 66.1
+    },
+    {
+      "party": "Dem",
+      "measure": "outneg",
+      "label": "Out-party negativity",
+      "value_pct": 87.7
+    },
+    {
+      "party": "Ind",
+      "measure": "outneg",
+      "label": "Out-party negativity",
+      "value_pct": 87
+    },
+    {
+      "party": "Rep",
+      "measure": "outneg",
+      "label": "Out-party negativity",
+      "value_pct": 86
+    },
+    {
+      "party": "Dem",
+      "measure": "tolerance",
+      "label": "Political tolerance",
+      "value_pct": 51.3
+    },
+    {
+      "party": "Ind",
+      "measure": "tolerance",
+      "label": "Political tolerance",
+      "value_pct": 51.9
+    },
+    {
+      "party": "Rep",
+      "measure": "tolerance",
+      "label": "Political tolerance",
+      "value_pct": 50.1
+    },
+    {
+      "party": "Dem",
+      "measure": "dem_norms",
+      "label": "Democratic norms",
+      "value_pct": 63.5
+    },
+    {
+      "party": "Ind",
+      "measure": "dem_norms",
+      "label": "Democratic norms",
+      "value_pct": 54.6
+    },
+    {
+      "party": "Rep",
+      "measure": "dem_norms",
+      "label": "Democratic norms",
+      "value_pct": 42.1
+    },
+    {
+      "party": "Dem",
+      "measure": "meta_perceived_antipathy",
+      "label": "Perceived partisan antipathy",
+      "value_pct": 67.1
+    },
+    {
+      "party": "Rep",
+      "measure": "meta_perceived_antipathy",
+      "label": "Perceived partisan antipathy",
+      "value_pct": 70.7
+    },
+    {
+      "party": "Dem",
+      "measure": "meta_out_to_in",
+      "label": "Perceived out-party warmth to us",
+      "value_pct": 32.2
+    },
+    {
+      "party": "Rep",
+      "measure": "meta_out_to_in",
+      "label": "Perceived out-party warmth to us",
+      "value_pct": 27.1
+    },
+    {
+      "party": "Dem",
+      "measure": "abortion_restrictive",
+      "label": "Abortion — restrictive",
+      "value_pct": 24.1
+    },
+    {
+      "party": "Ind",
+      "measure": "abortion_restrictive",
+      "label": "Abortion — restrictive",
+      "value_pct": 37.3
+    },
+    {
+      "party": "Rep",
+      "measure": "abortion_restrictive",
+      "label": "Abortion — restrictive",
+      "value_pct": 57.9
+    },
+    {
+      "party": "Dem",
+      "measure": "immig_restrictive",
+      "label": "Immigration — restrictive",
+      "value_pct": 35.4
+    },
+    {
+      "party": "Ind",
+      "measure": "immig_restrictive",
+      "label": "Immigration — restrictive",
+      "value_pct": 52.9
+    },
+    {
+      "party": "Rep",
+      "measure": "immig_restrictive",
+      "label": "Immigration — restrictive",
+      "value_pct": 67.5
+    },
+    {
+      "party": "Dem",
+      "measure": "water_action",
+      "label": "Water — support conservation",
+      "value_pct": 72.3
+    },
+    {
+      "party": "Ind",
+      "measure": "water_action",
+      "label": "Water — support conservation",
+      "value_pct": 60.6
+    },
+    {
+      "party": "Rep",
+      "measure": "water_action",
+      "label": "Water — support conservation",
+      "value_pct": 55.2
+    },
+    {
+      "party": "Dem",
+      "measure": "gun_control",
+      "label": "Gun-control support",
+      "value_pct": 88.6
+    },
+    {
+      "party": "Ind",
+      "measure": "gun_control",
+      "label": "Gun-control support",
+      "value_pct": 57.5
+    },
+    {
+      "party": "Rep",
+      "measure": "gun_control",
+      "label": "Gun-control support",
+      "value_pct": 46.4
+    },
+    {
+      "party": "Dem",
+      "measure": "crime_concern",
+      "label": "Concern: violent crime",
+      "value_pct": 67
+    },
+    {
+      "party": "Ind",
+      "measure": "crime_concern",
+      "label": "Concern: violent crime",
+      "value_pct": 73.7
+    },
+    {
+      "party": "Rep",
+      "measure": "crime_concern",
+      "label": "Concern: violent crime",
+      "value_pct": 79.3
+    },
+    {
+      "party": "Dem",
+      "measure": "econ_personal",
+      "label": "Personal finances (positive)",
+      "value_pct": 58.6
+    },
+    {
+      "party": "Ind",
+      "measure": "econ_personal",
+      "label": "Personal finances (positive)",
+      "value_pct": 54.2
+    },
+    {
+      "party": "Rep",
+      "measure": "econ_personal",
+      "label": "Personal finances (positive)",
+      "value_pct": 54.2
+    },
+    {
+      "party": "Dem",
+      "measure": "econ_biden",
+      "label": "Economy under Biden (positive)",
+      "value_pct": 69
+    },
+    {
+      "party": "Ind",
+      "measure": "econ_biden",
+      "label": "Economy under Biden (positive)",
+      "value_pct": 29.8
+    },
+    {
+      "party": "Rep",
+      "measure": "econ_biden",
+      "label": "Economy under Biden (positive)",
+      "value_pct": 10.4
+    },
+    {
+      "party": "Dem",
+      "measure": "election_subversion",
+      "label": "Support subverting election outcomes",
+      "value_pct": 8.9
+    },
+    {
+      "party": "Ind",
+      "measure": "election_subversion",
+      "label": "Support subverting election outcomes",
+      "value_pct": 18.2
+    },
+    {
+      "party": "Rep",
+      "measure": "election_subversion",
+      "label": "Support subverting election outcomes",
+      "value_pct": 26.5
+    },
+    {
+      "party": "Dem",
+      "measure": "contest_recounts",
+      "label": "Support ballot recounts",
+      "value_pct": 54.7
+    },
+    {
+      "party": "Ind",
+      "measure": "contest_recounts",
+      "label": "Support ballot recounts",
+      "value_pct": 68.1
+    },
+    {
+      "party": "Rep",
+      "measure": "contest_recounts",
+      "label": "Support ballot recounts",
+      "value_pct": 79.6
+    },
+    {
+      "party": "Dem",
+      "measure": "contest_courts",
+      "label": "Support court challenges",
+      "value_pct": 36.4
+    },
+    {
+      "party": "Ind",
+      "measure": "contest_courts",
+      "label": "Support court challenges",
+      "value_pct": 54
+    },
+    {
+      "party": "Rep",
+      "measure": "contest_courts",
+      "label": "Support court challenges",
+      "value_pct": 64.6
+    },
+    {
+      "party": "Dem",
+      "measure": "vote_confidence",
+      "label": "Confidence vote is counted",
+      "value_pct": 92.7
+    },
+    {
+      "party": "Ind",
+      "measure": "vote_confidence",
+      "label": "Confidence vote is counted",
+      "value_pct": 63.3
+    },
+    {
+      "party": "Rep",
+      "measure": "vote_confidence",
+      "label": "Confidence vote is counted",
+      "value_pct": 45.6
+    },
+    {
+      "party": "Dem",
+      "measure": "authoritarian_values",
+      "label": "Authoritarian values",
+      "value_pct": 37.9
+    },
+    {
+      "party": "Ind",
+      "measure": "authoritarian_values",
+      "label": "Authoritarian values",
+      "value_pct": 54.1
+    },
+    {
+      "party": "Rep",
+      "measure": "authoritarian_values",
+      "label": "Authoritarian values",
+      "value_pct": 71
+    },
+    {
+      "party": "Dem",
+      "measure": "ideo_self",
+      "label": "Own ideology (self)",
+      "value_pct": 31.5
+    },
+    {
+      "party": "Ind",
+      "measure": "ideo_self",
+      "label": "Own ideology (self)",
+      "value_pct": 50.7
+    },
+    {
+      "party": "Rep",
+      "measure": "ideo_self",
+      "label": "Own ideology (self)",
+      "value_pct": 77.3
+    },
+    {
+      "party": "Dem",
+      "measure": "ideo_dem_voters",
+      "label": "Perceived: Democratic voters",
+      "value_pct": 36.6
+    },
+    {
+      "party": "Ind",
+      "measure": "ideo_dem_voters",
+      "label": "Perceived: Democratic voters",
+      "value_pct": 31.8
+    },
+    {
+      "party": "Rep",
+      "measure": "ideo_dem_voters",
+      "label": "Perceived: Democratic voters",
+      "value_pct": 18.8
+    },
+    {
+      "party": "Dem",
+      "measure": "ideo_rep_voters",
+      "label": "Perceived: Republican voters",
+      "value_pct": 79.5
+    },
+    {
+      "party": "Ind",
+      "measure": "ideo_rep_voters",
+      "label": "Perceived: Republican voters",
+      "value_pct": 69.5
+    },
+    {
+      "party": "Rep",
+      "measure": "ideo_rep_voters",
+      "label": "Perceived: Republican voters",
+      "value_pct": 74
+    },
+    {
+      "party": "Dem",
+      "measure": "ideo_biden",
+      "label": "Perceived: Biden",
+      "value_pct": 41.2
+    },
+    {
+      "party": "Ind",
+      "measure": "ideo_biden",
+      "label": "Perceived: Biden",
+      "value_pct": 30.7
+    },
+    {
+      "party": "Rep",
+      "measure": "ideo_biden",
+      "label": "Perceived: Biden",
+      "value_pct": 13.2
+    },
+    {
+      "party": "Dem",
+      "measure": "ideo_trump",
+      "label": "Perceived: Trump",
+      "value_pct": 83.7
+    },
+    {
+      "party": "Ind",
+      "measure": "ideo_trump",
+      "label": "Perceived: Trump",
+      "value_pct": 68.1
+    },
+    {
+      "party": "Rep",
+      "measure": "ideo_trump",
+      "label": "Perceived: Trump",
+      "value_pct": 78
+    },
+    {
+      "party": "Dem",
+      "measure": "media_trust",
+      "label": "Trust in the media",
+      "value_pct": 57.4
+    },
+    {
+      "party": "Ind",
+      "measure": "media_trust",
+      "label": "Trust in the media",
+      "value_pct": 29.6
+    },
+    {
+      "party": "Rep",
+      "measure": "media_trust",
+      "label": "Trust in the media",
+      "value_pct": 23.9
+    },
+    {
+      "party": "Dem",
+      "measure": "ft_trump",
+      "label": "Donald Trump",
+      "value_pct": 6.7
+    },
+    {
+      "party": "Ind",
+      "measure": "ft_trump",
+      "label": "Donald Trump",
+      "value_pct": 37.6
+    },
+    {
+      "party": "Rep",
+      "measure": "ft_trump",
+      "label": "Donald Trump",
+      "value_pct": 78.6
+    },
+    {
+      "party": "Dem",
+      "measure": "ft_biden",
+      "label": "Joe Biden",
+      "value_pct": 77.8
+    },
+    {
+      "party": "Ind",
+      "measure": "ft_biden",
+      "label": "Joe Biden",
+      "value_pct": 25.2
+    },
+    {
+      "party": "Rep",
+      "measure": "ft_biden",
+      "label": "Joe Biden",
+      "value_pct": 10
+    },
+    {
+      "party": "Dem",
+      "measure": "ft_kelly",
+      "label": "Mark Kelly",
+      "value_pct": 80.9
+    },
+    {
+      "party": "Ind",
+      "measure": "ft_kelly",
+      "label": "Mark Kelly",
+      "value_pct": 40.2
+    },
+    {
+      "party": "Rep",
+      "measure": "ft_kelly",
+      "label": "Mark Kelly",
+      "value_pct": 22.4
+    },
+    {
+      "party": "Dem",
+      "measure": "ft_lake",
+      "label": "Kari Lake",
+      "value_pct": 8.4
+    },
+    {
+      "party": "Ind",
+      "measure": "ft_lake",
+      "label": "Kari Lake",
+      "value_pct": 31.9
+    },
+    {
+      "party": "Rep",
+      "measure": "ft_lake",
+      "label": "Kari Lake",
+      "value_pct": 65.5
+    },
+    {
+      "party": "Dem",
+      "measure": "ft_gallego",
+      "label": "Ruben Gallego",
+      "value_pct": 79.2
+    },
+    {
+      "party": "Ind",
+      "measure": "ft_gallego",
+      "label": "Ruben Gallego",
+      "value_pct": 39.3
+    },
+    {
+      "party": "Rep",
+      "measure": "ft_gallego",
+      "label": "Ruben Gallego",
+      "value_pct": 21.2
+    },
+    {
+      "party": "Dem",
+      "measure": "ft_maga_rep",
+      "label": "MAGA Republicans",
+      "value_pct": 7.5
+    },
+    {
+      "party": "Ind",
+      "measure": "ft_maga_rep",
+      "label": "MAGA Republicans",
+      "value_pct": 29.1
+    },
+    {
+      "party": "Rep",
+      "measure": "ft_maga_rep",
+      "label": "MAGA Republicans",
+      "value_pct": 67.2
+    },
+    {
+      "party": "Dem",
+      "measure": "ft_estab_rep",
+      "label": "Establishment Republicans",
+      "value_pct": 21.2
+    },
+    {
+      "party": "Ind",
+      "measure": "ft_estab_rep",
+      "label": "Establishment Republicans",
+      "value_pct": 27
+    },
+    {
+      "party": "Rep",
+      "measure": "ft_estab_rep",
+      "label": "Establishment Republicans",
+      "value_pct": 57.5
+    },
+    {
+      "party": "Dem",
+      "measure": "ft_prog_dem",
+      "label": "Progressive Democrats",
+      "value_pct": 72.1
+    },
+    {
+      "party": "Ind",
+      "measure": "ft_prog_dem",
+      "label": "Progressive Democrats",
+      "value_pct": 28.5
+    },
+    {
+      "party": "Rep",
+      "measure": "ft_prog_dem",
+      "label": "Progressive Democrats",
+      "value_pct": 12.3
+    },
+    {
+      "party": "Dem",
+      "measure": "ft_estab_dem",
+      "label": "Establishment Democrats",
+      "value_pct": 71
+    },
+    {
+      "party": "Ind",
+      "measure": "ft_estab_dem",
+      "label": "Establishment Democrats",
+      "value_pct": 30.3
+    },
+    {
+      "party": "Rep",
+      "measure": "ft_estab_dem",
+      "label": "Establishment Democrats",
+      "value_pct": 16.9
+    },
+    {
+      "party": "Dem",
+      "measure": "ft_rep_party",
+      "label": "Republican Party",
+      "value_pct": 14.7
+    },
+    {
+      "party": "Ind",
+      "measure": "ft_rep_party",
+      "label": "Republican Party",
+      "value_pct": 31
+    },
+    {
+      "party": "Rep",
+      "measure": "ft_rep_party",
+      "label": "Republican Party",
+      "value_pct": 66.1
+    },
+    {
+      "party": "Dem",
+      "measure": "ft_dem_party",
+      "label": "Democratic Party",
+      "value_pct": 73.6
+    },
+    {
+      "party": "Ind",
+      "measure": "ft_dem_party",
+      "label": "Democratic Party",
+      "value_pct": 26.8
+    },
+    {
+      "party": "Rep",
+      "measure": "ft_dem_party",
+      "label": "Democratic Party",
+      "value_pct": 13.8
+    }
+  ]
+}

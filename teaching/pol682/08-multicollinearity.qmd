@@ -1,0 +1,901 @@
+# Multicollinearity
+
+## Setup
+
+```{r}
+#| label: setup-multicol
+#| include: false
+library(ggplot2)
+library(dplyr)
+library(car)
+```
+
+We've spent a good deal of time discussing the properties of the OLS estimator -- unbiasedness, efficiency, and their tradeoff. We've also examined what happens when assumptions like homoskedasticity are violated. Now we turn to a different kind of problem, one that doesn't technically violate any Gauss-Markov assumption, but can adversely impact your results nonetheless: multicollinearity.
+
+## Data Problem, or Estimator Problem?
+
+We can split multicollinearity into two categories: perfect and imperfect. **Perfect multicollinearity** is a *data problem*. It means the data simply do not contain enough information to estimate the model. **Imperfect multicollinearity** is an estimator problem. The data contain enough information, but the OLS estimator is not doing a good job of extracting it.
+
+
+## Perfect Collinearity
+
+With perfect collinearity, the OLS estimator is not defined, there is no OLS solution. Consider the model,
+
+$$
+y_i = \beta_1 + \beta_2 X_1 + \beta_3 X_2 + \epsilon_i
+$$
+
+When $r_{X_1 X_2} = 1$, the denominator for $\hat{\beta}_2$ and $\hat{\beta}_3$ is zero, and $\mathbf{X^T X}$ is singular. You literally cannot invert the matrix independent variable matrix -- the estimator $(\mathbf{X^T X})^{-1}\mathbf{X^T y}$ does not exist; it is undefined.
+
+Why? Think about it intuitively. If $X_1$ and $X_2$ are perfectly correlated, there is no way to tell them apart. The regression cannot "decide" how much of the variation in $y$ to attribute to $X_1$ versus $X_2$. The variables carry identical information.
+
+More precisely, we should use the term "multicollinearity." If one variable is a perfect linear combination of $k$ other variables in our model, the same problems exists:
+
+$$X_j = C_1 d_1 + \cdots + C_k d_k$$
+
+### Dummy Variables and Multicollinearity
+
+If any variable is determined by some combination of $X_k$ (i.e., $C \neq 0$), there will exist **perfect** multicollinearity. This problem is encountered in different ways, but let's consider dummy variables.
+
+Recall from our earlier discussion of categorical predictors. With $k$ categories, we include $k-1$ dummies; the omitted group serves as the **reference category**. The reason we omit one is precisely multicollinearity. Let's consider party identification, coded as Republican, Independent, and Democrat. We create dummy variables:
+
+- $D_{\text{Rep}} = 1$ if Republican, 0 otherwise
+- $D_{\text{Dem}} = 1$ if Democrat, 0 otherwise
+- $D_{\text{Ind}} = 1$ if Independent, 0 otherwise
+
+Notice that $D_{\text{Rep}} + D_{\text{Dem}} + D_{\text{Ind}} = 1$ for every observation -- because every person is exactly one of these three things. But the intercept column in $\mathbf{X}$ is also a column of 1s. So the three dummy columns sum to produce the intercept column. That's a perfect linear dependency among the columns of $\mathbf{X}$, which means $\mathbf{X^T X}$ is singular and we cannot estimate the model. This is precisely why -- with an intercept -- we include $k-1$ dummy variables.
+
+
+Why? The model with all $k$ dummies and an intercept is:
+
+$$
+Y_i = \alpha + \gamma_{\text{Rep}} D_{\text{Rep}} + \gamma_{\text{Dem}} D_{\text{Dem}} + \gamma_{\text{Ind}} D_{\text{Ind}} + \beta X + e_i
+$$
+
+But since $D_{\text{Ind}} = 1 - D_{\text{Rep}} - D_{\text{Dem}}$, the Independent dummy is a perfect linear function of the other two dummies and the intercept. There is no unique solution to the equation.
+
+What happens in `R` when this occurs? It will just drop one variable to estimate the model. When we drop one category (say, Independents), the intercept now represents the baseline for that group, and the remaining dummy coefficients represent differences *from* that baseline. An Independent is simply a case when both $D_{\text{Rep}} = 0$ and $D_{\text{Dem}} = 0$. The choice of reference category is arbitrary in terms of $\hat{Y}_i$ -- you'll get the same predicted values regardless -- but remember that it will change the interpretation of the dummy coefficients.
+
+```{r}
+#| label: dummy-trap-demo
+#| echo: true
+#| warning: true
+
+set.seed(42)
+n <- 100
+party <- sample(c("Republican", "Independent", "Democrat"), n, replace = TRUE)
+auth <- runif(n, 0, 1)
+y_trust <- 0.5 + 0.3 * (party == "Republican") - 0.2 * (party == "Democrat") +
+    0.4 * auth + rnorm(n, 0, 0.3)
+
+d_rep <- as.numeric(party == "Republican")
+d_dem <- as.numeric(party == "Democrat")
+d_ind <- as.numeric(party == "Independent")
+
+# Include all 3 dummies -- R drops one
+cat("All 3 dummies (R drops one):\n")
+coef(lm(y_trust ~ d_rep + d_dem + d_ind + auth))
+
+# The correct specification: k-1 dummies
+cat("\nk-1 dummies (Independents as reference):\n")
+coef(lm(y_trust ~ d_rep + d_dem + auth))
+```
+
+Notice that `R` sets the coefficient on `d_ind` to `NA` -- it detects the perfect linear dependency and removes a redundant variable. 
+
+And once again, the two specifications produce identical predicted values.  It's entirely avoidable once you understand that one variable is linearly dependent on the others, specifically that $\sum_{j=1}^k D_j = 1$.
+
+```{r}
+#| label: perfect-collinearity-demo
+#| echo: true
+#| warning: true
+
+# Create data with a perfect linear dependency
+set.seed(42)
+n <- 100
+x1 <- rnorm(n, 10, 2)
+x2 <- 2 * x1 + 5 # x2 is a perfect linear function of x1
+y <- 3 + 1.5 * x1 + rnorm(n)
+
+# Try to fit the model
+model_perfect <- lm(y ~ x1 + x2)
+summary(model_perfect)
+```
+
+
+### The Mathematical Problem
+
+Let's connect this back to the formulas we derived earlier; the model coefficients:
+
+$$\mathbf{b} = (\mathbf{X^T X})^{-1}\mathbf{X^T y}$$
+
+**This requires $\mathbf{X^T X}$ to be invertible.** And recall -- a matrix is invertible only if its determinant is nonzero. When one column of $\mathbf{X}$ is a linear combination of the others, $\det(\mathbf{X^T X}) = 0$, the matrix is **singular**, and no inverse exists. 
+
+
+## Imperfect Multicollinearity
+
+More frequently, we are in the situation where $0 < r_{X_1 X_2} < 1$. This is now a **data problem**, and the OLS estimator is still BLUE. Imperfect collinearity is not a violation of the Gauss-Markov assumptions. The OLS estimator is still unbiased, and the variance is still correctly estimated. 
+
+So why should we care? The problem is that the variance of the OLS estimator can become very large, which means our estimates are very imprecise. 
+
+The data provide enough information to estimate the model, but the OLS estimator is not able to extract *precise* estimates.
+
+This type of collinearity is also incredibly common. Variables are correlated -- sometimes strongly -- but not perfectly. Education and income are correlated. Age and experience are correlated. In political science, partisanship and ideology are correlated. The question is: how much correlation is too much?
+
+We discussed the variance of the estimate in Part I.  Another way to write the of the OLS estimator is given by,
+
+$$
+\text{var}(b_j) = \frac{1}{1 - R^2_j} \times \frac{\sigma^2}{\sum x^2_i}
+$$
+
+where $R^2_j$ is the $R^2$ from regressing $X_j$ on all the other independent variables in the model. This is important -- it's not the $R^2$ from the main regression. It's the $R^2$ from the *auxiliary* regression of one predictor on all the others. The term,
+
+$$\frac{1}{1 - R^2_j} = \text{VIF}$$
+
+is called the Variance Inflation Factor. Or equivalently, $\sqrt{\text{VIF}}$ tells us how much the standard error of $b_j$ is inflated relative to the case with no collinearity.
+
+As the VIF increases, $\text{var}(b_j)$ will increase. But the OLS estimator is still BLUE. The problem is not whether one can obtain an unbiased estimate -- we definitely can. We can also obtain the "correct" variance -- but it may be quite large. This is the key point that practitioners often miss. Multicollinearity is not a *bias* problem. It is a *precision* problem. Your estimates are right on average, but any single estimate may be way off.
+
+<div style="background-color: #f0f7ff; border-left: 4px solid #0066cc; padding: 15px; margin: 20px 0;">
+
+**OLS is still BLUE in the presence of imperfect multicollinearity. The estimator is unbiased. The variance is correctly estimated. The problem is that the variance itself is large. Don't confuse "large variance" with "biased estimates" -- these are fundamentally differrent things. Think back to how we statistically demonstrated these concepts.**
+
+</div>
+
+Let's see how this works in practice.
+
+* Let's start by simulating data, but let's simulate data such that the correlation between our predictor varies. Then let's estimate the model to see what happens to the standard errors as the correlation changes.
+
+* We'll simulate data and estimate the models repeatedly, varying the correlation parameter. 
+
+* We'll then plot the standard errors as a function of the correlation between the predictors.
+
+* We'll also plot the VIF, as well as the slope estimates.
+
+
+
+```{r}
+#| label: fig-vif-simulation
+#| fig-cap: "As collinearity increases: standard errors explode, VIF rises, but slopes remain unbiased"
+#| fig-height: 10
+#| echo: false
+#| message: false
+library(ggplot2)
+library(MASS)
+library(car)
+set.seed(123)
+n <- 200
+
+# True parameters
+beta_1_true <- 1.5
+beta_2_true <- 1.0
+
+# Vary the correlation between x1 and x2
+correlations <- seq(0, 0.99, by = 0.01)
+sim_results <- data.frame(
+    correlation = correlations,
+    se_x1 = NA, se_x2 = NA,
+    b1 = NA, b2 = NA,
+    vif_x1 = NA
+)
+
+for (i in seq_along(correlations)) {
+    r <- correlations[i]
+    sigma <- matrix(c(1, r, r, 1), nrow = 2)
+    X <- mvrnorm(n, mu = c(0, 0), Sigma = sigma)
+    y <- 2 + beta_1_true * X[, 1] + beta_2_true * X[, 2] + rnorm(n, 0, 2)
+    dat_sim <- data.frame(y = y, x1 = X[, 1], x2 = X[, 2])
+    mod <- lm(y ~ x1 + x2, data = dat_sim)
+    sim_results$se_x1[i] <- summary(mod)$coefficients[2, 2]
+    sim_results$se_x2[i] <- summary(mod)$coefficients[3, 2]
+    sim_results$b1[i] <- coef(mod)[2]
+    sim_results$b2[i] <- coef(mod)[3]
+    sim_results$vif_x1[i] <- vif(mod)[1]
+}
+
+# Panel 1: Standard Errors
+p1 <- ggplot(sim_results, aes(x = correlation)) +
+    geom_line(aes(y = se_x1, color = "SE of b1"), linewidth = 1) +
+    geom_line(aes(y = se_x2, color = "SE of b2"), linewidth = 1) +
+    scale_color_manual(values = c("SE of b1" = "#2166AC", "SE of b2" = "#B2182B")) +
+    labs(
+        title = "Standard Errors Increase as Collinearity Increases",
+        x = expression(r[X[1] * X[2]]),
+        y = "Standard Error",
+        color = ""
+    ) +
+    theme_minimal() +
+    theme(
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "bottom"
+    )
+
+# Panel 2: VIF
+p2 <- ggplot(sim_results, aes(x = correlation, y = vif_x1)) +
+    geom_line(linewidth = 1, color = "#B2182B") +
+    geom_hline(yintercept = 4, linetype = "dashed", color = "#2166AC", linewidth = 0.8) +
+    geom_hline(yintercept = 10, linetype = "dashed", color = "#B2182B", linewidth = 0.8) +
+    annotate("text",
+        x = 0.05, y = 5, label = "VIF = 4", color = "#2166AC",
+        hjust = 0, fontface = "bold"
+    ) +
+    annotate("text",
+        x = 0.05, y = 11, label = "VIF = 10", color = "#B2182B",
+        hjust = 0, fontface = "bold"
+    ) +
+    labs(
+        title = "Variance Inflation Factor Increase with Collinearity",
+        x = expression(r[X[1] * X[2]]),
+        y = "VIF"
+    ) +
+    theme_minimal() +
+    theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+# Panel 3: Slope estimates -- still unbiased
+p3 <- ggplot(sim_results, aes(x = correlation)) +
+    geom_line(aes(y = b1, color = "b1"), linewidth = 1) +
+    geom_line(aes(y = b2, color = "b2"), linewidth = 1) +
+    scale_color_manual(values = c("b1" = "#2166AC", "b2" = "#B2182B")) +
+    geom_hline(yintercept = beta_1_true, linetype = "dashed", color = "grey40") +
+    geom_hline(yintercept = beta_2_true, linetype = "dashed", color = "grey40") +
+    annotate("text",
+        x = 0.02, y = beta_1_true + 0.15,
+        label = paste0("True b1 = ", beta_1_true), hjust = 0, color = "grey30"
+    ) +
+    annotate("text",
+        x = 0.02, y = beta_2_true - 0.15,
+        label = paste0("True b2 = ", beta_2_true), hjust = 0, color = "grey30"
+    ) +
+    labs(
+        title = "Slope Estimates Remain Unbiased (but pretty noisy)",
+        x = expression(r[X[1] * X[2]]),
+        y = "Estimated Coefficient",
+        color = ""
+    ) +
+    theme_minimal() +
+    theme(
+        plot.title = element_text(hjust = 0.5, face = "bold"),
+        legend.position = "bottom"
+    )
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, ncol = 1)
+```
+
+Three things to notice. 
+
+First, the standard errors increase drastically as the correlation approaches 1. At $r = 0.9$, the standard errors are already more than double what they are at $r = 0$. At $r = 0.99$, they're rather large.
+
+Second, the VIF tracks this exactly. It crosses the the threhold of 4 around $r \approx 0.87$, and 10 around $r \approx 0.95$. 
+
+Third -- and this is the critical point -- the slope estimates bounce around their true values at every level of correlation. They are still **unbiased**. The estimates get noisier as collinearity increases, but they are centered on the true value. Again, the estimates are BLUE but noisy.
+
+## Why This Happens: The "No Sniffles" Problem
+
+Think about it this way. Suppose $X_1$ and $X_2$ are uncorrelated. When we add $X_2$ to the model, the variation in $X_1$ that "explains" $y$ is distinct from the variation in $X_2$ that explains $y$. Now suppose $X_1$ and $X_2$ are highly correlated. Most of the variation in $X_1$ is also present in $X_2$. The regression has to parse out each variable's uniqueness -- how much each contributes to $y$.
+
+Let's make this concrete with a fictious -- and cautionary -- example. A startup firm has just launched **"No Sniffles"** a homeopathic allergy drug. To build their case for efficacy, they analyze data from a large **non-randomized** survey of Arizona residents conducted during peak allergy season (March through June). Respondents report how many doses of "No Sniffles" they took, how many **pain relievers** (Ibuprofen, Advil, etc.) they took, and answer the question: *"How much was your headache reduced?"* on a 0–10 scale.
+
+During allergy season in Arizona, pollen triggers sinus headaches. People who suffer from allergies tend to reach for *both* an allergy remedy *and* a pain reliever at the same time. The usage of "No Sniffles" and pain relievers are **correlated** -- not because one causes the other, but because allergy season drives both. The startup's regression will struggle to isolate "No Sniffles'" unique effect on headache reduction from the effect of pain relievers.
+
+```{r}
+#| label: fig-nosniffles-dag
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-cap: "During Arizona allergy season, usage of 'No Sniffles' and pain relievers are correlated -- creating collinearity that makes it hard to isolate each drug's effect"
+library(DiagrammeR)
+
+grViz("
+digraph nosniffles {
+  graph [rankdir = TB, bgcolor = transparent, size='8,5!']
+  node [shape = box, style = filled, fillcolor = white, fontname = Calibri, width=2.4, height=0.9]
+
+  Allergy [label = 'Allergy Season\n(March-June, AZ)', fillcolor = '#FFF3CD']
+  NoSniffles [label = 'No Sniffles\n(Homeopathic)']
+  PainRelief [label = 'Pain Relievers\n(Ibuprofen/Advil)']
+  Headache [label = 'Self-Reported\nHeadache Reduction']
+
+  Allergy -> NoSniffles [label = ' drives usage ', color = 'grey40', penwidth = 1.5]
+  Allergy -> PainRelief [label = ' drives usage ', color = 'grey40', penwidth = 1.5]
+  NoSniffles -> Headache [label = ' b1 = ? ', color = '#2166AC', penwidth = 2]
+  PainRelief -> Headache [label = ' b2 = 1.8 ', color = '#B2182B', penwidth = 2]
+  NoSniffles -> PainRelief [dir = both, style = dashed, color = '#E69F00',
+                             label = ' correlated\n usage ', fontcolor = '#E69F00',
+                             penwidth = 1.5]
+}
+")
+```
+
+Notice the structure: allergy season drives people to take *both* drugs, creating the correlation. The truth is that pain relievers genuinely and substantially reduce headaches ($\beta_2 = 1.8$), but "No Sniffles" -- being homeopathic -- has only a very modest placebo effect ($\beta_1 = 0.15$). Can the startup's regression tell these apart?
+
+### Simulating the Survey
+
+Let's simulate 800 Arizona residents surveyed during March–June. The **true** model is:
+
+$$\text{Headache Reduction}_i = 1.0 + 0.15 \times \text{NoSniffles}_i + 1.8 \times \text{PainRelievers}_i + \epsilon_i$$
+
+"No Sniffles" barely helps (true $\beta_1 = 0.15$), but pain relievers strongly reduce headaches (true $\beta_2 = 1.8$). The problem: during allergy season, people reach for both.
+
+```{r}
+#| label: nosniffles-simulation
+#| echo: true
+#| message: false
+#| warning: false
+
+library(MASS)
+
+set.seed(2024)
+n <- 800
+
+# True parameters
+beta_0 <- 1.0
+beta_nosniffles <- 0.15
+beta_painrelief <- 1.8
+
+doses <- MASS::mvrnorm(n,
+    mu = c(2, 2.5),
+    Sigma = matrix(c(1.0, 0.55, 0.55, 1.2), nrow = 2)
+)
+no_sniffles <- pmax(round(doses[, 1]), 0)
+pain_relievers <- pmax(round(doses[, 2]), 0)
+
+month <- sample(3:6, n, replace = TRUE)
+
+headache_reduction <- beta_0 + beta_nosniffles * no_sniffles +
+    beta_painrelief * pain_relievers + rnorm(n, 0, 1.0)
+headache_reduction <- pmin(pmax(headache_reduction, 0), 10)
+
+survey_data <- data.frame(
+    no_sniffles, pain_relievers, headache_reduction,
+    month = factor(month, labels = c("March", "April", "May", "June"))
+)
+```
+
+### Full Sample: Can We Tell the Drugs Apart?
+
+With all 800 respondents, the correlation between "No Sniffles" and pain reliever usage is moderate. Let's see what the regression finds.
+
+```{r}
+#| label: nosniffles-full-model
+#| echo: true
+
+library(car)
+
+cat(
+    "Correlation between No Sniffles and Pain Relievers (full sample):",
+    round(cor(survey_data$no_sniffles, survey_data$pain_relievers), 3), "\n\n"
+)
+
+model_full <- lm(headache_reduction ~ no_sniffles + pain_relievers,
+    data = survey_data
+)
+summary(model_full)
+cat("\nVIF:\n")
+vif(model_full)
+```
+
+With moderate collinearity, we can *probably* tell the drugs apart -- pain relievers show a strong effect, and "No Sniffles" shows a small one.
+
+### Subsetting: Increasing the Collinearity
+
+Imagine different sampling strategies the startup might use. As we restrict the sample to respondents whose "No Sniffles" and pain reliever doses are more similar. There is a stronger relationship. What happens?
+
+```{r}
+#| label: tbl-nosniffles-collinearity
+#| tbl-cap: "As we restrict to respondents with similar dosing patterns, collinearity increases and the regression can no longer distinguish the effects"
+#| echo: true
+#| message: false
+#| warning: false
+
+library(car)
+
+max_diffs <- c(Inf, 3, 2, 1)
+subset_labels <- c("Full Sample", "|Diff| <= 3", "|Diff| <= 2", "|Diff| <= 1")
+
+results <- data.frame()
+
+for (i in seq_along(max_diffs)) {
+    d <- max_diffs[i]
+    sub <- survey_data[abs(survey_data$no_sniffles -
+        survey_data$pain_relievers) <= d, ]
+    mod <- lm(headache_reduction ~ no_sniffles + pain_relievers, data = sub)
+    v <- vif(mod)
+    s <- summary(mod)
+
+    results <- rbind(results, data.frame(
+        Subset = subset_labels[i],
+        N = nrow(sub),
+        r_xy = round(cor(sub$no_sniffles, sub$pain_relievers), 3),
+        b_nosniffles = round(coef(mod)["no_sniffles"], 3),
+        se_nosniffles = round(s$coefficients["no_sniffles", 2], 3),
+        b_painrelief = round(coef(mod)["pain_relievers"], 3),
+        se_painrelief = round(s$coefficients["pain_relievers", 2], 3),
+        VIF = round(v[1], 2)
+    ))
+}
+
+knitr::kable(results,
+    col.names = c(
+        "Subset", "N", "r(NS, PR)", "b_NoSniffles", "SE_NoSniffles",
+        "b_PainRelief", "SE_PainRelief", "VIF"
+    )
+)
+```
+
+```{r}
+#| label: fig-nosniffles-panels
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "As we restrict to similar dosing patterns, the data cloud aligns along the diagonal -- collinearity makes it impossible to separate the two effects"
+#| fig-height: 8
+
+library(ggplot2)
+library(gridExtra)
+
+plots <- list()
+for (i in seq_along(max_diffs)) {
+    d <- max_diffs[i]
+    sub <- survey_data[abs(survey_data$no_sniffles -
+        survey_data$pain_relievers) <= d, ]
+    r_val <- round(cor(sub$no_sniffles, sub$pain_relievers), 2)
+
+    plots[[i]] <- ggplot(sub, aes(x = no_sniffles, y = pain_relievers)) +
+        geom_jitter(alpha = 0.4, color = "#2166AC", width = 0.15, height = 0.15) +
+        geom_smooth(method = "lm", se = FALSE, color = "#B2182B", linewidth = 1) +
+        labs(
+            title = paste0(
+                subset_labels[i], " (r = ", r_val,
+                ", n = ", nrow(sub), ")"
+            ),
+            x = "No Sniffles Doses",
+            y = "Pain Reliever Doses"
+        ) +
+        theme_minimal() +
+        theme(plot.title = element_text(hjust = 0.5, face = "bold", size = 11))
+}
+
+grid.arrange(grobs = plots, ncol = 2)
+```
+
+The startup's problem is now obvious. With the full sample and moderate collinearity, the regression *can* tell the drugs apart: pain relievers have a large, significant effect, while "No Sniffles" a more modest one. 
+
+But if the correlation is higher-- people who always take both together -- the standard errors inflate, the VIF increases, and we can no longer distinguish a drug that genuinely works ($\beta_2 = 1.8$) from one that barely works ($\beta_1 = 0.15$). 
+
+### Randomization
+
+This is exactly the danger of non-randomized data with correlated treatments. A randomized trial would *independently* assign "No Sniffles" and pain reliever usage; this then break the correlation between right hand side variables. The observational survey during allergy season -- where everyone reaches for both drugs at once -- cannot do this.
+
+## Detecting Multicollinearity
+
+When does this matter? What should we do?
+
+* You obtain a large $R^2$ value, significant F values, but non-significant t-tests (and large confidence intervals). This is the classic indicator. The model as a whole is explaining variation in $y$, but you can't pin down a particular effect. Everything is non-significant. There is a divergence between the F-test -- an indicator of fit -- and the t-tests (the test of individual coefficients).
+
+* To explore if this is problematic, we might first obtain $r_{xx}$, the correlation matrix of independent variables, and you observe an entry of 0.80 or greater. But, remember, this may not be immediately transparent from the table, if $X_k$ is a linear combination of some set of variables. A variable might not be highly correlated with any single other variable, but could be strongly predicted by a *combination* of variables.
+
+* Examine the VIF. If VIF exceeds 4, or $\sqrt{\text{VIF}}$ exceeds 2, collinearity may be an issue. Some textbooks use 10 as the threshold. It's an indicator, a useful heuristic.
+
+## Common Mistakes
+
+This is where students -- and researchers -- tend to go wrong. Let me walk through the mistakes I see most often.
+
+### Mistake 1: Dropping Variables to "Fix" Collinearity
+
+The most common response to multicollinearity is to drop one of the correlated variables. Sometimes this is the right thing to do. Often it is not.
+
+Suppose you're modeling Trump's vote margin in Arizona precincts as a function of median household income and median age. They're correlated in your data (older populations often live in areas with different income distributions), so the standard errors are large. You drop median age. Now the standard errors on income are small and the coefficient is significant. Fixed it. Right?
+
+If median age *actually affects* voting patterns, then dropping it introduces **omitted variable bias**. You've traded a precision problem for a bias problem. The coefficient on income now captures *both* the direct effect of income *and* the indirect effect through its correlation with age. Your estimate is biased -- and a biased estimate with a small standard error can be worse than an unbiased estimate with a large one.
+
+
+<div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;">
+
+**Do not drop theoretically important variables just because they are correlated with other predictors. An unbiased estimate with a large standard error is preferable to a biased estimate with a small standard error. If you can't reject the null, that's informative -- it means the data don't contain enough information to distinguish between the effects.**
+
+</div>
+
+### Mistake 2: Concluding That the Variables "Don't Matter"
+
+When multicollinearity inflates standard errors and you fail to reject $H_0: \beta_j = 0$, it's tempting to conclude that the variables don't affect $y$. It now becomes an issue of statisticaly power -- you simply don't have enough information to distinguish between the effects -- but that doesn't mean those effects aren't there. Failing to reject a null does not mean the null is true.
+
+Instead, it means you lack sufficient evidence to conclude that the variable has an effect, *given the other variables in the model*. With highly collinear predictors, the individual t-tests have low power; our ability to correctly reject a null hypothesis when it is false is diminished. You *should* expect non-significant results, even if the variables truly matter.
+
+
+
+### Mistake 3 Using Stepwise Regression
+
+You'll occasionally hear about stepwise regression procedures, where analysts iterate through different specifications and settle on a model. Maybe then the researcher does some additional work to justify the final model. This is atheoretical and should be avoided. Recall that a "correct" regression model must be correctly specified -- and that requires theory, not data-driven selection.
+
+### Mistake 4: Ignoring the Problem Entirely
+
+On the other end, some researchers simply ignore multicollinearity and report their results as if nothing is wrong. Unfortunately, this can lead to  incorrect conclusions from the "non-significant" findings.
+
+## The Mean Squared Error**
+
+The mean squared error (MSE) is a measure of the expected squared difference between the estimator and the true parameter value:
+
+$$
+MSE(\hat{b})=E[(\hat{b}-b)^2]
+$$
+
+To see how this decomposes into variance and bias, add and subtract $E[\hat{b}]$ inside the squared term:
+
+$$
+MSE(\hat{b})=E[(\hat{b}-E[\hat{b}] + E[\hat{b}]-b)^2]
+$$
+
+Expanding the square:
+
+$$
+MSE(\hat{b})=E[(\hat{b}-E[\hat{b}])^2 + 2(\hat{b}-E[\hat{b}])(E[\hat{b}]-b) + (E[\hat{b}]-b)^2]
+$$
+
+Taking expectations and noting that $E[\hat{b}-E[\hat{b}]]=0$, the middle term vanishes:
+
+$$
+MSE(\hat{b})=E[(\hat{b}-E[\hat{b}])^2] + (E[\hat{b}]-b)^2
+$$
+
+Which simplifies to:
+
+$$MSE(\hat{b})= var(\hat{b})+bias(\hat{b})^2$$
+
+We can **always** evaluate and compare linear models using the MSE or something akin to the MSE. The MSE is a function of both the variance of the estimator and the bias of an estimator. 
+
+## The Ridge and Lasso Estimators
+
+In statistics, it is common to hear about the so-called bias-variance tradeoff. Maybe we prefer a somewhat biased model, if it is estimated with more precision, or perhaps we prefer an unbiased model, even if it is estimated with less precision. 
+
+While the OLS model is BLUE in the presence of multicollinearity, severe multicollinearity (perhaps discovered by a large VIF or set of VIFs), can have adverse consequences. Recall that it increases the probability of Type II error, by way of large standard errors and small test-statistics; we may observe a very large $R^2$, yet no statistically significant effects; and/or some coefficients may be large and signed in the wrong direction -- due to a large amount of error, of course. 
+
+Let's apply an alternative method then for model selection, what's known as **regularization** or **shrinkage**. The logic of these models are relatively simple: Penalize regression parameters that are large. Why would we want to penalize a model with large parameters? 
+
+One of the consequences of multicollinearity is that it will lead to large coefficients. So, lets penalize large coefficients. 
+
+### Ridge Estimator
+
+The ridge estimator discussed extensively in @hastie2013 [p. 63]. The idea is straightforward:
+
+\begin{eqnarray}
+b_{Ridge}=min[(\sum^N_{i=1}(y_i-b_0+\sum_Jb_j x_{ji})^2+\lambda\sum_Jb_j^2]
+\end{eqnarray}
+
+The part on the left is well-known. We're just calculating the sum of squared residuals Yet, instead of just minimizing the SSR, we're minimizing $SSR+\lambda\sum_Jb_j^2$. The $\lambda$ parameter penalizes the $b_j$ parameters. It's a value that is greater than or equal to zero. If it is zero, the model reduces to OLS. If it is non-zero, there is some degree of "shrinkage."  The influence of the parameter (on the left), is canceled by the term on the right [@hastie2013, p. 64],
+
+\begin{eqnarray}
+b_{Ridge}=(\textbf{X}^T\textbf{X}+\lambda \textbf{I})^{-1}\textbf{X}^T\textbf{y}
+\end{eqnarray}
+
+As we discussed then, we're adding a constant to the diagonals of the $\textbf{X}^T\textbf{X}$ matrix. The degree of bias is determined by the size of $\lambda$, and a consequence of this is that we also decrease the variance of the estimate. The ridge regressor will be biased, but it may have smaller variance (relative to OLS).
+
+How do we choose $\lambda$? This uses 10-fold cross validation. So, split the data into 10 samples. One sample is held to be the testing sample. We fit the model on the $k-1=9$ remaining samples, and calculate the Root Mean Squared Error on the testing sample. We then average. We do this for a vector of potential $\lambda$ values. We plot the results and choose the value of $\lambda$ with the smallest RMSE.
+
+Let's apply Ridge regression to our Arizona precinct data, modeling Trump's vote margin as a function of median household income, percent Latino population, median age, and the Gini index. The plot shows the cross-validation results, with the optimal $\lambda$ indicated. We can see that there is too much shrinkage near the right of the figure and the RMSE is too large. However, the lowest RMSE is not when $\lambda=0$. Note the difference between the Ridge coefficients and the OLS estimates!
+
+```{r}
+#| label: fig-ridge-cv
+#| fig-cap: "10-fold cross validation for Ridge regression: selecting the optimal lambda"
+#| echo: true
+#| message: false
+#| warning: false
+
+library(glmnet)
+
+# Load the Arizona precinct data
+load("precinct_voter_summary.rda")
+load("precinct_tract_data.rda")
+
+# Create percentage variables for demographics
+precinct_voter_summary <- precinct_voter_summary |>
+    dplyr::mutate(
+        pct_latino = (tract_acs_latino / tract_acs_total_population) * 100,
+        pct_white = (tract_acs_non_latino_white / tract_acs_total_population) * 100
+    )
+
+# Prepare data for Ridge regression
+# Note: pct_democrat and pct_independent already exist in the dataset
+az_complete <- precinct_voter_summary |>
+    dplyr::select(
+        trump_harris_margin, tract_acs_median_household_income,
+        pct_latino, tract_acs_median_age, tract_acs_gini_index,
+        pct_democrat, pct_independent
+    ) |>
+    na.omit()
+
+# Create design matrix (predictors)
+X_mat <- model.matrix(
+    ~ tract_acs_median_household_income + pct_latino +
+        tract_acs_median_age + tract_acs_gini_index +
+        pct_democrat + pct_independent,
+    data = az_complete
+)[, -1]
+
+# Response variable
+y_ridge <- az_complete$trump_harris_margin
+
+# 10-fold cross validation for Ridge (alpha = 0)
+cv_ridge <- cv.glmnet(X_mat, y_ridge, alpha = 0, nfolds = 10)
+plot(cv_ridge)
+title("Ridge Regression: 10-Fold CV (Arizona Precinct Data)", line = 3)
+```
+
+### Choosing Lambda: Min vs 1-SE Rule
+
+The cross-validation plot shows two important values, marked by vertical dashed lines:
+
+- **lambda.min**: The value of $\lambda$ that minimizes the cross-validation error (lowest RMSE). This gives the best predictive performance on the training data.
+
+- **lambda.1se**: A larger $\lambda$ value selected using the "1 standard error rule." This chooses the most regularized (simplest) model whose error is within one standard error of the minimum.
+
+**Why use lambda.1se instead of lambda.min?** The 1-SE rule reflects a preference for parsimony and guards against overfitting. Models with slightly higher $\lambda$ are more stable -- they have greater bias but lower variance. If two models have statistically indistinguishable performance (within one SE), we prefer the simpler one with more shrinkage. This is especially valuable when:
+
+1. Your primary goal is **prediction on new data**, not just fitting the training data
+2. You want **more interpretable** models with coefficients closer to zero
+3. You're concerned about **overfitting** in small samples
+
+```{r}
+#| label: ridge-results
+#| echo: false
+
+# Optimal lambda values
+cat("Lambda (min RMSE):", cv_ridge$lambda.min, "\n")
+cat("Lambda (1 SE rule):", cv_ridge$lambda.1se, "\n\n")
+
+# Get Ridge coefficients at optimal lambda
+ridge_coef <- as.numeric(coef(cv_ridge, s = "lambda.min"))
+
+# Get OLS coefficients
+ols_model <- lm(trump_harris_margin ~ tract_acs_median_household_income + pct_latino +
+    tract_acs_median_age + tract_acs_gini_index + pct_democrat + pct_independent, data = az_complete)
+ols_coef <- coef(ols_model)
+
+# Create comparison table with better formatting
+coef_comparison <- data.frame(
+    Variable = c(
+        "(Intercept)",
+        "Median Household Income",
+        "% Latino",
+        "Median Age",
+        "Gini Index",
+        "% Democrat",
+        "% Independent"
+    ),
+    Ridge = c(
+        sprintf("%.4f", ridge_coef[1]),
+        sprintf("%.7f", ridge_coef[2]),
+        sprintf("%.5f", ridge_coef[3]),
+        sprintf("%.4f", ridge_coef[4]),
+        sprintf("%.4f", ridge_coef[5]),
+        sprintf("%.5f", ridge_coef[6]),
+        sprintf("%.5f", ridge_coef[7])
+    ),
+    OLS = c(
+        sprintf("%.4f", ols_coef[1]),
+        sprintf("%.7f", ols_coef[2]),
+        sprintf("%.5f", ols_coef[3]),
+        sprintf("%.4f", ols_coef[4]),
+        sprintf("%.4f", ols_coef[5]),
+        sprintf("%.5f", ols_coef[6]),
+        sprintf("%.5f", ols_coef[7])
+    ),
+    Difference = c(
+        sprintf("%.4f", ridge_coef[1] - ols_coef[1]),
+        sprintf("%.7f", ridge_coef[2] - ols_coef[2]),
+        sprintf("%.5f", ridge_coef[3] - ols_coef[3]),
+        sprintf("%.4f", ridge_coef[4] - ols_coef[4]),
+        sprintf("%.4f", ridge_coef[5] - ols_coef[5]),
+        sprintf("%.5f", ridge_coef[6] - ols_coef[6]),
+        sprintf("%.5f", ridge_coef[7] - ols_coef[7])
+    )
+)
+
+cat("Ridge vs OLS Coefficient Comparison:\n")
+knitr::kable(coef_comparison,
+    align = c("l", "r", "r", "r"),
+    col.names = c("Variable", "Ridge (λ.min)", "OLS", "Difference")
+)
+```
+
+Notice the difference relative to the OLS estimates! The ridge coefficients are shrunk toward zero. The degree of shrinkage depends on $\lambda$ -- a larger penalty means more shrinkage, more bias, but also more stability.
+
+### The Lasso Model
+
+The ridge estimator does not shrink a parameter to zero. We may wish to know if a variable has no effect -- the ridge estimator only "proportionately" shrinks the parameters [@hastie2013, p. 69]. It's thus not quite as useful in terms of model specification -- i.e., allowing the data to determine the model (and its parameters). The lasso regression, originally proposed by @tibshirani1996, takes a different approach [@hastie2013, p. 72]:
+
+\begin{eqnarray}
+b_{Lasso}=min[(\sum^N_{i=1}(y_i-b_0+\sum_Jb_j x_{ji})^2+\lambda\sum_J |b_j|]
+\end{eqnarray}
+
+What this means is that, conditional on $\lambda$ this form of regularized regression will shrink the parameters to zero. The Lasso estimator is also quite easy to estimate in $\texttt{glmnet}$. Simply change $\alpha=1$.
+
+```{r}
+#| label: fig-lasso-cv
+#| fig-cap: "10-fold cross validation for Lasso regression"
+#| echo: true
+#| message: false
+#| warning: false
+
+# 10-fold cross validation for Lasso (alpha = 1)
+cv_lasso <- cv.glmnet(X_mat, y_ridge, alpha = 1, nfolds = 10)
+plot(cv_lasso)
+title("Lasso Regression: 10-Fold CV (Arizona Precinct Data)", line = 3)
+```
+
+```{r}
+#| label: lasso-results
+#| echo: false
+
+# Get Lasso coefficients
+lasso_min <- as.numeric(coef(cv_lasso, s = "lambda.min"))
+lasso_1se <- as.numeric(coef(cv_lasso, s = "lambda.1se"))
+
+# Create comparison table with better formatting
+lasso_comparison <- data.frame(
+    Variable = c(
+        "(Intercept)",
+        "Median Household Income",
+        "% Latino",
+        "Median Age",
+        "Gini Index",
+        "% Democrat",
+        "% Independent"
+    ),
+    `Lambda Min` = c(
+        sprintf("%.4f", lasso_min[1]),
+        sprintf("%.7f", lasso_min[2]),
+        sprintf("%.5f", lasso_min[3]),
+        sprintf("%.4f", lasso_min[4]),
+        sprintf("%.4f", lasso_min[5]),
+        sprintf("%.5f", lasso_min[6]),
+        sprintf("%.5f", lasso_min[7])
+    ),
+    `Lambda 1SE` = c(
+        sprintf("%.4f", lasso_1se[1]),
+        sprintf("%.7f", lasso_1se[2]),
+        sprintf("%.5f", lasso_1se[3]),
+        sprintf("%.4f", lasso_1se[4]),
+        sprintf("%.4f", lasso_1se[5]),
+        sprintf("%.5f", lasso_1se[6]),
+        sprintf("%.5f", lasso_1se[7])
+    ),
+    OLS = c(
+        sprintf("%.4f", ols_coef[1]),
+        sprintf("%.7f", ols_coef[2]),
+        sprintf("%.5f", ols_coef[3]),
+        sprintf("%.4f", ols_coef[4]),
+        sprintf("%.4f", ols_coef[5]),
+        sprintf("%.5f", ols_coef[6]),
+        sprintf("%.5f", ols_coef[7])
+    ),
+    check.names = FALSE
+)
+
+cat("Lasso vs OLS Coefficient Comparison:\n")
+knitr::kable(lasso_comparison,
+    align = c("l", "r", "r", "r"),
+    col.names = c("Variable", "Lasso (λ.min)", "Lasso (λ.1se)", "OLS")
+)
+```
+
+### The Bias-Variance Tradeoff in Regularization
+
+We often encounter a tradeoff between bias and variance. The Ridge and Lasso estimators are **biased** models -- they deliberately introduce bias to reduce variance. As $\lambda$ increases:
+
+- **Bias increases**: coefficients are shrunk further from their true values
+- **Variance decreases**: estimates become more stable across different samples
+
+In contrast, OLS is unbiased but can have large variance when collinearity is severe. The key insight: **at some value of $\lambda$, the MSE of Ridge/Lasso can be less than the MSE of OLS**, even though Ridge/Lasso are biased.
+
+This is precisely what cross-validation helps us find -- the $\lambda$ that optimizes this tradeoff. When multicollinearity inflates OLS standard errors to the point where individual coefficients are unreliable, Ridge or Lasso regression offer an alternative (with some degree of bias).
+
+**When to use Ridge/Lasso:**
+- When your goal is **prediction** rather than unbiased inference
+- When you face **severe multicollinearity** (VIF > 10)
+- When you have **many predictors** relative to sample size
+- When you want to **regularize** model complexity
+
+The following approach, however, is **not** a good solution to multicollinearity.
+
+## Dropping Relevant Variables
+
+Often, the most appealing solution is to drop a variable. This may introduce a form of bias into the regression equation. For instance, assume the following **true** regression model:
+
+$$Y_i=\beta_1+\beta_2X_1+\beta_3X_2+\epsilon_i$$
+
+But -- due to collinearity in your data, you go ahead and estimate:
+
+$$Y_i=\alpha_1+\alpha_2X_1+\omega_i$$
+
+$$\omega_i=\beta_3X_2+\epsilon_i$$
+
+So you estimate $a_1$ and $a_2$.
+
+The problem with this approach is that our estimate of $\alpha_2$ represents two things: the direct effect of $X_1$ but also the indirect effect of $X_1$ on $y$ through $X_2$
+
+$$a_2=\frac{\sum x_1 y_i}{\sum x_1^2}$$
+$$a_1=\bar{Y}-\alpha_2\bar{X}_1$$
+
+$$\beta_2x_1+\beta_3x_2+\epsilon_i-\bar{\epsilon_i}$$
+
+In other words, we're just subtracting the expectation from the equation.
+
+If we regress $X_2$ on $X_1$, then $X_2=b_1+b_2X_1+e_i$
+
+
+$$a_2=\beta_2+\beta_3\frac{\sum x_1 x_2}{\sum x^2_1}$$
+
+ $$b_2= \frac{\sum x_1 x_2}{\sum x^2_1}$$, so:
+
+$$a_2=\beta_2+\beta_3 b_2$$
+
+$a_2=$ direct effect of $X_1$ on Y, and the indirect effect of $X_1$ on $Y$ through $X_2$! It represents the unique impact of the covariate on the dependent variable *and* the effect shared with the excluded variable. The slope coefficient is biased -- from how much $r_{x_1,x_2}$ are correlated.
+
+
+Think of it this way. The true regression equation is:
+
+$$Y = b_0 + b_1X_1 + \gamma_1 X_2 + e$$
+
+And lets say
+
+$$X_2 = a_0 + a_1X_1 + u$$
+
+Write the "reduced form equation":
+
+$$Y = b_0 + b_1X_1 + \gamma_1 (a_0 + a_1X_1 + U) + e$$
+
+$$Y = b_0 +  b_1X_1 + \gamma_1 a_0 + \gamma_1 a_1 X_1 + \gamma_1U + e$$
+
+
+$$Y = \underbrace{b_0 +  \gamma_1 a_0} + \underbrace{{(b_1 +  \ \gamma_1 a_1)}}X_1 + \underbrace{{(e + \gamma_1U)}}$$
+
+If we exclude a relevant variable, the estimate is actually incorrect.
+
+
+$$\mathbf{b} = (\mathbf{X^T X})^{-1}\mathbf{X^T y}$$
+
+$$\mathbf{b} = (\mathbf{X^T X})^{-1}\mathbf{X^T}(\mathbf{X\beta + Z\gamma + u})$$
+
+
+$$E(\mathbf{b}) = \mathbf{\beta}  + \underline{\mathbf{(X^T X)^{-1}X^{T}Z\gamma}+\mathbf{(X^T X)^{-1}U}}$$
+
+The estimator is not unbiased -- in fact, it's biased by however large the underlined component is.
+
+So we can't really drop relevant variables in the presence of collinearity. This is a classic example of where the solution may introduce more problems than the original problem of collinearity itself. One more time just to be sure: **Don't drop a relevant variable because of collinearity**
+
+## A Summary
+
+```{r}
+#| label: tbl-multicol-summary
+#| tbl-cap: "Summary of Multicollinearity Consequences and Diagnostics"
+#| echo: false
+
+summary_table <- data.frame(
+  Feature = c(
+    "Bias of OLS",
+    "Variance of OLS",
+    "BLUE property",
+    "Individual t-tests",
+    "Overall F-test",
+    "R-squared",
+    "Coefficient stability",
+    "Primary diagnostic"
+  ),
+  `With Multicollinearity` = c(
+    "None -- still unbiased",
+    "Inflated (larger SEs)",
+    "Still BLUE",
+    "Low power, often non-significant",
+    "May still be significant",
+    "Unaffected",
+    "Sensitive to small data changes",
+    "VIF > 4 or sqrt(VIF) > 2"
+  ),
+  check.names = FALSE
+)
+
+knitr::kable(summary_table)
+```
+
+ The worst mistake you can make is to drop theoritically important variables to "fix" a problem that is really just the data telling you it doesn't contain enough unique information to separate the effects. Report VIFs, discuss the implications, and resist the urge to let statistical convienence override substantive, theoretically informed reasoning (from scientific publications, theory).

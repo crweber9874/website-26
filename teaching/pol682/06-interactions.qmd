@@ -1,0 +1,389 @@
+# Interactions and Non-Additivity {#interactions}
+
+```{r}
+#| label: setup-interactions
+#| include: false
+library(ggplot2)
+library(dplyr)
+```
+
+## Overview
+
+Up to this point, we've assumed that the linear regression model is **additive** -- the effect of one predictor on $Y$ doesn't depend on the value of another predictor. But this assumption is often unrealistic. Does the effect of authoritarianism on institutional trust differ across partisan groups? Does the relationship between income and vote margins change depending on a community's racial composition? These are questions about **interactions**.
+
+In this chapter we develop the interaction model, show how it generalizes the additive (intercept-shift) model from the previous chapter, and apply it to both the Western States Survey and the Arizona precinct data.
+
+## The Arizona Precinct Data
+
+Throughout this chapter and the next, we use the **Arizona precinct data** -- 1,688 precincts from the 2024 presidential election, with voter registration, turnout, and Census demographics linked at the tract level.
+
+::: {.callout-note title="Data: Arizona Precincts" appearance="simple"}
+This data comes from the Arizona Secretary of State voter file, merged with ACS tract-level demographics. Each row is a precinct. The dependent variable is Trump's margin over Harris (positive = Trump advantage). Predictors come from ACS tract-level demographics: median household income, Latino population share, median age, and the Gini index of income inequality.
+:::
+
+```{r}
+#| label: tbl-int-data
+#| echo: true
+#| message: false
+#| warning: false
+
+load("precinct_voter_summary.rda")
+load("precinct_tract_data.rda")
+
+# Convert raw ACS counts to percentages
+precinct_voter_summary <- precinct_voter_summary |>
+  dplyr::mutate(
+    pct_latino = (tract_acs_latino / tract_acs_total_population) * 100,
+    pct_white  = (tract_acs_non_latino_white / tract_acs_total_population) * 100
+  )
+
+head(precinct_voter_summary[, c("dos_precinct_key", "trump_harris_margin",
+                                 "tract_acs_median_household_income",
+                                 "pct_latino", "tract_acs_median_age",
+                                 "tract_acs_gini_index")])
+```
+
+::: {.callout-tip title="dplyr" appearance="simple" collapse="true"}
+The code above uses several `dplyr` verbs:
+
+- **`mutate()`** creates new columns (or modifies existing ones). Here we divide the raw Latino count by total population to get a percentage.
+- **`select()`** chooses specific columns for subsetting.
+- **`filter()`** keeps only rows that meet a condition (e.g., `filter(!is.na(trump_harris_margin))`).
+- **`group_by()` + `summarize()`** computes summary statistics within groups.
+- The pipe `|>` passes the result of one step as the first argument to the next.
+:::
+
+@fig-int-precinct-map shows the geographic distribution of Trump's margin across Arizona precincts.
+
+```{r}
+#| label: fig-int-precinct-map
+#| fig-cap: "Arizona precincts colored by Trump-Harris margin. Hover for precinct details."
+#| echo: false
+#| message: false
+#| warning: false
+
+library(sf)
+library(leaflet)
+
+az_map <- precinct_tract_data |>
+  dplyr::left_join(
+    precinct_voter_summary[, c("dos_precinct_key", "trump_harris_margin",
+                                "tract_acs_median_household_income",
+                                "pct_latino", "tract_acs_median_age",
+                                "tract_acs_gini_index")],
+    by = "dos_precinct_key"
+  ) |>
+  dplyr::filter(!is.na(trump_harris_margin))
+
+az_map <- st_transform(az_map, 4326)
+az_map <- az_map[st_geometry_type(az_map) %in% c("POLYGON", "MULTIPOLYGON"), ]
+
+pal <- colorNumeric(
+  palette = c("blue", "white", "red"),
+  domain = az_map$trump_harris_margin
+)
+
+leaflet(az_map, width = "100%", height = 500) |>
+  addProviderTiles(providers$CartoDB.Positron) |>
+  addPolygons(
+    fillColor = ~pal(trump_harris_margin),
+    fillOpacity = 0.7,
+    color = "#444", weight = 0.3, opacity = 0.5,
+    label = ~paste0(
+      "<b>", precinct_name, "</b> (", county, ")<br>",
+      "Margin: ", round(trump_harris_margin * 100, 1), " pts<br>",
+      "Median Income: $", formatC(tract_acs_median_household_income, format = "d", big.mark = ","), "<br>",
+      "% Latino: ", round(pct_latino, 1), "<br>",
+      "Median Age: ", round(tract_acs_median_age, 1), "<br>",
+      "Gini: ", round(tract_acs_gini_index, 3)
+    ) |> lapply(htmltools::HTML),
+    highlightOptions = highlightOptions(weight = 2, color = "black", bringToFront = TRUE)
+  ) |>
+  addLegend("bottomright", pal = pal, values = ~trump_harris_margin,
+            title = "Trump-Harris<br>Margin", opacity = 0.7)
+```
+
+A baseline additive model: can tract-level ACS demographics predict the Trump-Harris margin?
+
+```{r}
+#| label: tbl-int-baseline
+#| echo: true
+#| message: false
+#| warning: false
+
+fit_az <- lm(trump_harris_margin ~ tract_acs_median_household_income +
+               pct_latino + tract_acs_median_age + tract_acs_gini_index,
+             data = precinct_voter_summary)
+summary(fit_az)
+```
+
+```{r}
+#| label: fig-int-fitted
+#| fig-cap: "Predicted vs. observed Trump-Harris margin across Arizona precincts."
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+plot_df <- data.frame(
+  margin = fit_az$model$trump_harris_margin,
+  yhat = fitted(fit_az)
+)
+
+ggplot(plot_df, aes(x = yhat, y = margin)) +
+  geom_point(alpha = 0.3, size = 1.5, color = "gray40") +
+  geom_abline(intercept = 0, slope = 1, color = "red", linewidth = 1) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray60") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray60") +
+  labs(x = expression(hat(Y) ~ "(Predicted Margin)"),
+       y = "Observed Trump-Harris Margin",
+       title = "Predicted vs. Observed: Arizona Precincts (2024)") +
+  theme_minimal()
+```
+
+## Additive to Interactive 
+
+### The Additive Model
+
+In the previous chapter, we saw how dummy variables produce **intercept shifts** -- parallel lines with different baselines. The additive model assumes the slope is the same for every group. For the Western States Survey data:
+
+$$
+Y_i = \alpha + \gamma_{\text{Rep}} D_{\text{Rep}} + \gamma_{\text{Dem}} D_{\text{Dem}} + \beta_{\text{Auth}} X_{\text{Auth}} + e_i
+$$
+
+```{r}
+#| label: setup-wss
+#| echo: false
+#| message: false
+#| warning: false
+library(tidyr)
+load("wss20.rda")
+
+# Reconstruct variables created in the previous chapter
+wss20 <- wss20 |>
+  pivot_wider(names_from = contestation, values_from = contestation_value) |>
+  mutate(
+    authoritarianism = rowMeans(cbind(auth_1, auth_2, auth_3, auth_4), na.rm = TRUE),
+    democrat = ifelse(party_identification3 == 1, 1, 0),
+    republican = ifelse(party_identification3 == 3, 1, 0),
+    independent = ifelse(party_identification3 == 2, 1, 0),
+    trust_raw = rowMeans(cbind(trustCongress, trustPresident, trustSC,
+                               trustGovernment, trustStateleg, trustPolice,
+                               trustScience), na.rm = TRUE),
+    institutional_trust = (trust_raw - 1) / 3
+  )
+
+wss20$pid_label <- ifelse(wss20$republican == 1 & !is.na(wss20$republican), "Republican",
+                   ifelse(wss20$democrat == 1 & !is.na(wss20$democrat), "Democrat",
+                   ifelse(wss20$independent == 1 & !is.na(wss20$independent), "Independent", NA)))
+```
+
+### The Interaction Model
+
+Recall the additive model assumes the effect of authoritarianism on institutional trust is the **same** for Republicans, Democrats, and Independents. The intercept shifts, but the slope doesn't. What if the effect of authoritarianism *differs* across party groups? The additive model cannot capture this:
+
+\begin{eqnarray*}
+E(Y_i \mid \text{Republican}) &=& (\alpha + \gamma_{\text{Rep}}) + \beta_{\text{Auth}} X_{\text{Auth}} \\
+E(Y_i \mid \text{Democrat}) &=& (\alpha + \gamma_{\text{Dem}}) + \beta_{\text{Auth}} X_{\text{Auth}} \\
+E(Y_i \mid \text{Independent}) &=& \alpha + \beta_{\text{Auth}} X_{\text{Auth}}
+\end{eqnarray*}
+
+
+Here, $\frac{\partial Y}{\partial X_{\text{Auth}}} = \beta_{\text{Auth}}$ . We can relax this by estimating an *interactive* model that allows the slope on authoritarianism to differ by party:
+
+$$
+Y_i = \alpha + \gamma_{\text{Rep}} D_{\text{Rep}} + \gamma_{\text{Dem}} D_{\text{Dem}} + \beta_{\text{Auth}} X_{\text{Auth}} + \delta_{\text{Rep}} (X_{\text{Auth}} \times D_{\text{Rep}}) + \delta_{\text{Dem}} (X_{\text{Auth}} \times D_{\text{Dem}}) + e_i
+$$
+
+So what we're doing is just creating two additional variables. One is defined by multiplying authoritarianism by the Republican dummy, and the other is defined by multiplying authoritarianism by the Democrat dummy.
+
+We now include these in the model.
+
+\begin{eqnarray*}
+E(Y_i \mid \text{Independent}) &=& \alpha + \beta_{\text{Auth}} X_{\text{Auth}} \\
+E(Y_i \mid \text{Republican}) &=& (\alpha + \gamma_{\text{Rep}}) + (\beta_{\text{Auth}} + \delta_{\text{Rep}}) X_{\text{Auth}} \\
+E(Y_i \mid \text{Democrat}) &=& (\alpha + \gamma_{\text{Dem}}) + (\beta_{\text{Auth}} + \delta_{\text{Dem}}) X_{\text{Auth}}
+\end{eqnarray*}
+
+But note what happens when we take the derivative with respect to authoritarianism. The marginal effect of authoritarianism now depends on party identification:
+
+
+* $\beta_{\text{Auth}}$ is the slope of authoritarianism for **Independents** (the reference group)
+* $\delta_{\text{Rep}}$ is the **difference** in the authoritarianism slope between Republicans and Independents
+* $\delta_{\text{Dem}}$ is the **difference** in the authoritarianism slope between Democrats and Independents
+* $\gamma_{\text{Rep}}$ and $\gamma_{\text{Dem}}$ are the intercept differences when $X_{\text{Auth}} = 0$
+
+The lines are no longer parallel -- each group gets its own intercept *and* its own slope.
+
+And note that the marginal effect of authoritarianism is now a function of party identification:
+$$\frac{\partial Y}{\partial X_{\text{Auth}}} = \beta_{\text{Auth}} + \delta_{\text{Rep}} D_{\text{Rep}} + \delta_{\text{Dem}} D_{\text{Dem}}$$
+
+
+::: {.callout-warning title="Always Remember to Include Lower-Order Terms" appearance="simple"}
+
+*It's important to always* include the lower-order constituent terms in an interactive model.
+
+$$Y_i = \alpha + \beta_{\text{Auth}} X_{\text{Auth}} + \delta_{\text{Rep}} (X_{\text{Auth}} \times D_{\text{Rep}}) + \delta_{\text{Dem}} (X_{\text{Auth}} \times D_{\text{Dem}}) + e_i$$
+
+This omits $\gamma_{\text{Rep}}$ and $\gamma_{\text{Dem}}$, forcing the assumption that all three groups share the same intercept (i.e., no group differences when authoritarianism = 0). Conversely:
+
+$$
+Y_i = \alpha + \gamma_{\text{Rep}} D_{\text{Rep}} + \gamma_{\text{Dem}} D_{\text{Dem}} + \delta_{\text{Rep}} (X_{\text{Auth}} \times D_{\text{Rep}}) + \delta_{\text{Dem}} (X_{\text{Auth}} \times D_{\text{Dem}}) + e_i
+$$
+
+This omits $\beta_{\text{Auth}}$, forcing the slope to be zero for Independents. We can always *test* whether $\gamma_{\text{Rep}} = \gamma_{\text{Dem}} = 0$ or $\beta_{\text{Auth}} = 0$, but the full model should include all constituent terms.
+
+:::
+
+```{r}
+#| label: tbl-int-interaction-reg
+#| echo: true
+#| message: false
+#| warning: false
+
+# Additive model (restricted)
+fit_additive <- lm(institutional_trust ~ authoritarianism + republican + democrat, data = wss20)
+
+# Interactive model (unrestricted)
+fit_interaction <- lm(institutional_trust ~ authoritarianism * republican + authoritarianism * democrat, data = wss20)
+summary(fit_interaction)
+
+# F-test: do the interaction terms jointly improve the model?
+anova(fit_additive, fit_interaction)
+```
+
+```{r}
+#| label: fig-int-interaction-slopes
+#| fig-cap: "Interaction between authoritarianism and party identification. Unlike the additive model, slopes now differ across groups."
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+b <- coef(fit_interaction)
+x_range <- seq(min(wss20$authoritarianism, na.rm = TRUE),
+               max(wss20$authoritarianism, na.rm = TRUE), length.out = 100)
+
+line_df <- data.frame(
+  pid_label = rep(c("Independent", "Republican", "Democrat"), each = 100),
+  x = rep(x_range, 3)
+)
+line_df$y <- ifelse(line_df$pid_label == "Independent",
+               b[1] + b[2] * line_df$x,
+             ifelse(line_df$pid_label == "Republican",
+               (b[1] + b[3]) + (b[2] + b[5]) * line_df$x,
+               (b[1] + b[4]) + (b[2] + b[6]) * line_df$x))
+
+scatter_df <- wss20 |> filter(!is.na(pid_label), !is.na(authoritarianism),
+                              !is.na(institutional_trust))
+
+ggplot() +
+  geom_jitter(data = scatter_df,
+              aes(x = authoritarianism, y = institutional_trust, color = pid_label),
+              alpha = 0.25, size = 1, width = 0.1, height = 0.1) +
+  geom_line(data = line_df, aes(x = x, y = y, color = pid_label), linewidth = 1.2) +
+  scale_color_manual(
+    values = c("Independent" = "purple", "Republican" = "red", "Democrat" = "blue")
+  ) +
+  labs(x = "Authoritarianism",
+       y = "E(Institutional Trust)",
+       color = NULL) +
+  theme_minimal() +
+  theme(legend.position = c(0.02, 0.98), legend.justification = c(0, 1))
+```
+
+Compare @fig-int-interaction-slopes to the additive model from the previous chapter -- the lines are no longer parallel. The F-test tells us whether the improvement in fit from allowing different slopes is statistically meaningful.
+
+## Continuous-by-Continuous Interactions
+
+The interaction we just estimated involved a continuous variable (authoritarianism) and a categorical variable (party ID). But interactions are not limited to this combination. We can also interact two continuous variables. The logic is the same -- the effect of one variable depends on the value of another -- but the interpretation requires more care because neither variable "turns on and off" like a dummy does.
+
+Consider the Arizona precinct data. We might ask: does the effect of income on Trump's margin depend on the community's Latino population share? In a predominantly white precinct, higher income might push margins in one direction; in a predominantly Latino precinct, the income effect might be different -- or even reversed.
+
+The model is:
+
+$$
+\text{Margin}_i = \beta_0 + \beta_1 \text{Income}_i + \beta_2 \text{Latino}_i + \beta_3 (\text{Income}_i \times \text{Latino}_i) + \beta_4 \text{Age}_i + \beta_5 \text{Gini}_i + e_i
+$$
+
+Now, what is the effect of income on the margin? Take the partial derivative with respect to income:
+
+$$\frac{\partial \text{Margin}}{\partial \text{Income}} = \beta_1 + \beta_3 \times \text{Latino}_i$$
+
+This is the key insight: the marginal effect of income is *not* a single number. It's a function of percent Latino. At a precinct where $\text{Latino} = 0$, the effect of income is just $\beta_1$. At a precinct where $\text{Latino} = 50$, it's $\beta_1 + 50\beta_3$. The interaction coefficient $\beta_3$ tells you how much the income effect *changes* for each one-unit increase in percent Latino -- but $\beta_3$ by itself doesn't tell you what the income effect actually *is* at any particular value of percent Latino. You need both $\beta_1$ and $\beta_3$ together.
+
+This is why you can't just look at the coefficient table and say "the interaction is significant, so the effect depends on Latino population." You need to compute the marginal effect at specific values and plot it. Let's do that.
+
+```{r}
+#| label: tbl-int-continuous
+#| echo: true
+#| message: false
+#| warning: false
+
+fit_interact_az <- lm(trump_harris_margin ~ tract_acs_median_household_income *
+                        pct_latino + tract_acs_median_age + tract_acs_gini_index,
+                      data = precinct_voter_summary)
+summary(fit_interact_az)
+```
+
+### Computing Marginal Effects
+
+The marginal effect of income at any value of percent Latino is just the partial derivative we wrote above:
+
+$$\frac{\partial \text{Margin}}{\partial \text{Income}} = \hat{\beta}_1 + \hat{\beta}_3 \times \text{Latino}$$
+
+We plug in different values of percent Latino, compute the marginal effect at each one, and plot it.
+
+```{r}
+#| label: fig-int-marginal-effect
+#| fig-cap: "Marginal effect of median household income on Trump-Harris margin at different levels of percent Latino. Shaded region is the 95% confidence interval. The red dashed line at zero indicates no effect."
+#| echo: false
+#| fig-width: 10
+#| fig-height: 6
+
+set.seed(42)
+b <- coef(fit_interact_az)
+v <- vcov(fit_interact_az)
+sim_coefs <- MASS::mvrnorm(1000, mu = b, Sigma = v)
+
+latino_vals <- seq(min(precinct_voter_summary$pct_latino, na.rm = TRUE),
+                   max(precinct_voter_summary$pct_latino, na.rm = TRUE),
+                   length.out = 200)
+
+
+sim_me <- outer(latino_vals, 1:1000, function(lat, i) {
+  sim_coefs[i, "tract_acs_median_household_income"] +
+    sim_coefs[i, "tract_acs_median_household_income:pct_latino"] * lat
+})
+
+# Summarize: point estimate (mean) and 95% interval (2.5th, 97.5th percentiles)
+me_df <- data.frame(
+  pct_latino = latino_vals,
+  effect = rowMeans(sim_me),
+  lwr = apply(sim_me, 1, quantile, 0.025),
+  upr = apply(sim_me, 1, quantile, 0.975)
+)
+
+ggplot(me_df, aes(x = pct_latino, y = effect)) +
+  geom_ribbon(aes(ymin = lwr, ymax = upr), fill = "steelblue", alpha = 0.2) +
+  geom_line(linewidth = 1) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(x = "Percent Latino",
+       y = "Marginal Effect of Median Income\non Trump-Harris Margin",
+       title = "How the Income Effect Changes with Latino Population Share") +
+  theme_minimal()
+```
+
+How do we read @fig-int-marginal-effect? The black line is the estimated marginal effect of income at each level of percent Latino. The shaded band is the 95% confidence interval. Where the band includes zero (the red dashed line), we cannot say the income effect is statistically distinguishable from zero at that level of Latino population. Where the band is entirely above or below zero, the income effect is statistically significant at the 5% level.
+
+This is the right way to interpret a continuous interaction. The coefficient on the interaction term alone -- $\hat{\beta}_3$ -- tells you the *rate of change* of the income effect as Latino percentage increases. But it doesn't tell you what the income effect *is* at any particular value. You always need the full marginal effect calculation and the plot.
+
+## Summary
+
+This chapter extended the additive regression model to allow **interactions** -- cases where the effect of one predictor depends on the value of another. Key takeaways:
+
+- **Categorical interactions** allow different slopes for different groups (e.g., the effect of authoritarianism differs by party).
+- **Continuous interactions** allow the marginal effect of one variable to vary smoothly with another (e.g., the income effect changes with Latino population share).
+- Always include the lower-order constituent terms when specifying an interaction.
+- Use **marginal effect plots** to interpret continuous interactions -- the coefficient on the interaction term alone is not sufficient.
+- The **F-test** (`anova()`) can formally test whether interaction terms jointly improve the model over the restricted additive specification.
+
+In the next chapter, we examine what happens when a core assumption of the linear model -- constant error variance -- is violated. The Arizona precinct data will turn out to be a natural setting for this problem.

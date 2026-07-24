@@ -1,0 +1,240 @@
+---
+title: "An Introduction to Ordered Logit"
+date: "`r Sys.Date()`"
+author: "Christopher Weber"
+organization: "University of Arizona"
+email: "chrisweber@arizona.edu"
+format: 
+  revealjs:
+    css: style_pres.css
+title-block-banner: "#378DBD"  # Custom background color
+---
+
+## The Ordered Logit
+
+-   Only use an ordered parameterization when we have ordered data.
+
+-   Some data can be ordered, even if they are theoretically multidimensional; others should be modeled differently
+
+-   Examples: PID, Ideology (social and economic dimensions)
+
+-   "How much do you agree or disagree with the following item?" from "1" Strongly Disagree to "5" Strongly Agree. 
+
+## Why not OLS?
+
+-   Ordered, non-interval level data may violate the assumptions of the classical linear regression model.
+
+1)  Non-constant variance.
+
+2)  Predictions may be non-sensical (i.e., we predict things outside of the observed bounds).
+
+3)  If the category distances are theoretically quite different.
+
+
+## Probit or Logit
+
+-   Ordered logit or probit is a manner of personal preference.
+
+-   The ordered logit and the proportional odds assumption.
+
+-   $y_{latent}$, where $y_{obs} \in (1,2,3,...k)$.
+
+## The Latent Variable Approach
+
+-   Instead of the variable being 0/1, it is not more than two categories that are ordered. Assume we knew $y_{latent}$ and would like to map that to observing a particular category.
+
+- Using the same logic from the binary regression model, assume that we observe the category based on its orientation to a series of cutpoints, where
+
+$$y_i=m: \tau_{k-1}\leq y_{latent} < \tau_{k}$$
+
+## The Measurement Model
+
+-   The $\tau$ parameters represent a series of thresholds that map the latent variable onto the categorical variable.
+
+-   In $\texttt{MASS}::\texttt{polr}()$ these are "zeta"
+
+-   A \emph{measurement model} (Long 1997, 123)
+
+$$y_{obs} =
+  \begin{array}{lr}
+    A, \tau_0=\infty \leq y_{latent}<\tau_1\\
+    B, \tau_1\leq y_{latent}<\tau_2\\
+    C, \tau_2\leq y_{latent}<\tau_3\\
+    D, \tau_3\leq y_{latent}<\tau_4\\
+    E, \tau_4\leq y_{latent}<\tau_5=\infty
+  \end{array}
+$$
+
+## The Structural Model
+
+$$y_{latent}=\beta_0 + \beta_1x_i +...\sum^{J}_{j =1} \beta_j x_{ij}+e_i$$
+
+$$y=X\beta+e$$
+
+-   Where each row vector of X is a 1 (for the intercept) and any $j+1$ predictors.
+
+## Cutpoints
+
+So what we're doing is defining $K-1$ cutpoints, the slicing up the latent distribution into discrete categories.
+
+\begin{eqnarray*}
+pr(y_{i}=1|X_i) & = & pr(\tau_0 \leq y_{i,latent}<\tau_1)|X_i) \\
+             & = &  pr(\tau_0 \leq X_i b+e_i<\tau_1)|X_i) \\
+             & = &  pr(\tau_0 - X_ib \leq e_i<\tau_1-X_ib)|X_i) \\
+             & = &  pr(\tau_1-X_ib)|X_i)-pr(\tau_0 - X_ib|X_i) \\
+             & = &  F(\tau_1-X_ib)-F(\tau_0 - X_ib) \\
+\end{eqnarray*}
+
+## Cutpoints
+
+-   If F denotes the CDF, then for the ordered probit:
+
+-   The last row is simplified because the probability of the CDF evaluated from $-\infty$ to $\infty$ is 1, so the first term becomes 1. Any CDF is plausible, such as the logit, in which case we have,
+
+\begin{eqnarray*}
+Pr(y_{i}=k|X_i) & = &\Phi(\tau_1-\alpha-\beta X) \\
+             & = &  \Phi(\tau_2-\alpha-\beta X)-\Phi(\tau_1-\alpha-\beta X) \\
+             & = &  \Phi(\tau_3-\alpha-\beta X)-\Phi(\tau_2-\alpha-\beta X)\\
+             & = &  1-\Phi(\tau_4-\alpha-\beta X)\\
+\end{eqnarray*}
+
+## The Ordered Logit
+
+\begin{eqnarray*}
+Pr(y_{i}=k|X_i) & = &Logit(\tau_1-\alpha-\beta X) \\
+                & = &  Logit(\tau_2-\alpha-\beta X)-Logit(\tau_1-\alpha-\beta X) \\
+                & = &  Logit(\tau_3-\alpha-\beta X)-Logit(\tau_2-\alpha-\beta X)\\
+             & = &  1-Logit(\tau_4-\alpha-\beta X)\\
+\end{eqnarray*}
+
+-   $F$ generically to mean the CDF; and $f$ to denote the PDF.
+
+## The Likelihood
+
+-   Recall, that the probability of being in the $k$th category for the $i$th subject is,
+
+\begin{eqnarray*}
+pr(y_{i}=k|X_i) & = & F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+\end{eqnarray*}
+
+## The Likelihood
+
+$$Pr(y_{i}=1|X_i)\times pr(y_{i}=2|X_i) \times pr(y_{i}=3|X_i) \times....pr(y_{i}=K|X_i)$$.
+
+This is just the joint probability for category membership, for each subject, so
+
+\begin{eqnarray*}
+Pr(y_{i}|X_i) & = & \prod_{k=1}^K F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+\end{eqnarray*}
+
+## The Likelihood
+
+-   This only refers to the probability space for a single subject. Since the likelihood is $\prod_{i=1}^N p_i$, we need to calculate the joint probability for each subject, which is,
+
+\begin{eqnarray*}
+pr(y|X) & = & \prod_{i=1}^N \prod_{k=1}^K F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+L(\beta \tau | y, X)& = & \prod_{i=1}^N \prod_{k=1}^K F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta) \\
+\end{eqnarray*}
+
+## The Log Likelihood
+
+\begin{eqnarray*}
+Loglik(\beta \tau | y, X)& = & \sum_{i=1}^N \sum_{k=1}^K log[F(\tau_k-\alpha-X_i\beta)-F(\tau_{k-1}-\alpha-X_i\beta)] \\
+\end{eqnarray*}
+
+-   Like the binary case: $x \rightarrow y_{latent} \rightarrow y_{obs}$.
+
+-   The only thing that is different is that instead of a single cutpoint -- at 0 -- we have a series of cutpoints.
+
+
+## Parallel Lines
+
+```{r}
+library(plotly)
+
+# Create data for parallel lines using the logit function
+x <- seq(-10, 10, length.out = 100)
+logit <- function(x) 1 / (1 + exp(-x))
+
+# Create y values for three parallel lines with different intercepts
+y1 <- logit(x + 1)
+y2 <- logit(x + 3)
+y3 <- logit(x + 5)
+
+# Create a data frame
+data <- data.frame(x, y1, y2, y3)
+
+# Plot using Plotly
+fig <- plot_ly(data, x = ~x) %>%
+  add_trace(y = ~y1, type = 'scatter', mode = 'lines', name = 'Line 1') %>%
+  add_trace(y = ~y2, type = 'scatter', mode = 'lines', name = 'Line 2') %>%
+  add_trace(y = ~y3, type = 'scatter', mode = 'lines', name = 'Line 3') %>%
+  layout(title = 'Parallel Lines using Logit Function',
+         xaxis = list(title = 'X-axis'),
+         yaxis = list(title = 'Y-axis'))
+
+fig
+```
+
+
+## Estimation
+
+```{r, echo = TRUE}
+library(dplyr)
+library(MASS)
+
+load("~/Dropbox/github_repos/teaching/POL683_Fall24/advancedRegression/vignettes/dataActive.rda")
+dat = dataActive %>% 
+  mutate(
+    pid = recode(pid3, "Democrat" = 1, "Independent" = 2, "Republican" = 3, "Other" = 2, "Not sure" = 2),
+    ideo = ifelse(ideo5 == "Very liberal", 1, 0),
+    liberal = ifelse(ideo5 == "Liberal" | ideo5 == "Very liberal", 1, 0),
+    independent = ifelse(ideo5 == "Moderate", 1, 0),
+    conservative = ifelse(ideo5 == "Conservative" | ideo5 == "Very conservative", 1, 0),
+    int1 = conservative*authoritarianism,
+    int2 = independent*authoritarianism,
+  ) 
+my_model = polr(as.factor(pid) ~ conservative + independent + authoritarianism +
+                  int1 + int2, data = dat)
+summary(my_model)
+
+```
+
+## Interpretation
+
+- How do we make sense of this? 
+
+- Follow the same protocol as before.
+
+- Simulate data, generate predictions, and interpret the results.
+
+## Simulating Data, Generating Predictions
+```{r}
+library(tidyverse)
+library(ggridges)
+# Generate prediction data
+newdat =  expand.grid(conservative = 1,
+                                 independent = 0,
+                                 authoritarianism = c(0,1)) %>%
+            mutate(
+              int1 = conservative*authoritarianism,
+              int2 = independent*authoritarianism
+  ) ##j x 6
+
+parameters = mvrnorm(1000, c(coefficients(my_model),  my_model$zeta), vcov(my_model)) %>% as.data.frame()
+# Keep parameters if in newdat
+data.frame(
+  authoritarianism = 1,
+  categoryDem = plogis(parameters$`1|2` - as.matrix(parameters[,names(parameters) %in% names(newdat)]) %*% t(as.matrix(newdat))[,1]) ,
+  categoryInd = plogis(parameters$`2|3` - as.matrix(parameters[,names(parameters) %in% names(newdat)]) %*% t(as.matrix(newdat))[,1]),
+  categoryRep = 1 - plogis(parameters$`2|3` - as.matrix(parameters[,names(parameters) %in% names(newdat)]) %*% t(as.matrix(newdat))[,1]) 
+  ) %>%
+  pivot_longer(cols = starts_with("category"), names_to = "category", values_to = "value") %>%
+ggplot(aes(x = value, y = category, fill = category)) +
+  geom_density_ridges(alpha = 0.7, color = "white") +
+  theme_ridges() +
+  labs(title = "Partisanship among Authoritarians", x = "Probability", y = "PID") + 
+  scale_fill_manual(values = c("blue", "purple", "red")) 
+
+```
+

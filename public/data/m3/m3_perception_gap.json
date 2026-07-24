@@ -1,0 +1,24 @@
+{
+  "meta": {
+    "file_date": "2024-07-19",
+    "source": "avp_survey.rda",
+    "min_cell": 25,
+    "generated": "2026-07-22"
+  },
+  "rows": [
+    {
+      "party": "Dem",
+      "perceived_warmth": 32.2,
+      "actual_warmth": 14,
+      "gap": 18.2,
+      "n_obs": 228
+    },
+    {
+      "party": "Rep",
+      "perceived_warmth": 27.1,
+      "actual_warmth": 12.3,
+      "gap": 14.8,
+      "n_obs": 267
+    }
+  ]
+}

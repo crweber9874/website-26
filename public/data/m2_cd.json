@@ -1,0 +1,1082 @@
+[
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_dem",
+    "value": 0.4394,
+    "n": 406909,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_rep",
+    "value": 0.195,
+    "n": 406909,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_oth",
+    "value": 0.3656,
+    "n": 406909,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageGeneral",
+    "value": 161786,
+    "n": 406909,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averagePrimary",
+    "value": 46095,
+    "n": 406909,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageMidterm",
+    "value": 149597,
+    "n": 406909,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "generalVoterScore",
+    "value": 0.2831,
+    "n": 406909,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "primaryVoterScore",
+    "value": 0.1038,
+    "n": 406909,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_household_income",
+    "value": 54086,
+    "n": 406909,
+    "unit": "usd"
+  },
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_age",
+    "value": 33.4,
+    "n": 406909,
+    "unit": "years"
+  },
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "poverty_rate",
+    "value": 0.2002,
+    "n": 406909,
+    "unit": "rate"
+  },
+  {
+    "geoid": "AZ-CD-07",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "latino_share",
+    "value": 0.6204,
+    "n": 406909,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_dem",
+    "value": 0.3076,
+    "n": 512173,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_rep",
+    "value": 0.3743,
+    "n": 512173,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_oth",
+    "value": 0.3181,
+    "n": 512173,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageGeneral",
+    "value": 216548,
+    "n": 512173,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averagePrimary",
+    "value": 99854,
+    "n": 512173,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageMidterm",
+    "value": 235115,
+    "n": 512173,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "generalVoterScore",
+    "value": 0.3186,
+    "n": 512173,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "primaryVoterScore",
+    "value": 0.1431,
+    "n": 512173,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_household_income",
+    "value": 61654,
+    "n": 512173,
+    "unit": "usd"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_age",
+    "value": 41.7,
+    "n": 512173,
+    "unit": "years"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "poverty_rate",
+    "value": 0.179,
+    "n": 512173,
+    "unit": "rate"
+  },
+  {
+    "geoid": "AZ-CD-02",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "latino_share",
+    "value": 0.2833,
+    "n": 512173,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_dem",
+    "value": 0.2834,
+    "n": 506186,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_rep",
+    "value": 0.3809,
+    "n": 506186,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_oth",
+    "value": 0.3357,
+    "n": 506186,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageGeneral",
+    "value": 236130,
+    "n": 506186,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averagePrimary",
+    "value": 106364,
+    "n": 506186,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageMidterm",
+    "value": 266106,
+    "n": 506186,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "generalVoterScore",
+    "value": 0.3592,
+    "n": 506186,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "primaryVoterScore",
+    "value": 0.1484,
+    "n": 506186,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_household_income",
+    "value": 91347,
+    "n": 506186,
+    "unit": "usd"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_age",
+    "value": 43.4,
+    "n": 506186,
+    "unit": "years"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "poverty_rate",
+    "value": 0.0919,
+    "n": 506186,
+    "unit": "rate"
+  },
+  {
+    "geoid": "AZ-CD-01",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "latino_share",
+    "value": 0.2143,
+    "n": 506186,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_dem",
+    "value": 0.2574,
+    "n": 465340,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_rep",
+    "value": 0.4058,
+    "n": 465340,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_oth",
+    "value": 0.3368,
+    "n": 465340,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageGeneral",
+    "value": 210324,
+    "n": 465340,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averagePrimary",
+    "value": 91034,
+    "n": 465340,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageMidterm",
+    "value": 225736,
+    "n": 465340,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "generalVoterScore",
+    "value": 0.3407,
+    "n": 465340,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "primaryVoterScore",
+    "value": 0.139,
+    "n": 465340,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_household_income",
+    "value": 75676,
+    "n": 465340,
+    "unit": "usd"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_age",
+    "value": 42.8,
+    "n": 465340,
+    "unit": "years"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "poverty_rate",
+    "value": 0.0978,
+    "n": 465340,
+    "unit": "rate"
+  },
+  {
+    "geoid": "AZ-CD-08",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "latino_share",
+    "value": 0.2139,
+    "n": 465340,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_dem",
+    "value": 0.3187,
+    "n": 512219,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_rep",
+    "value": 0.3578,
+    "n": 512219,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_oth",
+    "value": 0.3234,
+    "n": 512219,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageGeneral",
+    "value": 234028,
+    "n": 512219,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averagePrimary",
+    "value": 81660,
+    "n": 512219,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageMidterm",
+    "value": 256390,
+    "n": 512219,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "generalVoterScore",
+    "value": 0.3494,
+    "n": 512219,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "primaryVoterScore",
+    "value": 0.147,
+    "n": 512219,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_household_income",
+    "value": 72511,
+    "n": 512219,
+    "unit": "usd"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_age",
+    "value": 43.4,
+    "n": 512219,
+    "unit": "years"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "poverty_rate",
+    "value": 0.0994,
+    "n": 512219,
+    "unit": "rate"
+  },
+  {
+    "geoid": "AZ-CD-06",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "latino_share",
+    "value": 0.1733,
+    "n": 512219,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_dem",
+    "value": 0.2174,
+    "n": 473842,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_rep",
+    "value": 0.429,
+    "n": 473842,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_oth",
+    "value": 0.3536,
+    "n": 473842,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageGeneral",
+    "value": 185234,
+    "n": 473842,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averagePrimary",
+    "value": 71892,
+    "n": 473842,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageMidterm",
+    "value": 197214,
+    "n": 473842,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "generalVoterScore",
+    "value": 0.2817,
+    "n": 473842,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "primaryVoterScore",
+    "value": 0.1077,
+    "n": 473842,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_household_income",
+    "value": 72222,
+    "n": 473842,
+    "unit": "usd"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_age",
+    "value": 40.4,
+    "n": 473842,
+    "unit": "years"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "poverty_rate",
+    "value": 0.1124,
+    "n": 473842,
+    "unit": "rate"
+  },
+  {
+    "geoid": "AZ-CD-09",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "latino_share",
+    "value": 0.2724,
+    "n": 473842,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_dem",
+    "value": 0.4714,
+    "n": 312764,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_rep",
+    "value": 0.1413,
+    "n": 312764,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_oth",
+    "value": 0.3873,
+    "n": 312764,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageGeneral",
+    "value": 113268,
+    "n": 312764,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averagePrimary",
+    "value": 35872,
+    "n": 312764,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageMidterm",
+    "value": 105711,
+    "n": 312764,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "generalVoterScore",
+    "value": 0.2509,
+    "n": 312764,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "primaryVoterScore",
+    "value": 0.0856,
+    "n": 312764,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_household_income",
+    "value": 59798,
+    "n": 312764,
+    "unit": "usd"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_age",
+    "value": 30.6,
+    "n": 312764,
+    "unit": "years"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "poverty_rate",
+    "value": 0.2048,
+    "n": 312764,
+    "unit": "rate"
+  },
+  {
+    "geoid": "AZ-CD-03",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "latino_share",
+    "value": 0.62,
+    "n": 312764,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_dem",
+    "value": 0.316,
+    "n": 417228,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_rep",
+    "value": 0.3242,
+    "n": 417228,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_oth",
+    "value": 0.3597,
+    "n": 417228,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageGeneral",
+    "value": 183387,
+    "n": 417228,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averagePrimary",
+    "value": 75442,
+    "n": 417228,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageMidterm",
+    "value": 194576,
+    "n": 417228,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "generalVoterScore",
+    "value": 0.3271,
+    "n": 417228,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "primaryVoterScore",
+    "value": 0.1313,
+    "n": 417228,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_household_income",
+    "value": 74362,
+    "n": 417228,
+    "unit": "usd"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_age",
+    "value": 34.6,
+    "n": 417228,
+    "unit": "years"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "poverty_rate",
+    "value": 0.1255,
+    "n": 417228,
+    "unit": "rate"
+  },
+  {
+    "geoid": "AZ-CD-04",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "latino_share",
+    "value": 0.1961,
+    "n": 417228,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_dem",
+    "value": 0.2273,
+    "n": 493739,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_rep",
+    "value": 0.4255,
+    "n": 493739,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "party_share_oth",
+    "value": 0.3472,
+    "n": 493739,
+    "unit": "share"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageGeneral",
+    "value": 214320,
+    "n": 493739,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averagePrimary",
+    "value": 82639,
+    "n": 493739,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "averageMidterm",
+    "value": 230588,
+    "n": 493739,
+    "unit": "count"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "generalVoterScore",
+    "value": 0.3133,
+    "n": 493739,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "primaryVoterScore",
+    "value": 0.1145,
+    "n": 493739,
+    "unit": "score"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_household_income",
+    "value": 100927,
+    "n": 493739,
+    "unit": "usd"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "median_age",
+    "value": 38.7,
+    "n": 493739,
+    "unit": "years"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "poverty_rate",
+    "value": 0.0555,
+    "n": 493739,
+    "unit": "rate"
+  },
+  {
+    "geoid": "AZ-CD-05",
+    "geography": "CD",
+    "file_date": "2024-09-25",
+    "vintage": "2022",
+    "variable": "latino_share",
+    "value": 0.1859,
+    "n": 493739,
+    "unit": "share"
+  }
+]

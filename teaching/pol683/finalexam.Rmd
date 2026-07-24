@@ -1,0 +1,101 @@
+---
+title: "POL 683 Final Exam"
+author: Christopher Weber
+output: pdf_document
+date: "2024-12-17"
+---
+
+
+# Final Exam
+
+## POL 683
+
+Instructions. You should answer these questions in no more than a few
+sentences. There's no need to write more than a few sentences and/or
+equations for each one. Be concise!
+
+**Question 1**. Consider the analysis below.
+
+```{r}
+
+
+```
+
+**Question 2**. Describe the proportional odds assumption using a
+political science example. What are the consequences of estimating an
+ordinal logit when this assumption is violated? How do you test this
+assumption? Please describe a satisfactory alternative estimation
+technique which does not require this assumption.
+
+Question 3. Consider the data described in Question 3. Assume that data
+for authoritarian regimes are not included in the data. What problems
+might this missing data pose in terms of the model you propose to
+estimate (in Question 3). Hint: I strongly encourage you to rely on the
+terminology discussed in class and in the course readings. \vspace{1in}
+
+Question 3. You have a dataset with a variable coded 1 if a country
+engages in military conflict with another country, 0 otherwise. Your
+data includes this measure for 50 years for 25 countries, so
+$y_{it}\in {0,1}$. You also have a continuous measure of democracy for
+each country, $x_{it}$. Thoroughly describe a model you might use to
+estimate the effect of democracy scores on conflict. \vspace{1in}
+
+Question 5.Assume data are censored at $\tau$. Thus,
+
+$$\[y_{observed} = \left\{
+  \begin{array}{lr}
+    \tau, y_{latent}\leq\tau\\
+    \alpha+\sum_K \beta_k x_{k}+\epsilon, y_{latent}>\tau\\
+  \end{array}
+\right.
+\]$$
+
+\noindent \textbf{What are the consequences of this type of censoring? Under what conditions -- if ever -- can censoring be safely ignored?}
+\vspace{1in}
+
+\noindent \textbf{Question 6}. What if the value of $\tau$ varies across
+units. So,
+
+$$\[y_{observed} = \left\{
+  \begin{array}{lr}
+    \tau, y_{latent}\leq\tau_i\\
+    \alpha+\sum_K \beta_k x_{k}+\epsilon, y_{latent}>\tau_i\\
+  \end{array}
+\right.
+\]$$
+
+\noindent \textbf{How would you estimate a regression model in this circumstance? Elaborate.}
+\vspace{1in}
+
+\noindent \textbf{Question 7}. Why are causal statements so difficult to
+make in observational data -- i.e., data in which the researcher is not
+able to assign units to levels of a covariate? \vspace{1in}
+
+\noindent \textbf{Question 8}. What is the fundamental problem of causal
+inference? Use a political science example that we didn't discuss in
+class. \vspace{1in}
+
+\noindent \textbf{Question 9}. Bayesian methods can easily be
+differentiated from frequentistic statistics on theoretical grounds. In
+some cases, bayesian and frequentist statistics reach similar results
+(the median of the posterior is the same as the frequentist point
+estimate). Elaborate on one circumstance on when this occurs.
+\vspace{1in}
+
+\noindent \textbf{Question 10}. The model below is estimated on a
+dataset of 915 PhD biochemistry students. It's the same data described
+in Long (1997) and in our course. It's also included in Long
+(1990).\footnote{Long, J. Scott. 1990. ``The origins of sex differences in science.'' \emph{Social Forces}. 68(3):1297-1316.; Long, J. Scott. 1997. \emph{Regression Models for Categorical and Limited Dependent Variables}. Thousand Oaks, California: Sage.}
+The dependent variable is the number of articles (\texttt{art})
+published by the student. Let's start with a simple model, with only one
+independent variable, the number of articles the faculty advisor
+published during the previous 3 years (\texttt{ment}). \<\<\>\>=
+require(pscl) data(bioChemists) hist(bioChemists\$art)
+summary(glm(art\~1+ment, data=bioChemists, family=poisson(link="log")))
+\@ \noindent \textbf{a. Fully interpret the parameters in this model.}\\
+
+\noindent \textbf{b. A colleague advises you estimate a negative binomial regression model. In what ways are these models different? Why are they different?}\\
+\<\<\>\>= summary(glm(art\~1+ment, data=bioChemists,
+family=quasipoisson(link="log"))) \@
+\noindent \textbf{c. What is a ``zero inflated'' model? Do you think such a model should be used with these data?}\\
+\\end{document}

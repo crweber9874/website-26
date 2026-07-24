@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 9 The Multinomial Model | A Course on Regression, Causal Inference, and Data Visualization</title>
+  <meta name="description" content="These notes accompany POL 683" />
+  <meta name="generator" content="bookdown 0.40 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 9 The Multinomial Model | A Course on Regression, Causal Inference, and Data Visualization" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="These notes accompany POL 683" />
+<meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 9 The Multinomial Model | A Course on Regression, Causal Inference, and Data Visualization" />
+  
+  <meta name="twitter:description" content="These notes accompany POL 683" />
+  
+
+<meta name="author" content="Christopher Weber" />
+
+
+<meta name="date" content="2024-10-06" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="the-ordered-logit.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet" />
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.10.4/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+<div id="cw-site-bar" style="position:sticky;top:0;z-index:99999;display:flex;gap:16px;align-items:center;justify-content:space-between;padding:8px 16px;background:#0a0a0a;color:#f5f5f4;font:600 13px/1.3 system-ui,sans-serif;border-bottom:1px solid rgba(255,255,255,.12)"><a href="/pedagogy/" style="color:#f5f5f4;text-decoration:none">← Teaching resources</a><a href="/" style="color:rgba(245,245,244,.7);text-decoration:none">christopher-weber.com</a></div>
+
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">POL 683</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> url: your book url like https://bookdown.org/yihui/bookdown</a>
+<ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#preface"><i class="fa fa-check"></i>Preface</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="syllabus.html"><a href="syllabus.html"><i class="fa fa-check"></i><b>2</b> Syllabus</a>
+<ul>
+<li class="chapter" data-level="" data-path="syllabus.html"><a href="syllabus.html#pol-683-advanced-regression-analysis"><i class="fa fa-check"></i>POL 683: Advanced Regression Analysis</a>
+<ul>
+<li class="chapter" data-level="" data-path="syllabus.html"><a href="syllabus.html#fall-2024"><i class="fa fa-check"></i>Fall 2024</a></li>
+</ul></li>
+<li class="chapter" data-level="2.1" data-path="syllabus.html"><a href="syllabus.html#course-description"><i class="fa fa-check"></i><b>2.1</b> Course Description</a></li>
+<li class="chapter" data-level="2.2" data-path="syllabus.html"><a href="syllabus.html#learning-objectives"><i class="fa fa-check"></i><b>2.2</b> Learning Objectives</a></li>
+<li class="chapter" data-level="2.3" data-path="syllabus.html"><a href="syllabus.html#grades"><i class="fa fa-check"></i><b>2.3</b> Grades</a></li>
+<li class="chapter" data-level="2.4" data-path="syllabus.html"><a href="syllabus.html#course-outline"><i class="fa fa-check"></i><b>2.4</b> Course Outline</a>
+<ul>
+<li class="chapter" data-level="2.4.1" data-path="syllabus.html"><a href="syllabus.html#building-a-statistical-model"><i class="fa fa-check"></i><b>2.4.1</b> Building a Statistical Model</a></li>
+<li class="chapter" data-level="2.4.2" data-path="syllabus.html"><a href="syllabus.html#estimation-and-model-fit"><i class="fa fa-check"></i><b>2.4.2</b> Estimation and Model Fit</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html"><i class="fa fa-check"></i><b>3</b> An Introduction to the Course</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#a-brief-review-dags-and-statistical-inference"><i class="fa fa-check"></i><b>3.1</b> A Brief Review, DAGs, and Statistical Inference</a></li>
+<li class="chapter" data-level="3.2" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#a-review"><i class="fa fa-check"></i><b>3.2</b> A Review</a>
+<ul>
+<li class="chapter" data-level="" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#an-introduction-to-the-directed-acyclic-graph-dag"><i class="fa fa-check"></i>An Introduction to the Directed Acyclic Graph (DAG)</a></li>
+<li class="chapter" data-level="3.2.1" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#a-simple-dag"><i class="fa fa-check"></i><b>3.2.1</b> A Simple DAG</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#an-example-smoking-and-cancer"><i class="fa fa-check"></i><b>3.3</b> An Example: Smoking and Cancer</a></li>
+<li class="chapter" data-level="3.4" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#the-logic-of-inference"><i class="fa fa-check"></i><b>3.4</b> The Logic of Inference</a></li>
+<li class="chapter" data-level="3.5" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#conditional-probabilities-continued-bayes-rule"><i class="fa fa-check"></i><b>3.5</b> Conditional Probabilities, Continued: Bayes’ Rule</a></li>
+<li class="chapter" data-level="3.6" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#two-traditions"><i class="fa fa-check"></i><b>3.6</b> Two Traditions</a></li>
+<li class="chapter" data-level="3.7" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#bernoulli-trials"><i class="fa fa-check"></i><b>3.7</b> Bernoulli Trials</a></li>
+<li class="chapter" data-level="3.8" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#when-theta-is-unknown"><i class="fa fa-check"></i><b>3.8</b> When <span class="math inline">\(\theta\)</span> is unknown</a></li>
+<li class="chapter" data-level="3.9" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#simulation-and-the-likelihood-function"><i class="fa fa-check"></i><b>3.9</b> Simulation and the Likelihood Function</a></li>
+<li class="chapter" data-level="3.10" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#appendix"><i class="fa fa-check"></i><b>3.10</b> Appendix</a>
+<ul>
+<li class="chapter" data-level="3.10.1" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#a-quick-review"><i class="fa fa-check"></i><b>3.10.1</b> A Quick Review</a></li>
+<li class="chapter" data-level="3.10.2" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#properties-of-estimators"><i class="fa fa-check"></i><b>3.10.2</b> Properties of Estimators</a></li>
+<li class="chapter" data-level="3.10.3" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#finite-sample-properties"><i class="fa fa-check"></i><b>3.10.3</b> Finite Sample Properties</a></li>
+<li class="chapter" data-level="3.10.4" data-path="an-introduction-to-the-course.html"><a href="an-introduction-to-the-course.html#asymptotic-properties"><i class="fa fa-check"></i><b>3.10.4</b> Asymptotic Properties</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="matrix-algebra.html"><a href="matrix-algebra.html"><i class="fa fa-check"></i><b>4</b> Matrix Algebra</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="matrix-algebra.html"><a href="matrix-algebra.html#introduction"><i class="fa fa-check"></i><b>4.1</b> Introduction</a></li>
+<li class="chapter" data-level="4.2" data-path="matrix-algebra.html"><a href="matrix-algebra.html#vectors"><i class="fa fa-check"></i><b>4.2</b> Vectors</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="matrix-algebra.html"><a href="matrix-algebra.html#similarity"><i class="fa fa-check"></i><b>4.2.1</b> Similarity</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="matrix-algebra.html"><a href="matrix-algebra.html#the-cross-product"><i class="fa fa-check"></i><b>4.3</b> The Cross Product</a></li>
+<li class="chapter" data-level="4.4" data-path="matrix-algebra.html"><a href="matrix-algebra.html#the-outer-product"><i class="fa fa-check"></i><b>4.4</b> The Outer Product</a></li>
+<li class="chapter" data-level="4.5" data-path="matrix-algebra.html"><a href="matrix-algebra.html#matrices"><i class="fa fa-check"></i><b>4.5</b> Matrices</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="matrix-algebra.html"><a href="matrix-algebra.html#gauss-jordan-elimination"><i class="fa fa-check"></i><b>4.5.1</b> Gauss Jordan Elimination</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="matrix-algebra.html"><a href="matrix-algebra.html#projections"><i class="fa fa-check"></i><b>4.6</b> Projections</a></li>
+<li class="chapter" data-level="4.7" data-path="matrix-algebra.html"><a href="matrix-algebra.html#summarizing-matrices"><i class="fa fa-check"></i><b>4.7</b> Summarizing Matrices</a>
+<ul>
+<li class="chapter" data-level="4.7.1" data-path="matrix-algebra.html"><a href="matrix-algebra.html#determinants"><i class="fa fa-check"></i><b>4.7.1</b> Determinants</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html"><i class="fa fa-check"></i><b>5</b> Binary Dependent Variables</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#public-policy"><i class="fa fa-check"></i><b>5.1</b> Public Policy</a>
+<ul>
+<li class="chapter" data-level="5.1.1" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#the-log-likelihood"><i class="fa fa-check"></i><b>5.1.1</b> The Log Likelihood</a></li>
+<li class="chapter" data-level="5.1.2" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#the-prior"><i class="fa fa-check"></i><b>5.1.2</b> The Prior</a></li>
+</ul></li>
+<li class="chapter" data-level="5.2" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#maximum-likelihood"><i class="fa fa-check"></i><b>5.2</b> Maximum Likelihood</a></li>
+<li class="chapter" data-level="5.3" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#the-linear-probability-model"><i class="fa fa-check"></i><b>5.3</b> The Linear Probability Model</a></li>
+<li class="chapter" data-level="5.4" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#binary-regression-and-the-latent-variable-formulation"><i class="fa fa-check"></i><b>5.4</b> Binary Regression and the Latent Variable Formulation</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#scale-indeterminacy"><i class="fa fa-check"></i><b>5.4.1</b> Scale Indeterminacy</a></li>
+<li class="chapter" data-level="5.4.2" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#the-nonlinear-regression"><i class="fa fa-check"></i><b>5.4.2</b> The Nonlinear Regression</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#estimating-the-binary-regression-model"><i class="fa fa-check"></i><b>5.5</b> Estimating the Binary Regression Model</a></li>
+<li class="chapter" data-level="5.6" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#analytical-methods"><i class="fa fa-check"></i><b>5.6</b> Analytical Methods</a></li>
+<li class="chapter" data-level="5.7" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#numerical-methods"><i class="fa fa-check"></i><b>5.7</b> Numerical Methods</a>
+<ul>
+<li class="chapter" data-level="5.7.1" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#grid-approximation"><i class="fa fa-check"></i><b>5.7.1</b> Grid Approximation</a></li>
+<li class="chapter" data-level="5.7.2" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#additional-methods"><i class="fa fa-check"></i><b>5.7.2</b> Additional Methods</a></li>
+<li class="chapter" data-level="5.7.3" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#newton-raphson-approximation"><i class="fa fa-check"></i><b>5.7.3</b> Newton-Raphson Approximation</a></li>
+<li class="chapter" data-level="5.7.4" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#example"><i class="fa fa-check"></i><b>5.7.4</b> Example</a></li>
+<li class="chapter" data-level="5.7.5" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#interpretation"><i class="fa fa-check"></i><b>5.7.5</b> Interpretation</a></li>
+</ul></li>
+<li class="chapter" data-level="5.8" data-path="binary-dependent-variables.html"><a href="binary-dependent-variables.html#several-approaches-to-parameter-interpretation"><i class="fa fa-check"></i><b>5.8</b> Several Approaches to Parameter Interpretation</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html"><i class="fa fa-check"></i><b>6</b> Simulation and Statistical Models</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#prediction-uncertainty"><i class="fa fa-check"></i><b>6.1</b> Prediction Uncertainty</a></li>
+<li class="chapter" data-level="6.2" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#marginal-effects"><i class="fa fa-check"></i><b>6.2</b> Marginal Effects</a></li>
+<li class="chapter" data-level="6.3" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#the-normal-distribution"><i class="fa fa-check"></i><b>6.3</b> The Normal Distribution</a></li>
+<li class="chapter" data-level="6.4" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#the-posterior-distribution"><i class="fa fa-check"></i><b>6.4</b> The Posterior Distribution</a></li>
+<li class="chapter" data-level="6.5" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#building-a-model"><i class="fa fa-check"></i><b>6.5</b> Building a Model</a></li>
+<li class="chapter" data-level="6.6" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#steps-to-building-a-model"><i class="fa fa-check"></i><b>6.6</b> Steps to Building a Model</a></li>
+<li class="chapter" data-level="6.7" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#the-dag"><i class="fa fa-check"></i><b>6.7</b> The DAG</a>
+<ul>
+<li class="chapter" data-level="6.7.1" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#conservatism-and-age"><i class="fa fa-check"></i><b>6.7.1</b> Conservatism and Age</a></li>
+</ul></li>
+<li class="chapter" data-level="6.8" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#the-confound"><i class="fa fa-check"></i><b>6.8</b> The Confound</a>
+<ul>
+<li class="chapter" data-level="6.8.1" data-path="simulation-and-statistical-models.html"><a href="simulation-and-statistical-models.html#the-fork"><i class="fa fa-check"></i><b>6.8.1</b> The Fork</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html"><i class="fa fa-check"></i><b>7</b> An Introduction to Causal Inference</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#causal-estimands-and-the-do-operator"><i class="fa fa-check"></i><b>7.1</b> Causal Estimands and the Do Operator</a></li>
+<li class="chapter" data-level="7.2" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#mediation-or-the-pipe"><i class="fa fa-check"></i><b>7.2</b> Mediation, or the Pipe</a></li>
+<li class="chapter" data-level="7.3" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#why-conditioning-on-post-treatment-variables-is-problematic"><i class="fa fa-check"></i><b>7.3</b> Why Conditioning on Post-Treatment Variables is Problematic</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#the-collider"><i class="fa fa-check"></i><b>7.3.1</b> The Collider</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#what-is-the-effect-of-age"><i class="fa fa-check"></i><b>7.4</b> What is the Effect of Age?</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#what-is-the-effect-of-knowledge-or-education"><i class="fa fa-check"></i><b>7.4.1</b> What is the effect of knowledge (or education)</a></li>
+<li class="chapter" data-level="7.4.2" data-path="an-introduction-to-causal-inference.html"><a href="an-introduction-to-causal-inference.html#return-of-the-do-operator"><i class="fa fa-check"></i><b>7.4.2</b> Return of the Do Operator</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="the-ordered-logit.html"><a href="the-ordered-logit.html"><i class="fa fa-check"></i><b>8</b> The Ordered Logit</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="the-ordered-logit.html"><a href="the-ordered-logit.html#intuition"><i class="fa fa-check"></i><b>8.1</b> Intuition</a></li>
+<li class="chapter" data-level="8.2" data-path="the-ordered-logit.html"><a href="the-ordered-logit.html#the-latent-variable-approach"><i class="fa fa-check"></i><b>8.2</b> The Latent Variable Approach</a>
+<ul>
+<li class="chapter" data-level="8.2.1" data-path="the-ordered-logit.html"><a href="the-ordered-logit.html#the-likelihood"><i class="fa fa-check"></i><b>8.2.1</b> The Likelihood</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="the-multinomial-model.html"><a href="the-multinomial-model.html"><i class="fa fa-check"></i><b>9</b> The Multinomial Model</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="the-multinomial-model.html"><a href="the-multinomial-model.html#intuition-1"><i class="fa fa-check"></i><b>9.1</b> Intuition</a></li>
+<li class="chapter" data-level="9.2" data-path="the-multinomial-model.html"><a href="the-multinomial-model.html#the-likelihood-1"><i class="fa fa-check"></i><b>9.2</b> The Likelihood</a></li>
+<li class="chapter" data-level="9.3" data-path="the-multinomial-model.html"><a href="the-multinomial-model.html#interpretation-1"><i class="fa fa-check"></i><b>9.3</b> Interpretation</a></li>
+<li class="chapter" data-level="9.4" data-path="the-multinomial-model.html"><a href="the-multinomial-model.html#the-conditional-logit"><i class="fa fa-check"></i><b>9.4</b> The Conditional Logit</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">A Course on Regression, Causal Inference, and Data Visualization</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="the-multinomial-model" class="section level1 hasAnchor" number="9">
+<h1><span class="header-section-number">Chapter 9</span> The Multinomial Model<a href="the-multinomial-model.html#the-multinomial-model" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Often, dependent variables don’t have a natural ordering. We cannot array the variable on a continuum; nor are the distances between categories equal. For example, voting in multiparty elections presents this issue: It’s not clear how to array four or five (or more) parties on a single continuum. Even party identification in the U.S. could be construed as non-ordered. Do ``Independent’’ voters fall inbetween Republicans and Democrats? What about Green Party Voters, or Libertarians? Should we just assume these voters are ideological moderates?</p>
+<p>If we have multi-category nominal data, we again will violate the assumptions of the classical linear regression model. In addition to the usual problems (non-constant variance, non-sensical predictions, wrong functional form), OLS with an unordered variable is essentially meaningless because <span class="math inline">\(X\)</span> doesn’t have a linear effect on <span class="math inline">\(Y\)</span>.</p>
+<p>In the case of nominal data, we again can use the intuition of logit and probit with binary variables. The logit and probit models are somewhat different with multiple category data. Here, we’ll mainly stick with the logit case, called the (MLM).</p>
+<p>Instead of a single logit, we now will make multiple comparisons. For instance, consider voting for one of three parties</p>
+<p><span class="math inline">\(1=Liberal \\
+2=Social Democrat \\
+3=Conservative\)</span></p>
+<p>We could run one logit model predicting the probability of Liberal relative to Social Democratic voting. Then, run a second model predicting Liberal versus Conservative. Then, run a third model predicting Social Democrat versus Conservative. We could also include covariates predicting the outcome in each of these three models.</p>
+<div id="intuition-1" class="section level2 hasAnchor" number="9.1">
+<h2><span class="header-section-number">9.1</span> Intuition<a href="the-multinomial-model.html#intuition-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Much of this is simply a summarization of Long (1997), Chapter 6. Assume <span class="math inline">\(y_{obs} \in (SD, L, C)\)</span>.</p>
+<p>Maintaining the previous logic, estimate three models.</p>
+<p><span class="math display">\[ln({{pr(SD|x)}\over{pr(L|x})}=\beta_{0,SD|L}+\beta_{1,SD|L}x\]</span>
+<span class="math display">\[ln({{pr(C|x)}\over{pr(L|x})}=\beta_{0,C|L}+\beta_{1,C|L}x\]</span>
+<span class="math display">\[ln({{pr(SD|x)}\over{pr(C|x})}=\beta_{0,SD|C}+\beta_{1,SD|C}x\]</span></p>
+<p>Exponentiate and</p>
+<p><span class="math display">\[{{pr(SD|x)}\over{pr(L|x)}}=exp(\beta_{0,SD|L}+\beta_{1,SD|L}x)\]</span>
+<span class="math display">\[{{pr(C|x)}\over{pr(L|x)}}=exp(\beta_{0,C|L}+\beta_{1,C|L}x)\]</span>
+<span class="math display">\[{{pr(SD|x)}\over{pr(C|x)}}=exp(\beta_{0,SD|C}+\beta_{1,SD|C}x)\]</span></p>
+<p>Now, we are predicting the relative odds of being in each category. There is something that should appear redundant about this formulation. If we predict the the odds of A over B given x, and then predict the odds of B over C given x, we should be able to use these results to estimate the odds of A over C given x, rather than estimating an altogether separate model. In fact, it can be shown that this is the case: The sum of the first two equations equals the third equation.</p>
+<p>We could also calculate the probability of being in the <span class="math inline">\(k\)</span>th category.</p>
+<p><span class="math display">\[{{pr(y=K|x)}}={{exp(X\beta_{k})}\over {\sum_k exp(X\beta_{k})}}\]</span></p>
+<p>If we were to estimate this model for each outcome, the model is not identified. We cannot find a unique solution for this sytem of equations. Multiply the above expression by <span class="math inline">\(exp(x\tau)/exp(x\tau)\)</span>. The probabilities will stay the same, but <span class="math inline">\(\beta=\beta+\tau\)</span>. You should sort of see this in the three equations as well. We don’t really need to estimate three models to find the probability of the three categories. We only need to estimate two models and note that the third category has a probabity equal to 1 minus the sum of the two.</p>
+<p>Instead, we need to apply a constraint to identify the model. A common one is that the <span class="math inline">\(\beta\)</span>s for one of the equations are all equal to 1. So, for instance,</p>
+<p><span class="math display">\[y_{obs} =
+  \begin{array}{lr}
+    SD, 1/(1+\sum_{k=2}^K exp(XB_k))\\
+    C,  exp(XB_{C})/(1+\sum_{k=2}^K exp(XB_k))\\
+    L,  exp(XB_{L})/(1+\sum_{k=2}^K exp(XB_k))\\
+  \end{array}
+\]</span></p>
+<p>Similar to a dummy variable regression, we estimate <span class="math inline">\(k-1\)</span> unique equations, where one category serves as the baseline, reference category. In the above example, the excluded category is SD. So, the basic logic of a series of chained logits still holds, but we are anchoring these logits relative to a common baseline (here, SD).</p>
+</div>
+<div id="the-likelihood-1" class="section level2 hasAnchor" number="9.2">
+<h2><span class="header-section-number">9.2</span> The Likelihood<a href="the-multinomial-model.html#the-likelihood-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>The likelihood is not all that dissimilar to that of the ordered logit. Recall, the probability of being in the <span class="math inline">\(k\)</span>th category for the <span class="math inline">\(i\)</span>th subject is,</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y_{i}=K|x_i) &amp; = &amp;{ {exp(XB)}\over{\sum exp(XB)} }\\
+\end{eqnarray*}\]</span></p>
+<p>With the constraint that <span class="math inline">\(B=0\)</span> for the set of predictors in one category. Again, we need to calculate the joint parameter space, <span class="math inline">\(pr(y_{i}=1|X_i)\times pr(y_{i}=2|X_i) \times pr(y_{i}=3|X_i) \times....pr(y_{i}=K|X_i)\)</span>. This is just the joint probability for category membership, for each subject, so</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y_{i}|X_i) &amp; = &amp; \prod_{k=1}^K { {exp(XB)}\over{\sum exp(XB)} }\\
+\end{eqnarray*}\]</span></p>
+<p>This only refers to the probability space for a single subject. Since the likelihood is <span class="math inline">\(\prod_{i=1}^N p_i\)</span>, we need to calculate the joint probability for each subject, which is,</p>
+<p><span class="math display">\[\begin{eqnarray*}
+pr(y|X) &amp; = &amp; \prod_{i=1}^N \prod_{k=1}^K { {exp(XB)}\over{\sum exp(XB)} }\\
+\end{eqnarray*}\]</span></p>
+<p>Once again, it’s far easier to calculate the probabilities by taking the log of the likelihood.</p>
+<p><span class="math display">\[\begin{eqnarray*}
+Loglik(\beta | y, X)&amp; = &amp; \sum_{i=1}^N \sum_{k=1}^K log[{ {exp(XB)}\over{\sum exp(XB)} } \\
+\end{eqnarray*}\]</span></p>
+<p>Again, we could use maximum likelihood to estimate the parameters in the model.</p>
+</div>
+<div id="interpretation-1" class="section level2 hasAnchor" number="9.3">
+<h2><span class="header-section-number">9.3</span> Interpretation<a href="the-multinomial-model.html#interpretation-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>With <span class="math inline">\(k\)</span> categories, there are <span class="math inline">\(k-1\)</span> unique ``models’’ in the multinomial logit model. In other words, if we include 2 covariates and there are 3 categories, we would estimate six parameters. Again, just think of this as a set of chained binary logit models, with a common baseline. For instance, if our dependent variable is voting Social Democrat, Conservative, or Liberal, we could set Liberal as the baseline and predict the log odds of voting Social Democrat relative to Liberal and Conservative relative to Liberal.</p>
+<p>As is probably not surprising, what this means is that the partial derivative is not a constant,</p>
+<p><span class="math display">\[{{\partial pr(y=k|x)}\over{\partial x}}=\sum_{j=1}^J \beta_{j,m}pr(y=k|x)\]</span></p>
+<p>Where, <span class="math inline">\(k\)</span> corresponds to the category, <span class="math inline">\(j\)</span> the item.</p>
+<p>The key to understand here is that one category serves as the baseline and we interpret the results of the <span class="math inline">\(k-1\)</span> categories in reference to that baseline. If we would like to test whether one variable does not have an effect, then:</p>
+<p><span class="math display">\[H_0=\beta_{k,1|r}=\beta_{k,2|r}=....\beta_{k,J|r}\]</span></p>
+<p>Likewise, we may also test the probability of being in the <span class="math inline">\(k\)</span>th category, given a particular value of <span class="math inline">\(x\)</span>.</p>
+<p><span class="math display">\[pr(y=k|x)={{exp(xB_k)}/{\sum_{j=1}^Jexp(xB_k)}}\]</span></p>
+</div>
+<div id="the-conditional-logit" class="section level2 hasAnchor" number="9.4">
+<h2><span class="header-section-number">9.4</span> The Conditional Logit<a href="the-multinomial-model.html#the-conditional-logit" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>A related model – but one that deserves a separate treatment – is what is called the ``Conditional Logit Model.’’ In the multinomial logit model, recall that we are modeling the choice as a function of an individual covariate. Individual <span class="math inline">\(i\)</span> has the same value, regardless of what he/she chooses. We could flip things and also consider how the characteristics of the choices themselves predict the outcome.</p>
+<p>As an example, we predicted voting in the Canadian election with authoritarianism. This is how the data might appear for person 1.</p>
+<p>Thus, there are three columns for each individual, corresponding to the choice. Within each participant, <span class="math inline">\(i\)</span> there is a single value for authoritarianism. This doesn’t vary within (?) subjects, it only varies between subjects.</p>
+<p>But what if we anticipated that choice was also a function of how much candidate <span class="math inline">\(j\)</span> spends. If we expect that candidate choice is also a function of the choices themselves, then the data might look something like this:</p>
+<p>Now note how the choice scores vary within participants. The participant still chooses, but that choice is not only a function of that participant’s characteristics, but also the choices themselves. We could then write the model as a function of the choices.</p>
+<p><span class="math display">\[pr(y=k|x)={{exp(z_kB_k)}/{\sum_{k=1}^Kexp(z_kB_k)}}\]</span></p>
+<p>Each choice is a function of <span class="math inline">\(z\)</span> – a characteristic of that choice. Here, we need not apply the constraint that <span class="math inline">\(\beta=0\)</span> because <span class="math inline">\(z\)</span> varies across choices. Thus, there will be <span class="math inline">\(k\)</span> sets of estimates for each category.</p>
+<p>It is possible to write a hybrid of these approaches, combining both characteristics of the choices with characteristics of the individual. Long (1997, pp 181-182) describes the general intuition. Given the fact there will be many parameters, and that conditional logit models are relatively rare in political science, I’m going to avoid spending class time to discuss this model. You should note, however, that this is type of model may be estimated.</p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="the-ordered-logit.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {"link": null, "text": null},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

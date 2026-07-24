@@ -1,0 +1,423 @@
+# Application: Panel Data and Multilevel Models
+
+```{r}
+#| label: setup-panel-app
+#| include: false
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(lme4)
+library(plm)
+
+az_blue <- "#2166AC"
+az_red  <- "#B2182B"
+```
+
+## The ISCAP Panel
+
+The Institute for the Study of Citizens and Politics (ISCAP) at the University of Pennsylvania conducted a multi-wave panel survey spanning 2012, 2016, 2018, and 2020. The same respondents were tracked across these four election cycles, making it an ideal dataset for illustrating the panel data methods from Chapter 9.
+
+The key variables are:
+
+| Variable | Coding |
+|---|---|
+| Party Identification | 7-point scale (1 = Strong Democrat, 7 = Strong Republican) |
+| Ideology | 7-point scale (1 = Extremely Liberal, 7 = Extremely Conservative) |
+| Gender | 1 = Female |
+| College | 1 = College degree or higher |
+| Nonwhite | 1 = Non-white |
+| Political Legitimacy | Mean of 4 items (5-point Agree–Disagree scale), rescaled 0–1 |
+
+The legitimacy scale consists of four items: (a) "I would rather live under our system of government than any other," (b) "At present I feel very critical of our political system," (c) "The system needs big changes," and (d) "The system does a good job representing the interests of people like me."
+
+## Data Preparation
+
+```{r}
+#| label: load-upenn
+#| echo: true
+#| message: false
+#| warning: false
+load("data/upenn.rda")
+cat("Wide format:", nrow(upenn), "respondents,", ncol(upenn), "columns\n")
+```
+
+The data are in `wide` format — one row per respondent, with separate columns for each variable at each wave. We need to reshape to long format for panel analysis.
+
+```{r}
+#| label: build-legitimacy
+#| echo: false
+#| message: false
+#| warning: false
+
+# Build the political legitimacy scale (mean of 4 items, rescaled 0-1)
+zero_one <- function(x) (x - min(x, na.rm = TRUE)) / 
+                         (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+
+row_mean <- function(...) {
+  m <- rowMeans(cbind(...), na.rm = TRUE)
+  m[is.nan(m)] <- NA_real_
+  m
+}
+
+upenn <- upenn |>
+  mutate(
+    political_legitimacy_2012 = row_mean(
+      live_our_government_2012, critical_of_system_2012,
+      system_needs_changes_2012, system_represents_interests_2012
+    ) |> zero_one(),
+    political_legitimacy_2016 = row_mean(
+      live_our_government_2016, critical_of_system_2016,
+      system_needs_changes_2016, system_represents_interests_2016
+    ) |> zero_one(),
+    political_legitimacy_2018 = row_mean(
+      live_our_government_2018, critical_of_system_2018,
+      system_needs_changes_2018, system_represents_interests_2018
+    ) |> zero_one(),
+    political_legitimacy_2020 = row_mean(
+      live_our_government_2020, critical_of_system_2020,
+      system_needs_changes_2020, system_represents_interests_2020
+    ) |> zero_one()
+  )
+```
+
+```{r}
+#| label: pivot-long
+#| echo: true
+#| message: false
+#| warning: false
+upenn_long <- upenn |>
+  pivot_longer(
+    cols = -identifier,
+    names_to = c(".value", "wave"),
+    names_pattern = "(.+)_(\\d{4})$"
+  ) |>
+  arrange(identifier, wave) |>
+  mutate(
+    party_identification = (party_identification - 1) / 6,
+    ideology = (ideology - 1) / 6,
+    wave = as.integer(wave)
+  )
+
+cat("Long format:", nrow(upenn_long), "rows (respondents x waves)\n")
+head(upenn_long)
+```
+
+## Exploring the Panel Structure
+
+Before estimating models, let's look at the data. How stable are party identification and political legitimacy over time?
+
+```{r}
+#| label: fig-spaghetti
+#| fig-cap: "Individual trajectories across four waves. Party identification is highly stable; political legitimacy shows more within-person movement."
+#| fig-width: 10
+#| fig-height: 5
+#| echo: false
+#| message: false
+#| warning: false
+
+set.seed(42)
+sample_ids <- sample(unique(upenn_long$identifier), 100)
+
+plot_df <- upenn_long |>
+  filter(identifier %in% sample_ids) |>
+  select(identifier, wave, party_identification, political_legitimacy) |>
+  pivot_longer(cols = c(party_identification, political_legitimacy),
+               names_to = "variable", values_to = "value") |>
+  mutate(variable = ifelse(variable == "party_identification",
+                           "Party Identification", "Political Legitimacy"))
+
+ggplot(plot_df, aes(x = wave, y = value, group = identifier)) +
+  geom_line(alpha = 0.15, color = az_blue) +
+  stat_summary(aes(group = 1), fun = mean, geom = "line",
+               color = az_red, linewidth = 1.5) +
+  stat_summary(aes(group = 1), fun = mean, geom = "point",
+               color = az_red, size = 3) +
+  facet_wrap(~ variable) +
+  labs(x = "Wave", y = "Value (0–1 scale)") +
+  theme_minimal() +
+  theme(strip.text = element_text(face = "bold"))
+```
+
+The spaghetti plot for a random sample of 100 respondents reveals the key pattern: party identification trajectories are nearly flat (high between-person, low within-person variance), while political legitimacy shows substantially more within-person movement.
+
+## The Intraclass Correlation
+
+We can quantify this with the ICC from a null random-intercept model. This is the ANOVA decomposition from Chapter 9 — partitioning total variance into between-person ($\sigma^2_{b_0}$) and within-person ($\sigma^2_y$) components:
+
+$$
+\text{ICC} = \frac{\sigma^2_{b_0}}{\sigma^2_{b_0} + \sigma^2_y}
+$$
+
+```{r}
+#| label: tbl-icc
+#| echo: true
+#| message: false
+#| warning: false
+
+m_party <- lmer(party_identification ~ 1 + (1 | identifier),
+                REML = FALSE, data = upenn_long)
+m_legit <- lmer(political_legitimacy ~ 1 + (1 | identifier),
+                REML = FALSE, data = upenn_long)
+
+icc_from_lmer <- function(fit) {
+  vc <- as.data.frame(VarCorr(fit))
+  between <- vc$vcov[vc$grp == "identifier"]
+  within  <- vc$vcov[vc$grp == "Residual"]
+  data.frame(between_var = between, within_var = within,
+             total_var = between + within,
+             ICC = between / (between + within))
+}
+
+icc_tbl <- bind_rows(
+  cbind(variable = "Party Identification", icc_from_lmer(m_party)),
+  cbind(variable = "Political Legitimacy", icc_from_lmer(m_legit))
+)
+
+knitr::kable(icc_tbl, digits = 3,
+             col.names = c("Variable", "Between (σ²_{b₀})", "Within (σ²_y)",
+                           "Total", "ICC"))
+```
+
+Party identification is overwhelmingly between-person variation — most of the action is stable trait differences across individuals. Political legitimacy is less stable, with more wave-to-wave fluctuation.
+
+## Pooled OLS (Ignoring the Panel)
+
+As a baseline, we ignore the panel structure entirely and fit a pooled OLS regression predicting political legitimacy from party identification and demographics:
+
+```{r}
+#| label: tbl-pooled-ols
+#| echo: true
+#| message: false
+#| warning: false
+
+fit_pooled <- lm(political_legitimacy ~ party_identification + 
+                   female + college + nonwhite,
+                 data = upenn_long)
+summary(fit_pooled)
+```
+
+The pooled model treats all observations as independent — which we know they are not. The standard errors are almost certainly too small.
+
+## Fixed Effects Model
+
+The fixed effects model removes all between-person variation by demeaning within each individual. This eliminates time-invariant confounders (race, gender, etc.) but also prevents us from estimating their effects. We use the `plm` package:
+
+```{r}
+#| label: tbl-fixed-effects
+#| echo: true
+#| message: false
+#| warning: false
+
+upenn_plm <- pdata.frame(upenn_long, index = c("identifier", "wave"))
+
+fit_fe <- plm(political_legitimacy ~ party_identification + ideology,
+              data = upenn_plm, model = "within")
+summary(fit_fe)
+```
+
+Notice that `female`, `college`, and `nonwhite` cannot appear here — they are time-invariant and are absorbed by the individual fixed effects. The within estimator tells us: *when a person's party identification shifts, how does their legitimacy perception change?*
+
+```{r}
+#| label: tbl-fe-effects
+#| echo: true
+#| message: false
+#| warning: false
+# Extract the individual fixed effects
+fe <- fixef(fit_fe)
+cat("Number of individual fixed effects:", length(fe), "\n")
+cat("Mean:", round(mean(fe), 3), " SD:", round(sd(fe), 3), "\n")
+```
+
+## Two-Way Fixed Effects
+
+The one-way fixed effects model above absorbs all *individual*-level confounders, but it does not account for shocks that affect everyone simultaneously — elections, recessions, political crises, etc. A two-way fixed effects (TWFE) model adds period (wave) fixed effects alongside individual fixed effects:
+
+$$
+y_{it} = \alpha_i + \lambda_t + \mathbf{x}_{it}'\boldsymbol{\beta} + \varepsilon_{it}
+$$
+
+where $\alpha_i$ captures time-invariant individual heterogeneity and $\lambda_t$ captures shocks common to all individuals at time $t$. In `plm`, we specify `effect = "twoways"`:
+
+```{r}
+#| label: tbl-twfe
+#| echo: true
+#| message: false
+#| warning: false
+
+fit_twfe <- plm(political_legitimacy ~ party_identification + ideology,
+                data = upenn_plm, model = "within", effect = "twoways")
+summary(fit_twfe)
+```
+
+The time fixed effects absorb any wave-specific level shifts — for example, a general decline in legitimacy perceptions during the Trump era. We can test whether the time fixed effects are jointly significant with an F-test comparing the one-way and two-way models:
+
+```{r}
+#| label: tbl-twfe-test
+#| echo: true
+#| message: false
+#| warning: false
+
+pFtest(fit_twfe, fit_fe)
+```
+
+A significant result tells us that the common time shocks matter and should be included. We can also inspect the estimated time effects to see how legitimacy shifted across waves after conditioning on individual heterogeneity and the time-varying covariates:
+
+```{r}
+#| label: fig-time-effects
+#| fig-cap: "Estimated time fixed effects from the two-way FE model. These capture wave-specific shocks common to all respondents, net of individual heterogeneity and time-varying covariates."
+#| fig-width: 6
+#| fig-height: 4
+#| echo: true
+#| message: false
+#| warning: false
+
+time_fe <- fixef(fit_twfe, effect = "time")
+time_df <- data.frame(wave = as.numeric(names(time_fe)),
+                      effect = as.numeric(time_fe))
+
+ggplot(time_df, aes(x = wave, y = effect)) +
+  geom_point(size = 3, color = az_blue) +
+  geom_line(color = az_blue) +
+  labs(x = "Wave", y = "Time Fixed Effect") +
+  theme_minimal()
+```
+
+
+## Random Effects Model
+
+The random effects model treats the individual intercepts as draws from a normal distribution rather than fixed parameters. This is more efficient than fixed effects *if* the individual effects are uncorrelated with the regressors — a strong assumption, but one that allows us to include time-invariant predictors.
+
+Using `plm`:
+
+```{r}
+#| label: tbl-random-effects-plm
+#| echo: true
+#| message: false
+#| warning: false
+
+fit_re <- plm(political_legitimacy ~ party_identification + ideology +
+                female + college + nonwhite,
+              data = upenn_plm, model = "random")
+summary(fit_re)
+```
+
+And equivalently using `lme4`:
+
+```{r}
+#| label: tbl-random-effects-lmer
+#| echo: true
+#| message: false
+#| warning: false
+
+fit_ri <- lmer(political_legitimacy ~ party_identification + ideology +
+                 female + college + nonwhite + (1 | identifier),
+               REML = FALSE, data = upenn_long)
+summary(fit_ri)
+```
+
+The `lme4` model gives us the variance components directly: how much residual variation is between-person vs. within-person *after* conditioning on the predictors. Compare the residual ICC to the null model — it should be smaller now that we've included covariates.
+
+## Hausman Test: Fixed vs. Random Effects
+
+The Hausman test checks whether the random effects assumption — that individual effects are uncorrelated with the regressors — is defensible:
+
+```{r}
+#| label: tbl-hausman
+#| echo: true
+#| message: false
+#| warning: false
+
+# For the Hausman test, both models must have the same regressors
+# (only time-varying ones)
+fit_fe_h <- plm(political_legitimacy ~ party_identification + ideology,
+                data = upenn_plm, model = "within")
+fit_re_h <- plm(political_legitimacy ~ party_identification + ideology,
+                data = upenn_plm, model = "random")
+phtest(fit_fe_h, fit_re_h)
+```
+
+A significant Hausman test suggests the random effects estimator is inconsistent — the individual effects are correlated with the regressors — and fixed effects should be preferred.
+
+## Predictions from the Random Intercept Model
+
+One advantage of the random effects / multilevel approach is that we get individual-specific predictions that reflect partial pooling. Let's generate predictions from the `lme4` model and compare them to the observed values:
+
+```{r}
+#| label: fig-predictions
+#| fig-cap: "Predicted vs. observed political legitimacy from the random intercept model. The partial-pooling predictions shrink extreme observations toward the grand mean."
+#| fig-width: 8
+#| fig-height: 5
+#| echo: true
+#| message: false
+#| warning: false
+
+complete_idx <- complete.cases(upenn_long[, c("political_legitimacy", "party_identification",
+                                               "ideology", "female", "college", "nonwhite")])
+pred_df <- upenn_long[complete_idx, ]
+pred_df$predicted <- predict(fit_ri)
+
+ggplot(pred_df, aes(x = predicted, y = political_legitimacy)) +
+  geom_point(alpha = 0.1, color = az_blue) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = az_red) +
+  labs(x = "Predicted (Random Intercept Model)",
+       y = "Observed Political Legitimacy") +
+  theme_minimal()
+```
+
+```{r}
+#| label: fig-ranef
+#| fig-cap: "Distribution of estimated random intercepts. Most individuals cluster near the grand mean, but there is substantial heterogeneity."
+#| fig-width: 7
+#| fig-height: 4
+#| echo: false
+#| message: false
+#| warning: false
+
+ri_df <- data.frame(intercept = ranef(fit_ri)$identifier[, 1])
+
+ggplot(ri_df, aes(x = intercept)) +
+  geom_histogram(bins = 50, fill = az_blue, color = "white", alpha = 0.8) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = az_red) +
+  labs(x = "Random Intercept (deviation from grand mean)",
+       y = "Count") +
+  theme_minimal()
+```
+
+The random intercepts capture the stable between-person differences in political legitimacy — exactly the "trait" component we discussed in Chapter 9. Individuals with positive intercepts tend to view the political system more favorably than predicted by their covariates alone; those with negative intercepts are systematically more critical.
+
+```{r}
+#| label: fig-pred-by-wave
+#| fig-cap: "Predicted trajectories for six randomly selected respondents. The random intercept shifts each individual's baseline up or down."
+#| fig-width: 9
+#| fig-height: 5
+#| echo: false
+#| message: false
+#| warning: false
+
+set.seed(99)
+show_ids <- sample(unique(pred_df$identifier), 6)
+
+pred_sample <- pred_df |>
+  filter(identifier %in% show_ids) |>
+  mutate(identifier = factor(identifier))
+
+ggplot(pred_sample, aes(x = wave)) +
+  geom_point(aes(y = political_legitimacy), color = az_blue, size = 2.5) +
+  geom_line(aes(y = predicted), color = az_red, linewidth = 1) +
+  geom_point(aes(y = predicted), color = az_red, size = 1.5) +
+  facet_wrap(~ identifier, ncol = 3) +
+  labs(x = "Wave", y = "Political Legitimacy (0–1)",
+       caption = "Blue dots = observed; red line = predicted") +
+  theme_minimal() +
+  theme(strip.text = element_text(face = "bold"))
+```
+
+## Summary
+
+This application illustrates the core panel data methods from Chapter 9 on real data:
+
+- **Pooled OLS** ignores the panel structure and produces overconfident standard errors.
+- **Fixed effects** removes all between-person variation via the within-transformation, eliminating time-invariant confounders but also time-invariant predictors.
+- **Random effects** models individual intercepts as draws from a normal distribution, enabling partial pooling and the inclusion of time-invariant covariates — but requires the assumption that individual effects are uncorrelated with the regressors.
+- The **Hausman test** adjudicates between the two.
+- **Predictions** from the random intercept model reflect the partial pooling compromise: individuals with more data are pulled less toward the grand mean; those with less data are pulled more.

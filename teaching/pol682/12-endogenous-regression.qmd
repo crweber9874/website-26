@@ -1,0 +1,671 @@
+# The Exogeneity Assumption
+
+```{r}
+#| label: setup-endog
+#| include: false
+library(ggplot2)
+library(dplyr)
+library(ggdag)
+library(dagitty)
+library(patchwork)
+
+az_blue <- "#2166AC"
+az_red  <- "#B2182B"
+```
+
+## Introduction
+
+Recall that an assumption of the linear model is that the errors are uncorrelated with the independent variables. This can be violated in a number of ways. 
+
+The assumption of **exogeneity** is the assumption that the independent variable(s) are determined outside the model; it is uncorrelated with the error term. 
+
+As we've seen, several Gaussian assumptions overlap. **Exogeneity** one of the more encompassing ones. For instance, proper model specification is a necessary condition for exogeneity. If we omit a relevant variable that is correlated with both the independent variable and the dependent variable, that omitted variable gets absorbed into the error term, which creates a correlation between the independent variable and the error term. This produces bias.
+Violations of this assumption can follow from a number of sources:
+
+- **Omitted variables.**  By omitting relevant variable that is related to both an independent variable *and* the dependent variable, it gets absorbed into the error term. This creates a non-zero correlation between the right-hand side variable(s) and the errors, which produces bias. Note that this is a problem of *omission* -- if we include the confounder, the bias goes away.
+- **Measurement error** in an independent variable induces a correlation with the error and leads to attenuation bias (see the previous chapter).
+- **Simultaneity.** An independent variable may not be truly exogenous and fixed; instead, it may be influenced by the dependent variable itself.
+
+Each of these is a violation of what we call *exogeneity*. 
+
+
+
+## Introducing the DAG
+
+A **Directed Acyclic Graph (DAG)** is just a sketch of purportedly causal relationships. Nodes are variables; arrows are causal effects. "Acyclic" means no variable causes itself (even indirectly). DAGs let us see what OLS is doing -- and why it sometimes fails -- without working through the algebra.
+
+### Exogeneity
+
+An **exogenous** is a variable that is determined outside the model; outside the set of variables in our statistical model. In a DAG, that means it has no arrow pointing *into* it from anything else in the system. It might have arrows pointing from it, but nothing in our model causes it.
+
+```{r}
+#| label: fig-exogenous
+#| fig-cap: "Exogeneity: X is determined outside the model. No arrow points into X from Y or the error ε."
+#| echo: false
+#| message: false
+#| warning: false
+library(ggdag)
+dagify(
+  y ~ x + e,
+  labels = c("x" = "X", "y" = "Y", "e" = "ε (error)"),
+  coords = list(x = c(x = 0, y = 2, e = 1), y = c(x = 0, y = 0, e = 1))
+) |>
+  ggdag(text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+The DAG captures the assumption we need for OLS to be unbiased: $X$ and $\epsilon$ are unconnected. Values of $X$ are *predetermined* -- not caused by anything else in the equation, and crucially not caused by $Y$.
+
+## Reading a DAG
+
+Before we use DAGs to diagnose endogeneity (and related things), we need to develop the vocabulary for reading these diagrams.
+
+These rules come from Judea Pearl's work on causal graphs, and the gist is always the same: **for OLS to recover a causal effect, the covariates in our model must block every non-causal path between the treatment and the outcome, without blocking any of the causal paths.**
+
+### Paths
+
+A **path** is any sequence of arrows (in either direction) connecting two variables. Some paths are causal, some are not:
+
+- A **causal (directed) path** follows arrows in one direction: $X \to M \to Y$.
+- A **non-causal (backdoor) path** has at least one arrow pointing against the direction you're reading: $X \leftarrow U \to Y$.
+
+Both kinds of paths transmit statistical association. Only the first is what we mean by a "causal effect." The whole game is separating them.
+
+### Three Intersections: Pipes, Chains and Colliders
+
+Every path is built from three kinds of relationships:
+
+1. **Chain (a "pipe"):** $X \to M \to Y$. Association flows through $M$. Conditioning on $M$ *blocks* it.
+2. **Fork (confounder):** $X \leftarrow U \to Y$. Association flows through $U$. Conditioning on $U$ *blocks* it.
+3. **Collider:** $X \to C \leftarrow Y$. Association does *not* flow through $C$ in the graph. But conditioning on $C$ *opens* the path.
+
+```{r}
+#| label: fig-junctions
+#| fig-cap: "The three building blocks of any DAG. Conditioning closes chains and forks, but it opens colliders."
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 3.2
+
+chain <- dagify(m ~ x, y ~ m,
+  coords = list(x = c(x = 0, m = 1, y = 2), y = c(x = 0, m = 0, y = 0)))
+fork  <- dagify(x ~ u, y ~ u,
+  coords = list(x = c(x = 0, u = 1, y = 2), y = c(x = 0, u = 1, y = 0)))
+coll  <- dagify(c ~ x + y,
+  coords = list(x = c(x = 0, c = 1, y = 2), y = c(x = 1, c = 0, y = 1)))
+
+(ggdag(chain) + theme_dag() + ggtitle("Chain: X → M → Y")) |
+(ggdag(fork)  + theme_dag() + ggtitle("Fork: X ← U → Y")) |
+(ggdag(coll)  + theme_dag() + ggtitle("Collider: X → C ← Y"))
+```
+
+### d-Separation and the Backdoor Criterion
+
+A path is **blocked** by a conditioning variable(s) $\mathbf{Z}$ if 
+$\mathbf{Z}$ is the middle variable in a chain or fork, and $\mathbf{Z}$is not a collider. A path is also blocked if the descendants are in $\mathbf{Z}$ Two variables are **d-separated** by $\mathbf{Z}$ if *every* path between them is blocked.
+
+The **backdoor criterion** translates this into a means for identifying the causal effect of $X$ on $Y$:
+
+> Choose a set $\mathbf{Z}$ of covariates such that (a) $\mathbf{Z}$ blocks every backdoor path from $X$ to $Y$, and (b) $\mathbf{Z}$ contains no descendants of $X$.
+
+If such a $\mathbf{Z}$ exists, regressing $Y$ on $X$ and $\mathbf{Z}$ recovers the causal effect of $X$ on $Y$.
+
+### A Quick Example
+
+Suppose we want the causal effect of **college** ($X$) on **voter engagement** ($Y$). Two other variables may play a role:
+
+- **Parental SES** ($U$): affects both whether you go to college and whether you vote.
+- **Political knowledge** ($M$): college increases knowledge, and knowledge increases engagement.
+
+```{r}
+#| label: fig-backdoor-example
+#| fig-cap: "A running example: college (X) causes turnout (Y) both directly and through political knowledge (M). Parental SES (U) is a confounder — it causes both X and Y."
+#| echo: false
+#| message: false
+#| warning: false
+
+dagify(
+  y ~ x + m + u,
+  m ~ x,
+  x ~ u,
+  labels = c("x" = "College (X)",
+             "m" = "Political knowledge (M)",
+             "y" = "Engagement (Y)",
+             "u" = "Parental SES (U)"),
+  coords = list(x = c(x = 0, m = 1, y = 2, u = 0.5),
+                y = c(x = 0, m = 0.6, y = 0, u = 1))
+) |>
+  ggdag(text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+**List the paths from $X$ to $Y$:**
+
+1. $X \to Y$ — causal (direct).
+2. $X \to M \to Y$ — causal (indirect, through the mediator).
+3. $X \leftarrow U \to Y$ — **backdoor** (non-causal; this is what biases OLS if we ignore $U$).
+
+**Apply the backdoor criterion.** We want the total effect of $X$ on $Y$, so we need to *block path 3* without touching paths 1 or 2.
+
+- **Condition on $U$?** Yes. $U$ is the middle of a fork on path 3; including it as a regressor blocks that backdoor path. And $U$ is not a descendant of $X$, so it's allowed.
+- **Condition on $M$?** No. $M$ is the middle of a chain on path 2 — the causal indirect effect. Including it would close the mediator and we'd recover only the direct effect, not the total effect.
+
+So the valid adjustment set is $\mathbf{Z} = \{U\}$. The OLS regression `lm(Y ~ X + U)` recovers the total causal effect. `lm(Y ~ X + U + M)` recovers only the direct effect. `lm(Y ~ X)` alone is biased by the $X \leftarrow U \to Y$ confounding path.
+
+We can confirm with `dagitty` package:
+
+```{r}
+#| label: adj-sets-example
+#| echo: true
+g_ex <- dagitty::dagitty("dag {
+  U -> X
+  U -> Y
+  X -> M
+  M -> Y
+  X -> Y
+}")
+dagitty::adjustmentSets(g_ex, exposure = "X", outcome = "Y")
+```
+
+Now imagine $U$ is **unobserved** — a common situation. The backdoor path $X \leftarrow U \to Y$ cannot be blocked by conditioning, because we don't have $U$ in our data. No valid adjustment set exists. That is exactly the situation in which instrumental variables enter the picture.
+
+### Three Rules for Specification
+
+From the backdoor criterion, three operational rules fall out:
+
+1. **Block every backdoor path.** Control for confounders (forks).
+2. **Do not condition on a collider.** Including one in your regression *creates* a spurious association between the parents of that collider.
+3. **Do not condition on a post-treatment variable (a mediator) if you want the total effect.** Chains carry part of the causal signal; closing them throws that signal away.
+
+The `dagitty` package automates this: given a DAG and a (treatment, outcome) pair, `adjustmentSets()` returns every valid $\mathbf{Z}$.
+
+```{r}
+#| label: adj-sets-demo
+#| echo: true
+g <- dagitty::dagitty("dag {
+  U [unobserved]
+  Z -> X
+  X -> Y
+  U -> X
+  U -> Y
+}")
+dagitty::adjustmentSets(g, exposure = "X", outcome = "Y")
+```
+
+No valid backdoor adjustment exists here because $U$ is unobserved. That is precisely the situation in which we mow turn: endogeneity and **instrumental variables**.
+
+## Endogeneity in a DAG
+
+An **endogenous** variable is determined by factors *inside* the model. The dependent variable is endogenous by definition. The problem arises when one of our *independent* variables is endogenous in a way that links it to the error.
+
+```{r}
+#| label: fig-endogeneity-types
+#| fig-cap: "Three routes to endogeneity. Left: an omitted confounder U links X and Y through the error. Middle: Y causes X (simultaneity). Right: X is measured with error γ, so the observed X is correlated with the composite error."
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 10
+#| fig-height: 4
+
+d1 <- dagify(
+  y ~ x + u, x ~ u,
+  labels = c("x" = "X", "y" = "Y", "u" = "U (unobserved)"),
+  coords = list(x = c(x = 0, y = 2, u = 1), y = c(x = 0, y = 0, u = 1))
+)
+d2 <- dagify(
+  y ~ x, x ~ y,
+  labels = c("x" = "X", "y" = "Y"),
+  coords = list(x = c(x = 0, y = 2), y = c(x = 0, y = 0))
+)
+d3 <- dagify(
+  y ~ xstar, xobs ~ xstar + gamma,
+  labels = c("xstar" = "X*", "xobs" = "X (observed)",
+             "y" = "Y", "gamma" = "γ (meas. error)"),
+  coords = list(x = c(xstar = 0, xobs = 1, gamma = 1, y = 2),
+                y = c(xstar = 0, xobs = 1, gamma = 2, y = 0))
+)
+
+p1 <- ggdag(d1, text = FALSE, use_labels = "label") +
+  theme_dag() + ggtitle("Omitted confounder")
+p2 <- ggdag(d2, text = FALSE, use_labels = "label") +
+  theme_dag() + ggtitle("Simultaneity")
+p3 <- ggdag(d3, text = FALSE, use_labels = "label") +
+  theme_dag() + ggtitle("Measurement error in X")
+
+(p1 | p2 | p3)
+```
+
+In all three cases, a backdoor path connects $X$ to something that sits inside the error term. OLS can't tell that path apart from the causal effect of $X$ on $Y$, and the coefficient is biased.
+
+## Instruments, Pictorially
+
+An **instrumental variable** $Z$ is an exogenous variable that is specifically useful for recovering the causal effect of an endogenous $X$ on $Y$. A valid instrument satisfies two properties, both easiest to see in a picture:
+
+```{r}
+#| label: fig-instrument
+#| fig-cap: "A valid instrument Z affects X (relevance) but reaches Y only through X (exclusion). The unobserved confounder U biases the X → Y relationship, but Z is unaffected by U."
+#| echo: false
+#| message: false
+#| warning: false
+
+dagify(
+  y ~ x + u,
+  x ~ z + u,
+  labels = c("z" = "Z (instrument)", "x" = "X", "y" = "Y",
+             "u" = "U (unobserved)"),
+  coords = list(x = c(z = -1, x = 0, y = 2, u = 1),
+                y = c(z = 0, x = 0, y = 0, u = 1))
+) |>
+  ggdag(text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+The two conditions:
+
+1. **Relevance.** $Z$ has an arrow into $X$. $Z$ actually moves $X$ around.
+2. **Exclusion.** $Z$ has *no* direct arrow to $Y$ and *no* arrow to or from the confounder $U$. The only path from $Z$ to $Y$ goes through $X$.
+
+Two-stage least squares (2SLS) uses $Z$ to isolate the part of $X$ that is driven by the instrument -- the "clean" variation -- and uses *that* to estimate the effect on $Y$.
+
+## Terminology, More Formally
+
+An **endogenous** variable is determined inside the model. In the equation
+
+$$
+y_i = b_0 + b_1 x_i + e_i,
+$$
+
+$y$ is endogenous. **Exogeneity** of $x$ asserts that $x$'s values are predetermined outside the system (and, critically, not caused by $y$).
+
+An **instrumental variable** $z$ is exogenous and affects a right-hand side endogenous variable but is excluded from the outcome equation:
+
+$$
+y_i = b_0 + b_1 x_i + e_{1i}, \qquad x_i = a_0 + a_1 z_i + e_{2i}.
+$$
+
+If we regress $x$ on $z$, take the fitted values $\hat{x}$, and plug them into the $y$ equation, we have **two-stage least squares**. Substituting the first stage into the second gives the **reduced-form equation** for $y$ in terms of the exogenous variables only.
+
+## Systems of Equations
+
+So far we have talked about *one* equation at a time. But endogeneity is almost always a statement about a **system of equations** -- once we admit that $Y$ might cause $X$, or that an unobserved $U$ causes both, we have more than one dependent variable floating around.
+
+Consider two variables that move together:
+
+$$
+x_2 = b_{00} + b_{01} x_1 + e_1,
+$$
+
+$$
+x_1 = b_{10} + b_{11} x_2 + e_2.
+$$
+
+Both variables appear on the left-hand side of an equation *and* on the right-hand side of another. Both are endogenous. Every OLS assumption we have made breaks at once:
+
+- $\text{cov}(x_1, e_1) \neq 0$ because $x_1$ feeds back through $x_2$.
+- $\text{cov}(x_2, e_2) \neq 0$ for the same reason.
+
+And without more information, the system is **not identified** -- there's not enough data to separate the two equations. Adding an exogenous variable *unique to each equation* addresses this, by identifiying the equations it:
+
+$$
+x_2 = b_{00} + b_{01} x_1 + \gamma_1 z_1 + e_1, \qquad
+x_1 = b_{10} + b_{11} x_2 + \gamma_2 z_2 + e_2.
+$$
+
+Now $z_1$ identifies the $x_2$ equation (it predicts $x_1$ but is excluded from the $x_2$ equation), and $z_2$ identifies the $x_1$ equation symmetrically. This is the general rule: **to identify each equation in a system, we need at least one instrument excluded from that equation but included in the equation that generates the endogenous right-hand side variable.**
+
+::: {.callout-note}
+## Recursive vs. Non-Recursive (Simultaneous) Systems
+
+**Recursive systems** order the variables: $X_1$ causes $X_2$; $X_2$ causes $X_3$; but $X_3$ does not feed back. The DAG has no cycles. If in addition the equation-level errors are uncorrelated, a recursive system is **identified by its structure alone** -- we can estimate each equation by OLS, one at a time, and get unbiased, consistent estimates.
+
+**Non-recursive (simultaneous) systems** contain feedback: $X_1$ causes $X_2$ *and* $X_2$ causes $X_1$. The DAG now includes a cycle. OLS is biased on every equation in the cycle. Identification now requires **excluded instruments**: at least one exogenous variable in each equation that is absent from the other.
+
+The pictures make the difference vivid:
+
+```{r}
+#| label: fig-rec-vs-nonrec
+#| fig-cap: "Recursive (left): variables are ordered, no feedback. Non-recursive (right): X₁ and X₂ feed back into each other — OLS is biased; instruments are required."
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-width: 9
+#| fig-height: 3.5
+
+rec <- dagify(
+  x2 ~ x1,
+  x3 ~ x2 + x1,
+  labels = c(x1 = "X\u2081", x2 = "X\u2082", x3 = "X\u2083"),
+  coords = list(x = c(x1 = 0, x2 = 1, x3 = 2),
+                y = c(x1 = 0, x2 = 0, x3 = 0))
+)
+nonrec <- dagify(
+  x1 ~ x2,
+  x2 ~ x1,
+  labels = c(x1 = "X\u2081", x2 = "X\u2082"),
+  coords = list(x = c(x1 = 0, x2 = 1),
+                y = c(x1 = 0, x2 = 0))
+)
+
+(ggdag(rec,    text = FALSE, use_labels = "label") +
+   theme_dag() + ggtitle("Recursive")) |
+(ggdag(nonrec, text = FALSE, use_labels = "label") +
+   theme_dag() + ggtitle("Non-recursive (simultaneous)"))
+```
+
+Recursive models underwrite **path analysis** and most of what we call "mediation." Non-recursive models are where 2SLS becomes important (though it too can be used in recursive models with endogeneity).
+:::
+
+## Practical Considerations
+
+@bartels1991 lays out a number of challenges (some of them unfixable) that come with 2SLS.
+
+**Finding a valid instrument is hard.** We need something that predicts the endogenous regressor but has no direct effect on the outcome and no connection to the unobserved confounder. In practice, candidate instruments usually fail at least one of these checks.
+
+**Weak instruments.** Even when an instrument is valid, it may not be *strong*: it may explain too little variation in the endogenous regressor. Consider
+
+$$
+y_1 = b_1 x_1 + b_2 x_2 + b_3 x_3 + e_1,
+$$
+
+with endogenous $x_1$ and the first stage
+
+$$
+x_1 = a_1 z_1 + a_2 x_2 + a_3 x_3 + e_1.
+$$
+
+If $a_1$ is small, $\hat{x}_1$ is mostly a linear combination of $x_2$ and $x_3$ -- exactly the other regressors already in the second stage. That buys us collinearity in place of endogeneity.
+
+## Identification and Inefficiency
+
+Consider an outcome equation with an endogenous $x_2$ and two exogenous controls $z_1, z_2$:
+
+$$
+y = \beta_1 x_2 + \gamma_1 z_1 + \gamma_2 z_2 + \epsilon_1.
+$$
+
+Now suppose our first stage for $x_2$ uses only the same exogenous variables:
+
+$$
+x_2 = \pi_1 z_1 + \pi_2 z_2 + \epsilon_2.
+$$
+
+The fitted $\hat{x}_2 = \hat\pi_1 z_1 + \hat\pi_2 z_2$ is a linear combination of variables already in the outcome equation. Plugging it into the second stage produces a perfectly collinear matrix of regressors, and $X^TX$ is singular. 
+
+$$
+y = \beta_1 \hat{x}_2 + \gamma_1 z_1 + \gamma_2 z_2 + \delta.
+$$
+
+$\mathbf{X^T X}$ is singular; no inverse exists. The equation is **not identified**.
+
+The fix is to bring in an **excluded instrument** -- a variable $z_3$ that appears in the first stage but is absent from the outcome equation:
+
+$$
+x_2 = \pi_1 z_1 + \pi_2 z_2 + \pi_3 z_3 + \epsilon_2.
+$$
+
+Now $\hat{x}_2$ contains a piece ($\hat\pi_3 z_3$) that is not in the span of the second-stage regressors, and the design matrix has full rank. **Identification requires at least one instrument that appears in the first stage but not the second** -- this is known as the *order condition*.
+
+A "truly" two-stage approach (run stage 1, save $\hat{x}_2$, run stage 2 on it) gives unbiased coefficients but wrong standard errors -- the second-stage regression doesn't know that $\hat{x}_2$ is an estimate. Modern 2SLS implementations estimate everything jointly and produce the correct variance
+
+$$
+\sigma^2 (\hat{W}^T \hat{W})^{-1},
+$$
+
+where the matrix $\hat{W}$ is assembled column by column from two sources, the endogenous and exogenous IVs. 
+
+
+::: {.callout-note}
+## What's Inside $\hat{W}$
+
+$\hat{W}$ is built column by column from two sources:
+
+- $\hat{X}$ -- the **fitted values** of the endogenous regressors, obtained from the first-stage regression on *all* of the exogenous variables (the excluded instruments *and* the included controls). There is one column of $\hat{X}$ for every endogenous variable on the right-hand side of the outcome equation. Concretely, if $x_2$ is endogenous and the first stage is $x_2 = \pi_1 z_1 + \pi_2 z_2 + \pi_3 z_3 + \epsilon_2$, then the $\hat{x}_2$ column of $\hat{X}$ is $\hat\pi_1 z_1 + \hat\pi_2 z_2 + \hat\pi_3 z_3$.
+- $Z$ -- the **included exogenous regressors** from the outcome equation itself: the intercept column of ones, the exogenous controls ($z_1, z_2$ in our running example), and any dummies or transformations that are not endogenous. These enter $\hat{W}$ unchanged; they do not need a first-stage projection because they are already uncorrelated with the error.
+:::
+
+By stacking these, this gives $\hat{W} = [\,\hat{X}\ \ Z\,]$, an $n \times (k_x + k_z)$ matrix where $k_x$ is the number of endogenous regressors and $k_z$ is the number of included exogenous regressors. The 2SLS coefficient vector is then $\hat{\boldsymbol{\beta}}_{2SLS} = (\hat{W}^T \hat{W})^{-1} \hat{W}^T \mathbf{y}$, which looks exactly like OLS applied to $\hat{W}$.
+
+The subtle but important point: the variance $\sigma^2 (\hat{W}^T \hat{W})^{-1}$ uses $\hat{W}$, **but** $\sigma^2$ is the variance of the residuals computed using the *original* $X$ (with the actual endogenous values), not $\hat{X}$. That is, residuals are $\mathbf{y} - X \hat{\boldsymbol{\beta}}_{2SLS}$, not $\mathbf{y} - \hat{W} \hat{\boldsymbol{\beta}}_{2SLS}$. This is exactly the correction that a manual two-step procedure misses and that `ivreg()` handles automatically.
+
+## Testing for Endogeneity
+
+If we have identified an instrument, we can also test whether endogeneity is actually a problem. The distinction matters. Under exogeneity, OLS is unbiased, consistent, and efficient (smallest variance among linear unbiased estimators). 2SLS is consistent but biased in finite samples, and it is always less efficient than OLS — its standard errors are larger. So if $x$ is actually exogenous, using 2SLS costs us precision for no real benefit; if $x$ is endogenous, we should not use OLS. Here, 2SLS or maybe an alternative estimator is the only choice.
+
+::: {.callout-note}
+## Unbiasedness vs. Consistency
+
+These two properties sound similar but aren't the same thing.
+
+- **Unbiasedness** is a statement about a *single sample of size $n$*: $E[\hat\beta] = \beta$. On average across all possible samples of that size, the estimator hits the target. OLS under Gauss-Markov is unbiased at every $n$.
+- **Consistency** is a statement about what happens as $n \to \infty$: $\hat\beta \xrightarrow{p} \beta$. With enough data, the estimator concentrates on the true value. An estimator can be consistent without being unbiased — it just has to have its bias shrink to zero as the sample grows.
+
+**OLS** under the Gauss-Markov assumptions is both unbiased *and* consistent.
+
+**2SLS** is **consistent but biased in finite samples.** The bias comes from using estimated first-stage coefficients. By just plugging these into the second-stage, this ignores the fact the estimated variable is noisy, i.e, there is randomness. What's more, this error is correlated with the second-stage error, which creates bias. This goes away as n grows, but in a small sample, it may be non trivial...**consistency and unbiasedness are not the same thing.**
+
+
+:::
+
+To test for this,  the first stage, save the residuals $\hat{\delta}$, and include the residuals in the second-stage equation:
+
+$$
+y = \beta_1 x_1 + \beta_2 \hat{\delta} + \gamma_1 z_1 + \gamma_2 z_2 + \gamma_3 x_3 + \epsilon.
+$$
+
+If $\hat{\beta}_2$ is significantly different from zero, the part of $x_1$ that is *not* explained by the instruments is correlated with $y$'s error -- i.e., $x_1$ is endogenous. 
+
+The  **Hausman test** compares the two coefficient vectors directly:
+
+$$
+H = (\beta_c - \beta_e)^T (V_c - V_e)^{-1} (\beta_c - \beta_e),
+$$
+
+distributed $\chi^2$ with degrees of freedom equal to the number of compared coefficients. Think of $H$ as a squared distance between the two coefficient vectors, scaled by the difference in their variance matrices.
+
+A small $H$ means the two estimators are similar, and we should prefer the efficient OLS estimator. A large $H$ says the estimators disagree, and we should use the 2SLS estimator.
+
+### Recursive Equations
+
+Consider a four-equation system with four exogenous variables $z_1, z_2, z_3, z_4$. Each equation includes the $x$'s determined earlier in the chain, plus some subset of the $z$'s:
+
+$$
+x_1 = b_{00} + \omega_{11} z_1 + \omega_{12} z_2 + \omega_{13} z_3 + \omega_{14} z_4 + e_1,
+$$
+
+$$
+x_2 = b_{10} + b_{11} x_1 + \omega_{22} z_2 + \omega_{23} z_3 + \omega_{24} z_4 + e_2,
+$$
+
+$$
+x_3 = b_{20} + b_{21} x_2 + b_{22} x_1 + \omega_{33} z_3 + \omega_{34} z_4 + e_3,
+$$
+
+$$
+x_4 = b_{30} + b_{31} x_3 + b_{32} x_2 + b_{33} x_1 + \omega_{44} z_4 + e_4.
+$$
+
+Two things are going on in the structure of this system:
+
+- **The $x$'s are ordered.** $x_2$ depends on $x_1$; $x_3$ depends on $x_1$ and $x_2$; $x_4$ depends on all three. No $x_j$ ever depends on a later $x$. This is what makes the system *recursive* -- the DAG has no cycles.
+- **The $z$'s have a staircase pattern of inclusion.** $z_1$ appears only in the $x_1$ equation. $z_2$ appears in the $x_1$ and $x_2$ equations but is excluded from $x_3$ and $x_4$. And so on. Each equation after the first is *missing* at least one exogenous variable that appears in an earlier equation.
+
+That exclusion pattern is deliberate. If the errors were correlated across equations (so endogeneity creeps in), the excluded $z$'s would serve as available instruments: $z_1$ is available to identify the $x_2, x_3, x_4$ equations; $z_2$ is available to identify the $x_3$ and $x_4$ equations; and so on.
+
+**If the errors are uncorrelated across these equations**, this is a classic **recursive model**. It's identified -- why? Each equation's right-hand side contains only variables determined *earlier* in the chain (or exogenous $z$'s), so exogeneity holds equation by equation, and OLS applied to each equation one at a time is consistent. We don't actually need the excluded instruments for estimation in this case -- but they're still there if we need them.
+
+If, however, the errors *are* correlated, this will induce endogeneity and the model will no longer be consistent. Why? An unobserved factor driving, say, $e_2$ and $e_3$ would link $x_2$ (determined inside equation 2) to $e_3$, violating exogeneity in equation 3.
+
+We could substitute equations into higher-order equations to show why this is a particularly interesting model. Let's substitute the $x_1$ equation into the $x_2$ equation. For simplicity, let's just assume there are two instruments:
+
+$$
+x_2 = (\omega_2 + b_{11} \omega_1) z_1 + \omega_3 z_2 + (e_2 + b_{11} e_1),
+$$
+
+$$
+x_2 = \omega^{*} z_1 + \omega_3 z_2 + e^{*}_1.
+$$
+
+We've actually seen something like this before -- go back to your notes on specification bias from POL 682. There are two effects here: the **direct effect** of $z_1 \to x_2$ and the **indirect effect** of $z_1 \to x_1 \to x_2$. The coefficient associated with the regression of $x_2$ on $z_1$ thus represents the **total effect**, which can be decomposed into these two components. If we have a correctly specified system of equations, this can allow us to detect interesting relationships in a dataset, beyond the traditional "direct effects" in a single-stage OLS equation. Of course, we need to make important assumptions that may or may not be tenable:
+
+1. There must be at least one excluded instrument in each equation.
+2. The errors across equations should be uncorrelated.
+3. The relationship should be recursive and not simultaneous.
+
+These can be difficult assumptions to make in practice, but with a theoretically specified system of equations, it is useful to be able to diagnose direct and indirect (or mediated) effects.
+
+```{r}
+#| label: fig-recursive
+#| fig-cap: "A recursive system. Z₁ has a direct effect on X₂ and an indirect effect through X₁. The total effect is the sum."
+#| echo: false
+#| message: false
+#| warning: false
+
+dagify(
+  x1 ~ z1,
+  x2 ~ x1 + z1 + z2,
+  labels = c("z1" = "Z₁", "z2" = "Z₂", "x1" = "X₁", "x2" = "X₂"),
+  coords = list(x = c(z1 = 0, z2 = 0, x1 = 1, x2 = 2),
+                y = c(z1 = 1, z2 = -1, x1 = 1, x2 = 0))
+) |>
+  ggdag(text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+## A Worked Example: 2SLS in the 2020 WSS
+
+Let's use the **2020 Western States Survey** data, `wss20.rda`, to walk through 2SLS mechanically. What makes this example unusually clean is that our instrument is *literally randomized* -- so the exogeneity of the instrument is guaranteed by design rather than argued from theory.
+
+**Research question.** Does endorsing political protest -- specifically, support for attending a march or rally -- causally affect a respondent's trust in government? Someone's willingness to endorse a march is obviously *not* randomly assigned: people who are already distrustful of government, already politically engaged, or already ideologically extreme are more likely to endorse protest *and* to report different levels of trust. So `attend_march` is endogenous.
+
+**The instrument.** In the survey, respondents were randomly assigned to one of two versions of the protest question. The control group saw a standard prompt asking whether they would support attending a march or rally. The treatment group saw the same item with the added phrase "even if it turns violent." This random assignment, `violent_treat`, shifts stated support for attending a march (treated respondents endorse protest at lower rates), but the assignment itself is independent of every respondent characteristic -- age, party, ideology, prior trust -- *by randomization*. 
+
+**Exclusion restriction.** The assumption that makes 2SLS recover a causal effect here is that the wording manipulation affects trust in government *only* through its effect on stated willingness to attend a march. 
+
+```{r}
+#| label: wss20-load
+#| echo: true
+#| message: false
+#| warning: false
+
+load("wss20.rda")
+
+# Each respondent appears on 5 rows (one per contestation item). Pivot wider so
+# there is exactly one row per respondent, with one column per contestation item
+# (including attend_march).
+d <- wss20 |>
+  tidyr::pivot_wider(
+    id_cols     = c(caseidID, violent_treat, trustGovernment),
+    names_from  = contestation,
+    values_from = contestation_value
+  ) |>
+  dplyr::filter(!is.na(trustGovernment),
+                !is.na(attend_march),
+                !is.na(violent_treat))
+
+nrow(d)
+```
+
+### The DAG We Are Assuming
+
+```{r}
+#| label: fig-wss-dag
+#| fig-cap: "Assumed causal structure. The randomized violent-prompt treatment (Z) shifts endorsement of attending a march (X); march endorsement is posited to affect trust in government (Y); an unobserved U (prior political engagement, ideology, partisanship) confounds the X → Y relationship. Because Z is randomly assigned, there is no arrow into Z from U. The exclusion restriction is the absence of a direct arrow Z → Y."
+#| echo: false
+#| message: false
+#| warning: false
+
+dagify(
+  y ~ x + u,
+  x ~ z + u,
+  labels = c(
+    "z" = "Violent-prompt treatment (Z)",
+    "x" = "Attend march endorsement (X)",
+    "y" = "Trust in government (Y)",
+    "u" = "U (unobserved)"
+  ),
+  coords = list(x = c(z = -1, x = 0, y = 2, u = 1),
+                y = c(z = 0, x = 0, y = 0, u = 1))
+) |>
+  ggdag(text = FALSE, use_labels = "label") +
+  theme_dag()
+```
+
+### Step 1: Naive OLS
+
+```{r}
+#| label: wss-ols
+#| echo: true
+
+ols_fit <- lm(trustGovernment ~ attend_march, data = d)
+summary(ols_fit)$coefficients
+```
+
+### Step 2: The First Stage
+
+Is the instrument relevant? Regress the endogenous regressor on the instrument:
+
+```{r}
+#| label: wss-firststage
+#| echo: true
+
+first_stage <- lm(attend_march ~ violent_treat, data = d)
+summary(first_stage)$coefficients
+
+first_stage_F <- summary(first_stage)$fstatistic[1]
+first_stage_F
+```
+
+
+### Step 3: 2SLS via `ivreg`
+
+```{r}
+#| label: wss-ivreg
+#| echo: true
+#| message: false
+#| warning: false
+
+library(AER)
+
+iv_fit <- ivreg(trustGovernment ~ attend_march | violent_treat, data = d)
+summary(iv_fit, diagnostics = TRUE)$coefficients
+summary(iv_fit, diagnostics = TRUE)$diagnostics
+```
+
+The `diagnostics` block reports three things, in order:
+
+1. **Weak instruments F-test.** A formal version of the first-stage F above.
+2. **Wu-Hausman test.** If this is not significant, OLS and 2SLS agree -- you should prefer the efficient OLS estimate. If it *is* significant, 2SLS is telling you something OLS was missing, and you should prefer 2SLS.
+3. **Sargan test.** Overidentification test; only meaningful when you have more instruments than endogenous regressors. With one instrument and one endogenous regressor the system is *exactly identified* and this test cannot be computed.
+
+### Step 4: Compare the Estimates
+
+```{r}
+#| label: wss-compare
+#| echo: true
+
+data.frame(
+  estimator = c("OLS", "2SLS (IV = violent_treat)"),
+  estimate  = c(coef(ols_fit)["attend_march"],
+                coef(iv_fit)["attend_march"]),
+  se        = c(summary(ols_fit)$coefficients["attend_march", "Std. Error"],
+                summary(iv_fit)$coefficients["attend_march", "Std. Error"])
+)
+```
+
+Three features almost always show up in an IV table:
+
+- **The 2SLS coefficient differs from the OLS coefficient**, sometimes dramatically. If OLS were unbiased, we would expect them to agree in large samples.
+- **The 2SLS standard error is larger than the OLS standard error.** IV throws away information (the endogenous variation in $X$), and we pay for that in efficiency.
+- **A weak instrument makes everything worse.** The 2SLS estimate is noisy *and* can still be biased in finite samples when the first-stage F is small.
+
+## IV Regression in R
+
+Instrumental variables regression is straightforward in `R`. The difficulty is almost always the research design -- *is* there a valid instrument? -- not the estimation. The `ivreg()` function in the `AER` package is the standard tool:
+
+```r
+library(AER)
+fit <- ivreg(y ~ x1 + x2 | z1 + x2, data = df)
+```
+
+Variables after `|` are the *full* set of exogenous regressors, including the instruments. `AER` also provides diagnostics: a Hausman test for endogeneity, a weak-instrument F-test, and a Sargan test for overidentifying restrictions (when you have more instruments than endogenous regressors). 
