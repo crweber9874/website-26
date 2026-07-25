@@ -56,7 +56,7 @@ When the steady state shows more Republican registration than today&rsquo;s snap
 eyebrow: Sankey flows
 title: How the flow diagram relates to the matrix
 
-The Sankey diagram in the party module shows off-diagonal flows only — switchers, not stayers. Widths are normalized to a monthly rate so that windows of different lengths are comparable. For longer horizons, the module composes the matrix (computes <em>P<sup>k</sup></em>) rather than treating distant endpoints as if they were direct one-month switches.
+The Sankey diagram in the party module shows <b>expected switchers only</b> (stayers omitted). A statewide continuous-time generator <code>Q</code> is fit by panel MLE across all irregular windows; any horizon uses <code>P(t)=expm(Q·t)</code>. Local party stocks come from the selected geography, so ribbons are expected movers over the chosen 1–24 month horizon — not a discrete matrix power <code>P<sup>k</sup></code>. Fitted quantities and precomputed <code>P(t)</code> live in <code>/data/party/ct_markov.json</code> (from <code>analysis/ct_markov_intro.qmd</code>).
 
 ## zip_models
 

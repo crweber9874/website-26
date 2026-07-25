@@ -26,14 +26,25 @@ function fit(pts) {
   return { a, b };
 }
 
+function matrixRow(P, from, states) {
+  const row = P?.[from];
+  if (!row) return null;
+  if (Array.isArray(row)) {
+    return Object.fromEntries(states.map((s, i) => [s, Number(row[i]) || 0]));
+  }
+  return row;
+}
+
 export default function PartyModule({ copy }) {
   const [mk, setMk] = useState(null);
+  const [ct, setCt] = useState(null);
   const [zip, setZip] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [dl, setDl] = useState(null);
   useEffect(() => {
     const u = (p) => publicUrl(`/data/party/${p}`);
     fetch(u("markov.json")).then((r) => r.json()).then(setMk).catch(() => {});
+    fetch(u("ct_markov.json")).then((r) => r.json()).then(setCt).catch(() => {});
     fetch(u("zip_transitions.json")).then((r) => r.json()).then(setZip).catch(() => {});
     fetch(u("transition_analysis.json")).then((r) => r.json()).then(setAnalysis).catch(() => {});
     fetch(publicUrl("/data/transitions/downloads/manifest.json"))
@@ -42,9 +53,10 @@ export default function PartyModule({ copy }) {
       .catch(() => {});
   }, []);
 
-  const states = mk?.states ?? [];
-  const P = mk?.transition_matrix ?? [];
-  const steady = mk?.steady_state ?? {};
+  const states = ct?.states ?? mk?.states ?? [];
+  const P30 = ct?.P_horizons?.["30"] ?? null;
+  const P = states.map((from) => matrixRow(P30, from, states) ?? mk?.transition_matrix?.[states.indexOf(from)] ?? {});
+  const steady = ct?.stationary ?? mk?.steady_state ?? {};
   const rowOf = (s) => {
     const i = states.indexOf(s);
     return i >= 0 ? P[i] : null;
@@ -53,6 +65,10 @@ export default function PartyModule({ copy }) {
   const demToRep = rowOf("DEM")?.REP;
   const repStay = rowOf("REP")?.REP;
   const repToDem = rowOf("REP")?.DEM;
+  const dwell = ct?.mean_dwell_years ?? {};
+  const exitRate = ct?.exit_rate_per_year ?? {};
+  const currentShare = ct?.current_share ?? {};
+  const dwellOrder = [...states].sort((a, b) => (dwell[b] ?? 0) - (dwell[a] ?? 0));
 
   const zpts = (zip?.rows ?? [])
     .filter((r) => Number.isFinite(r.party_share_rep) && Number.isFinite(r.steady_partisan))
@@ -88,9 +104,11 @@ export default function PartyModule({ copy }) {
           <p className="lede">
             <ContentHtml
               html={fillTemplate(copy.hero.ledeTemplate, {
-                nTransitions: mk
-                  ? Number(mk.meta.n_transitions).toLocaleString("en-US")
-                  : "230M+",
+                nTransitions: Number(ct?.meta?.n_transitions ?? mk?.meta?.n_transitions ?? 234749790)
+                  .toLocaleString("en-US"),
+                nWindows: ct?.meta?.n_windows ?? 36,
+                windowMin: ct?.meta?.window_days_min ?? 7,
+                windowMax: ct?.meta?.window_days_max ?? 183,
               })}
             />
           </p>
@@ -98,15 +116,97 @@ export default function PartyModule({ copy }) {
       </section>
 
       <main className="wrap content-after-hero">
-      {/* transition matrix */}
       <section className="op-section">
         <div className="op-head">
           <span className="op-eyebrow">{copy.sankey.eyebrow}</span>
           <h2>{copy.sankey.title}</h2>
-          <p>{copy.sankey.body}</p>
+          <p><ContentHtml html={copy.sankey.body} /></p>
         </div>
         <TransitionSankey />
       </section>
+
+      {ct && copy.msm && (
+        <section className="op-section">
+          <div className="op-head">
+            <span className="op-eyebrow">{copy.msm.eyebrow}</span>
+            <h2>{copy.msm.title}</h2>
+            <p><ContentHtml html={copy.msm.body} /></p>
+          </div>
+
+          <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit,minmax(160px,1fr))", maxWidth: 900, marginBottom: 18 }}>
+            <div className="card" style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "var(--mono)", color: PC.REP }}>
+                {dwell.REP != null ? `${dwell.REP.toFixed(0)} yr` : "—"}
+              </div>
+              <div className="note">Typical Republican dwell</div>
+            </div>
+            <div className="card" style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "var(--mono)", color: PC.DEM }}>
+                {dwell.DEM != null ? `${dwell.DEM.toFixed(0)} yr` : "—"}
+              </div>
+              <div className="note">Typical Democrat dwell</div>
+            </div>
+            <div className="card" style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "var(--mono)", color: PC.PND }}>
+                {dwell.PND != null ? `${dwell.PND.toFixed(0)} yr` : "—"}
+              </div>
+              <div className="note">Typical unaffiliated dwell</div>
+            </div>
+            <div className="card" style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "var(--mono)" }}>
+                {ct.half_life_years != null ? `${ct.half_life_years.toFixed(0)} yr` : "—"}
+              </div>
+              <div className="note">Half-life of a mix shock</div>
+            </div>
+          </div>
+
+          <div className="op-tablewrap">
+            <table className="op-table" style={{ fontFamily: "var(--mono)", fontSize: 12 }}>
+              <thead>
+                <tr>
+                  <th>Party</th>
+                  <th style={{ textAlign: "right" }}>Mean dwell</th>
+                  <th style={{ textAlign: "right" }}>Exit / year</th>
+                  <th style={{ textAlign: "right" }}>Today</th>
+                  <th style={{ textAlign: "right" }}>Long-run</th>
+                  <th style={{ textAlign: "right" }}>Gap</th>
+                </tr>
+              </thead>
+              <tbody>
+                {dwellOrder.map((s) => {
+                  const now = currentShare[s];
+                  const pi = steady[s];
+                  const gap = now != null && pi != null ? (pi - now) * 100 : null;
+                  return (
+                    <tr key={s}>
+                      <td style={{ fontWeight: 600, color: PC[s] || "inherit" }}>{s}</td>
+                      <td style={{ textAlign: "right" }}>
+                        {dwell[s] != null ? `${dwell[s].toFixed(1)} yr` : "—"}
+                      </td>
+                      <td style={{ textAlign: "right" }}>
+                        {exitRate[s] != null ? exitRate[s].toFixed(3) : "—"}
+                      </td>
+                      <td style={{ textAlign: "right" }}>{pct(now)}</td>
+                      <td style={{ textAlign: "right" }}>{pct(pi)}</td>
+                      <td style={{ textAlign: "right", color: gap == null ? "inherit" : gap > 0 ? PC.REP : PC.DEM }}>
+                        {gap == null ? "—" : `${gap > 0 ? "+" : ""}${gap.toFixed(1)} pp`}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="note" style={{ marginTop: 8 }}>
+            {copy.msm.dwellNote}{" "}
+            {ct.interpretation?.headline}
+          </p>
+          <p className="note">
+            {ct.interpretation?.method} Relaxation time ≈ {ct.relaxation_years?.toFixed?.(0) ?? "—"} years
+            — the mix moves slowly even when switching rates are stable.
+          </p>
+        </section>
+      )}
 
       <section className="op-section">
         <div className="op-head">
@@ -128,8 +228,8 @@ export default function PartyModule({ copy }) {
                     const bg = diag ? "#eef2f5" : `rgba(171,5,32,${Math.min(1, v * 120)})`;
                     const from = states[i], to = s;
                     const plain = diag
-                      ? `Among ${partyLabel(from)} one month ago, ${(v * 100).toFixed(1)}% are still ${partyLabel(to)} this month.`
-                      : `Among ${partyLabel(from)} one month ago, ${(v * 100).toFixed(2)}% switched to ${partyLabel(to)} this month.`;
+                      ? `Among ${partyLabel(from)} today, ${(v * 100).toFixed(1)}% are still ${partyLabel(to)} in 30 days.`
+                      : `Among ${partyLabel(from)} today, ${(v * 100).toFixed(2)}% switch to ${partyLabel(to)} within 30 days.`;
                     return <td key={s} title={plain} style={{ background: bg, textAlign: "right", color: !diag && v * 120 > 0.5 ? "#fff" : "inherit" }}>{pct(v)}</td>;
                   })}
                 </tr>
@@ -427,8 +527,8 @@ export default function PartyModule({ copy }) {
 
           <section className="op-section">
             <div className="op-head">
-              <span className="op-eyebrow">6 · Age and party lean</span>
-              <h2>Are younger voters leaning to a party?</h2>
+              <span className="op-eyebrow">{copy.age?.eyebrow ?? "7 · Age and party lean"}</span>
+              <h2>{copy.age?.title ?? "Are younger voters leaning to a party?"}</h2>
               <p>
                 At ZIP scale, younger registrant populations lean substantially less Republican. This
                 pattern shows up in both static registration shares and the Markov steady-state models

@@ -6,36 +6,44 @@ metaTitle: Party transitions · The Arizona Voter Project
 
 eyebrow: Analysis · Party transitions
 title: How Arizonans move between parties
-ledeTemplate: A Markov model of monthly registration changes across 38 builds of the Arizona Voter File (2022–2026), fit with the <code>markovchain</code> package on {nTransitions} voter-month transitions. Registration is <b>sticky</b> — but the small flows have a direction.
+ledeTemplate: A continuous-time multi-state (Markov) model of registration changes across {nWindows} irregular voter-file windows (2022–2026), fit on {nTransitions} matched transitions. Builds are spaced {windowMin}–{windowMax} days apart, so rates live on a shared clock via a generator <code>Q</code> with <code>P(t)=expm(Q·t)</code>. Registration is <b>sticky</b> — but the small flows have a direction.
 
 ## sankey
 
-eyebrow: 0 · Observed switching as flows
+eyebrow: 0 · Expected switching as flows
 title: Party transitions by geography
 
-Sankey widths show switchers only (off-diagonal flows), normalized to a monthly rate so windows are comparable. For longer horizons, this view composes transitions with matrix powers (P^k) to avoid treating distant endpoints as direct pathways. This pane tracks within-file party moves among matched voters; entries and exits from the file are a separate churn process.
+Sankey widths show <b>expected switchers only</b> (stayers omitted) from a statewide continuous-time generator applied to the selected geography&apos;s current party stocks. Drag the horizon to see how <code>P(t)=expm(Q·t)</code> redistributes movers over 1–24 months. Entries and exits from the file are a separate churn process.
+
+## msm
+
+eyebrow: 1 · Multi-state model results
+title: How long do people stay, and where do rates push?
+dwellNote: Mean years before any party move (among people who remain on the file).
+
+The generator&apos;s exit rates answer the intuitive question: <em>how long does a typical registrant keep this label?</em> Mean dwell time is 1 / exit rate. Republicans and Democrats stay put for decades on average; No Labels turns over in a few years; unaffiliated sits in between. The stationary mix is where these rates would push a closed panel — a diagnostic of switching direction, not a forecast.
 
 ## matrix
 
-eyebrow: 1 · The transition matrix
-title: P(next month&rsquo;s party | this month&rsquo;s)
+eyebrow: 2 · One-month transition probabilities
+title: P(party in 30 days | party today)
 
-Rows = current party, columns = next month. The diagonal (staying put) dominates; off-diagonal cells are shaded by how often that switch happens. Hover any cell for a plain-language interpretation.
+Rows = current party, columns = destination after 30 days from the continuous-time fit. The diagonal (staying put) dominates; off-diagonal cells are shaded by switching probability. Hover any cell for a plain-language interpretation.
 
-interpretTemplate: Interpretation: among Democrats one month ago, about <b>{demStay}%</b> remain Democratic next month, while about <b>{demToRep}%</b> switch to Republican. Among Republicans, about <b>{repStay}%</b> remain Republican, and <b>{repToDem}%</b> switch to Democratic.
+interpretTemplate: Interpretation: among Democrats today, about <b>{demStay}%</b> are still Democratic in 30 days, while about <b>{demToRep}%</b> switch to Republican. Among Republicans, about <b>{repStay}%</b> remain Republican, and <b>{repToDem}%</b> switch to Democratic.
 
 ## steady
 
-eyebrow: 2 · Where the dynamics point
+eyebrow: 3 · Where the dynamics point
 title: Long-run steady state
 
-The stationary distribution of the chain — where registration would settle <em>if these monthly switching rates held fixed</em>. It leans more Republican than today (a diagnostic of the switching direction, <b>not</b> a forecast: it ignores new registrations, deaths, and purges).
+The stationary distribution of the continuous-time chain — where registration would settle <em>if these switching rates held fixed</em>. It leans more Republican than today (a diagnostic of the switching direction, <b>not</b> a forecast: it ignores new registrations, deaths, and purges).
 
 twoStateTemplate: Collapsed to <b>partisan vs unaffiliated</b>, the steady state is {partisanPct} partisan / {nonpartisanPct} unaffiliated.
 
 ## zip
 
-eyebrow: 3 · Explaining the differences
+eyebrow: 4 · Explaining the differences
 title: Each ZIP&rsquo;s equilibrium vs. its composition
 
 Fitting a 2-state Markov chain <em>per ZIP</em> gives each ZIP a long-run partisan share. ZIP characteristics explain about half of it (R² {r2}): more Republican, higher-turnout, older ZIPs settle more partisan; ZIPs heavy on the early-voting list stay more unaffiliated.
@@ -61,7 +69,7 @@ schemaLink: /reference/transitions-markov#downloads
 
 ## covariates
 
-eyebrow: 4 · Predicting ZIP-level dynamics
+eyebrow: 5 · Predicting ZIP-level dynamics
 title: Do ZIP characteristics influence transitions?
 
 Fitting multivariate models on {nZipsSteady} ZIPs links local composition to Markov-derived switching rates. Republican registration share, turnout, and age all predict a ZIP&apos;s long-run partisan equilibrium (R² {r2}). Higher permanent early-voting-list penetration predicts <em>less</em> partisan steady state — ZIPs with more mail voters stay more unaffiliated.
@@ -81,7 +89,7 @@ crossPartyNoteTemplate: Short-window cross-party switching (DEM→REP in one mon
 
 ## entrants
 
-eyebrow: 5 · Entrants and waves
+eyebrow: 6 · Entrants and waves
 title: New registrants and monthly file builds
 
 Across {markovWaves} monthly builds (2022–2026), rows on the file grew from roughly 5.8M to 6.9M — active, inactive, and canceled registrations combined. Most month-to-month &ldquo;movement&rdquo; is affiliation toggling (to/from unaffiliated), not cross-party switching — visible in the primary-season windows below.
@@ -98,7 +106,7 @@ entrantPlaceholder: <b>New-entrant party mix.</b> Stage A supports an <code>entr
 
 ## age
 
-eyebrow: 6 · Age and party lean
+eyebrow: 7 · Age and party lean
 title: Are younger voters leaning to a party?
 
 At ZIP scale, younger registrant populations lean substantially less Republican. This pattern shows up in both static registration shares and the Markov steady-state models above — but monthly <em>switching</em> rates remain tiny for all age groups.

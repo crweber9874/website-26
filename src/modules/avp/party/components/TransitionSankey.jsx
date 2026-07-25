@@ -5,7 +5,7 @@ import { partyLabel } from "@/modules/avp/shared/lib/map-tooltip";
 import { publicUrl } from "@/modules/avp/shared/lib/public-url";
 import DownloadGraphic from "@/components/react/DownloadGraphic";
 
-const PARTY_STATES = ["DEM", "REP", "NOL", "LBT", "PND", "OTH"];
+const FALLBACK_STATES = ["DEM", "REP", "PND", "LBT", "NOL", "OTH"];
 
 const PARTY_COLORS = {
   DEM: "#0C234B",
@@ -27,44 +27,7 @@ const GEO_OPTIONS = [
 const fmt = (n) => Math.round(n).toLocaleString("en-US");
 const fmt1 = (n) => Number(n).toLocaleString("en-US", { maximumFractionDigits: 1 });
 const pct1 = (x) => `${(x * 100).toFixed(1)}%`;
-
-function parseWindowMonths(window) {
-  if (!window || !window.includes("..")) return 1;
-  const [a, b] = window.split("..");
-  const start = new Date(a);
-  const end = new Date(b);
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 1;
-  const days = Math.max(1, (end.getTime() - start.getTime()) / 86400000);
-  return days / 30.4375;
-}
-
-function matrixMultiply(A, B) {
-  const n = A.length;
-  const out = Array.from({ length: n }, () => Array(n).fill(0));
-  for (let i = 0; i < n; i += 1) {
-    for (let k = 0; k < n; k += 1) {
-      const aik = A[i][k];
-      if (aik === 0) continue;
-      for (let j = 0; j < n; j += 1) out[i][j] += aik * B[k][j];
-    }
-  }
-  return out;
-}
-
-function matrixPower(M, k) {
-  const n = M.length;
-  let exp = Math.max(1, Math.round(k));
-  let base = M.map((row) => [...row]);
-  let out = Array.from({ length: n }, (_, i) =>
-    Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
-  );
-  while (exp > 0) {
-    if (exp % 2 === 1) out = matrixMultiply(out, base);
-    base = matrixMultiply(base, base);
-    exp = Math.floor(exp / 2);
-  }
-  return out;
-}
+const pct2 = (x) => `${(x * 100).toFixed(2)}%`;
 
 function titleFromGeoid(geoid) {
   if (!geoid) return "";
@@ -78,13 +41,13 @@ function titleFromGeoid(geoid) {
   return geoid;
 }
 
-function buildModel(rows, states) {
+/** Pull origin stocks from a geography summary artifact. */
+function stockFromRows(rows, states) {
+  const fromMarginals = Object.fromEntries(states.map((s) => [s, 0]));
+  let hasFromMarginals = false;
   const matrix = Object.fromEntries(
     states.map((s) => [s, Object.fromEntries(states.map((t) => [t, 0]))]),
   );
-  const fromMarginals = Object.fromEntries(states.map((s) => [s, 0]));
-  let hasDiagonalVars = false;
-  let hasFromMarginals = false;
 
   for (const r of rows) {
     const m = /^flow_([A-Z]+)_([A-Z]+)$/.exec(r.variable || "");
@@ -93,7 +56,6 @@ function buildModel(rows, states) {
       const to = m[2];
       if (states.includes(from) && states.includes(to)) {
         matrix[from][to] += Number(r.value) || 0;
-        if (from === to) hasDiagonalVars = true;
       }
       continue;
     }
@@ -110,56 +72,34 @@ function buildModel(rows, states) {
     }
   }
 
-  const P = states.map((from) => {
-    const den = fromMarginals[from] || 0;
-    if (den <= 0) {
-      return states.map((to) => (to === from ? 1 : 0));
-    }
-    return states.map((to) => (matrix[from][to] || 0) / den);
-  });
-
-  return {
-    matrix,
-    fromMarginals,
-    hasProjectionInputs: hasFromMarginals || hasDiagonalVars,
-    P,
-  };
+  return { fromMarginals, matrix };
 }
 
-function buildSankeyData({ states, model, monthsInWindow, horizonMonths, project }) {
-  const rows = states;
-  const values = {};
-
-  if (project) {
-    const k = Math.max(1, Math.round(horizonMonths));
-    const Pk = matrixPower(model.P, k);
-    for (let i = 0; i < states.length; i += 1) {
-      const from = states[i];
-      for (let j = 0; j < states.length; j += 1) {
-        const to = states[j];
-        values[`${from}|${to}`] = (model.fromMarginals[from] || 0) * Pk[i][j];
-      }
-    }
-  } else {
-    for (const from of states) {
-      for (const to of states) values[`${from}|${to}`] = model.matrix[from][to] || 0;
-    }
+/** Row of P as either named object or array aligned to states. */
+function rowProb(P, from, to, states) {
+  const row = P?.[from];
+  if (!row) return 0;
+  if (Array.isArray(row)) {
+    const j = states.indexOf(to);
+    return j >= 0 ? Number(row[j]) || 0 : 0;
   }
+  return Number(row[to]) || 0;
+}
 
-  const perMonthDivisor = project ? Math.max(1, Math.round(horizonMonths)) : Math.max(1e-6, monthsInWindow);
-
+function buildSankeyData({ states, fromMarginals, P }) {
   const links = [];
   for (const from of states) {
+    const stock = fromMarginals[from] || 0;
     for (const to of states) {
       if (from === to) continue;
-      const raw = values[`${from}|${to}`] || 0;
-      const value = raw / perMonthDivisor;
-      if (value > 0) links.push({ from, to, value, raw });
+      const p = rowProb(P, from, to, states);
+      const value = stock * p;
+      if (value > 0) links.push({ from, to, value, p });
     }
   }
 
-  const outTotals = Object.fromEntries(rows.map((s) => [s, 0]));
-  const inTotals = Object.fromEntries(rows.map((s) => [s, 0]));
+  const outTotals = Object.fromEntries(states.map((s) => [s, 0]));
+  const inTotals = Object.fromEntries(states.map((s) => [s, 0]));
   for (const l of links) {
     outTotals[l.from] += l.value;
     inTotals[l.to] += l.value;
@@ -171,11 +111,19 @@ function buildSankeyData({ states, model, monthsInWindow, horizonMonths, project
 export default function TransitionSankey() {
   const [geography, setGeography] = useState("county");
   const [rows, setRows] = useState([]);
+  const [ct, setCt] = useState(null);
   const [geoid, setGeoid] = useState("");
   const [loading, setLoading] = useState(false);
-  const [horizonMonths, setHorizonMonths] = useState(6);
+  const [horizonMonths, setHorizonMonths] = useState(12);
   const [hovered, setHovered] = useState(null);
   const svgRef = useRef(null);
+
+  useEffect(() => {
+    fetch(publicUrl("/data/party/ct_markov.json"))
+      .then((r) => r.json())
+      .then(setCt)
+      .catch(() => setCt(null));
+  }, []);
 
   useEffect(() => {
     let canceled = false;
@@ -196,7 +144,7 @@ export default function TransitionSankey() {
     };
   }, [geography]);
 
-  const states = PARTY_STATES;
+  const states = ct?.states ?? FALLBACK_STATES;
   const colors = PARTY_COLORS;
 
   const geoids = useMemo(() => {
@@ -221,22 +169,34 @@ export default function TransitionSankey() {
   }, [geoids, geoid]);
 
   const selectedRows = useMemo(() => rows.filter((r) => r.geoid === geoid), [rows, geoid]);
-  const timeWindow = selectedRows[0]?.window || "";
-  const monthsInWindow = parseWindowMonths(timeWindow);
-  const model = useMemo(() => buildModel(selectedRows, states), [selectedRows, states]);
-  const canProject = model.hasProjectionInputs;
+  const timeWindow = selectedRows[0]?.window || ct?.meta?.newest_window || "";
 
-  const sankey = useMemo(
-    () =>
-      buildSankeyData({
-        states,
-        model,
-        monthsInWindow,
-        horizonMonths,
-        project: canProject,
-      }),
-    [states, model, monthsInWindow, horizonMonths, canProject],
-  );
+  const stocks = useMemo(() => {
+    if (selectedRows.length > 0) return stockFromRows(selectedRows, states);
+    // Statewide fallback from the continuous-time fit
+    const fromMarginals = Object.fromEntries(
+      states.map((s) => [s, Number(ct?.current_stock?.[s]) || 0]),
+    );
+    return { fromMarginals, matrix: null };
+  }, [selectedRows, states, ct]);
+
+  const P = ct?.P_months?.[String(horizonMonths)] ?? null;
+  const canProject = Boolean(P);
+
+  const sankey = useMemo(() => {
+    if (!canProject) {
+      return {
+        links: [],
+        outTotals: Object.fromEntries(states.map((s) => [s, 0])),
+        inTotals: Object.fromEntries(states.map((s) => [s, 0])),
+      };
+    }
+    return buildSankeyData({
+      states,
+      fromMarginals: stocks.fromMarginals,
+      P,
+    });
+  }, [states, stocks, P, canProject]);
 
   const svg = useMemo(() => {
     const width = 920;
@@ -291,29 +251,29 @@ export default function TransitionSankey() {
           from: l.from,
           to: l.to,
           value: l.value,
-          raw: l.raw,
+          p: l.p,
         };
       });
 
     return { width, height, leftX, rightX, nodeWidth, left, right, paths, totalFlow };
   }, [sankey, states, colors]);
 
-  const selectedN = selectedRows[0]?.n ?? null;
-  const monthlySwitchers = sankey.links.reduce((acc, l) => acc + l.value, 0);
+  const selectedN = selectedRows[0]?.n
+    ?? Object.values(stocks.fromMarginals).reduce((a, b) => a + b, 0);
+  const horizonSwitchers = sankey.links.reduce((acc, l) => acc + l.value, 0);
 
   const tooltip = useMemo(() => {
     if (!hovered) return null;
     const outDen = sankey.outTotals[hovered.from] || 0;
     const inDen = sankey.inTotals[hovered.to] || 0;
+    const stock = stocks.fromMarginals[hovered.from] || 0;
     return {
       ...hovered,
       outShare: outDen > 0 ? hovered.value / outDen : 0,
       inShare: inDen > 0 ? hovered.value / inDen : 0,
-      windowCount: canProject
-        ? (hovered.raw ?? hovered.value * horizonMonths)
-        : hovered.value * monthsInWindow,
+      stock,
     };
-  }, [hovered, sankey, canProject, monthsInWindow, horizonMonths]);
+  }, [hovered, sankey, stocks]);
 
   return (
     <div className="sankey-wrap">
@@ -349,32 +309,32 @@ export default function TransitionSankey() {
         </label>
         <DownloadGraphic
           targetRef={svgRef}
-          filename={`avp-party-transitions-${geography}-${geoid || "unit"}`}
+          filename={`avp-party-transitions-ct-${geography}-${geoid || "unit"}`}
           label="Download diagram"
         />
       </div>
 
       <div className="sankey-meta stat">
         {loading ? "Loading transitions..." : null}
-        {!loading && geoid ? `${titleFromGeoid(geoid)} · ${timeWindow || "window unavailable"}` : null}
-        {!loading && timeWindow ? ` · ${(monthsInWindow).toFixed(2)} months` : null}
+        {!loading && geoid ? `${titleFromGeoid(geoid)} · stocks from ${timeWindow || "latest window"}` : null}
         {!loading && selectedN ? ` · matched n=${fmt(selectedN)}` : null}
       </div>
 
       <div className="sankey-meta">
-        Switchers shown (off-diagonal only): {fmt1(monthlySwitchers)} per month
-        {canProject ? ` (computed via P^${horizonMonths} and scaled back to monthly rate)` : ""}
+        Expected switchers over {horizonMonths} month{horizonMonths === 1 ? "" : "s"}{" "}
+        (off-diagonal only): <b>{fmt1(horizonSwitchers)}</b>
+        {canProject ? " · continuous-time P(t) = expm(Q·t)" : ""}
       </div>
 
       {!canProject ? (
         <p className="note">
-          Projection is disabled because this artifact is missing diagonal or from-state marginals.
-          Rebuild transitions after the builder update to enable matrix composition.
+          Continuous-time projections need <code>ct_markov.json</code>. Re-fit the
+          generator from the multi-window flow panel to enable this view.
         </p>
       ) : null}
 
       <div className="sankey-svgbox" ref={svgRef}>
-        <svg viewBox={`0 0 ${svg.width} ${svg.height}`} role="img" aria-label="Transition Sankey">
+        <svg viewBox={`0 0 ${svg.width} ${svg.height}`} role="img" aria-label="Continuous-time party transition Sankey">
           <text x={svg.leftX} y={16} className="sankey-label">From</text>
           <text x={svg.rightX} y={16} className="sankey-label">To</text>
 
@@ -394,7 +354,9 @@ export default function TransitionSankey() {
               }}
               onMouseLeave={() => setHovered(null)}
             >
-              <title>{`${partyLabel(p.from)} switched to ${partyLabel(p.to)}: about ${fmt1(p.value)} voters per month`}</title>
+              <title>
+                {`${partyLabel(p.from)} → ${partyLabel(p.to)}: about ${fmt1(p.value)} expected switchers over ${horizonMonths} months (${pct2(p.p)})`}
+              </title>
             </path>
           ))}
 
@@ -433,27 +395,30 @@ export default function TransitionSankey() {
         {tooltip ? (
           <div
             className="sankey-tooltip"
-            style={{ left: `${Math.max(8, Math.min(tooltip.x + 14, svg.width - 240))}px`, top: `${Math.max(8, tooltip.y - 84)}px` }}
+            style={{ left: `${Math.max(8, Math.min(tooltip.x + 14, svg.width - 260))}px`, top: `${Math.max(8, tooltip.y - 96)}px` }}
           >
             <div className="sankey-tooltip-title">{partyLabel(tooltip.from)} → {partyLabel(tooltip.to)}</div>
-            <div className="sankey-tooltip-lede">Monthly party switchers in this geography</div>
-            <div>Average monthly flow: <b>{fmt1(tooltip.value)}</b> voters</div>
-            <div>
-              {canProject
-                ? `If this rate held for ${horizonMonths} months`
-                : "Total in the selected window"}: <b>{fmt1(tooltip.windowCount)}</b> voters
+            <div className="sankey-tooltip-lede">
+              Expected movers in {horizonMonths} month{horizonMonths === 1 ? "" : "s"}
             </div>
-            <div>Share leaving {partyLabel(tooltip.from)}: <b>{pct1(tooltip.outShare)}</b></div>
-            <div>Share entering {partyLabel(tooltip.to)}: <b>{pct1(tooltip.inShare)}</b></div>
+            <div>Expected flow: <b>{fmt1(tooltip.value)}</b> voters</div>
+            <div>Transition probability: <b>{pct2(tooltip.p)}</b></div>
+            <div>Among {fmt(tooltip.stock)} starting as {partyLabel(tooltip.from)}</div>
+            <div>Share of leavers from {partyLabel(tooltip.from)}: <b>{pct1(tooltip.outShare)}</b></div>
+            <div>Share of arrivals to {partyLabel(tooltip.to)}: <b>{pct1(tooltip.inShare)}</b></div>
           </div>
         ) : null}
       </div>
 
       <p className="note">
-        Time-gap handling: widths are monthly-normalized to keep windows comparable, and multi-month horizons are composed with matrix powers (P^k) instead of interpreting distant endpoint changes as direct paths.
+        Model: one statewide continuous-time generator <code>Q</code> fit by panel MLE across{" "}
+        {ct?.meta?.n_windows ?? 36} irregular windows ({ct?.meta?.window_days_min ?? 7}–
+        {ct?.meta?.window_days_max ?? 183} days). Local stocks come from the selected geography;
+        ribbons are expected switchers only (stayers omitted) via <code>P(t) = expm(Q·t)</code>.
       </p>
       <p className="note">
-        Interpretation guardrail: endpoint snapshots are interval-censored. Longer gaps hide intermediate moves, so this view is conservative about total mobility and should be read with the window length.
+        Guardrail: this is a closed matched-panel world — new registrations, deaths, and purges
+        are outside the model. Read flows as switching propensity among people who stay on the file.
       </p>
     </div>
   );
