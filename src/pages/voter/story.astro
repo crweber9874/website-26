@@ -1,0 +1,35 @@
+---
+import AvpLayout from "@/layouts/AvpLayout.astro";
+import Story from "@/modules/avp/explorer/components/Story.jsx";
+import { loadContent } from "@/modules/avp/shared/lib/content.js";
+
+const intro = loadContent("story-intro");
+const stepsContent = loadContent("story-steps");
+const hero = intro.sections.hero;
+const steps = stepsContent.sections.steps.json;
+const ui = stepsContent.sections.ui;
+---
+
+<AvpLayout title="My Story" module="story">
+  <section class="story-hero">
+    <div class="wrap">
+      <div class="eyebrow">{hero.eyebrow}</div>
+      <h1>{hero.title}</h1>
+      <p class="lede" set:html={hero.body} />
+      <div class="story-cta" style="justify-content: center">
+        {
+          hero.json.ctas.map((cta) => (
+            <a
+              class={`btn${cta.primary ? " primary" : ""}`}
+              href={cta.href}
+            >
+              {cta.label}
+            </a>
+          ))
+        }
+      </div>
+      <div class="scrollcue">↓</div>
+    </div>
+  </section>
+  <Story client:only="react" steps={steps} ui={ui} />
+</AvpLayout>

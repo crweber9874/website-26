@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "@/modules/avp/shared/lib/Link";
+import { ContentHtml } from "@/modules/avp/shared/components/ContentHtml";
 import ChoroplethMap from "@/modules/avp/explorer/components/ChoroplethMap";
 import RegistrationChart from "@/modules/avp/explorer/components/RegistrationChart";
-import VariableScatter from "@/modules/avp/explorer/components/VariableScatter";
 import { reshape } from "@/modules/avp/shared/lib/reshape";
 import { colorForVar } from "@/modules/avp/shared/lib/colors";
 import { publicUrl } from "@/modules/avp/shared/lib/public-url";
@@ -31,28 +31,6 @@ const REG_KEYS = [
   "total_nolabels", "total_party_not_specified", "total_other_party",
 ];
 
-function ScatterLazy({ ui }) {
-  const [data, setData] = useState(null);
-  useEffect(() => {
-    let c = false;
-    fetch(publicUrl("data/tract/summary.json"))
-      .then((r) => r.json())
-      .then((rows) => !c && setData(reshape(rows)))
-      .catch(() => {});
-    return () => { c = true; };
-  }, []);
-  if (!data) return <div className="scatter-loading">{ui?.scatterLoading ?? "Loading census tracts…"}</div>;
-  return (
-    <VariableScatter
-      data={data}
-      geoLabel="Census tracts"
-      defaultX="voter_median_age"
-      defaultY="party_share_dem"
-      activeOnly
-    />
-  );
-}
-
 export default function Story({ steps, ui }) {
   const STEPS = steps;
   const introStep = STEPS.find((s) => s.introCard) ?? STEPS[0];
@@ -60,7 +38,6 @@ export default function Story({ steps, ui }) {
   const [cache, setCache] = useState({});
   const [selected, setSelected] = useState(null);
   const [pendingLocate, setPendingLocate] = useState(null);
-  const [reachedScatter, setReachedScatter] = useState(false);
   const refs = useRef([]);
   const step = STEPS[active];
 
@@ -83,7 +60,6 @@ export default function Story({ steps, ui }) {
           if (e.isIntersecting) {
             const i = Number(e.target.dataset.i);
             setActive(i);
-            if (STEPS[i].extra === "scatter") setReachedScatter(true);
           }
         }
       },
@@ -150,16 +126,19 @@ export default function Story({ steps, ui }) {
     };
   }, [data, step.variable, step.geo, step.label]);
 
-  const showScatter = reachedScatter || STEPS[active]?.extra === "scatter";
+  const lastStepIndex = STEPS.findLastIndex((s) => !s.introCard);
+  const appLinks = ui?.json?.appLinks ?? [];
 
   return (
     <div className="story">
-      <div className={"story-viz" + (showScatter ? " story-viz-scatter" : "")}>
+      <div className="story-viz">
         {introStep && (
           <div className="story-intro-card">
             <div className="eyebrow">{introStep.kicker}</div>
             <h2>{introStep.title}</h2>
-            {introStep.paras.map((p, j) => <p key={j}>{p}</p>)}
+            {introStep.paras.map((p, j) => (
+              <ContentHtml as="p" html={p} key={j} />
+            ))}
           </div>
         )}
         <div className="story-map">
@@ -182,13 +161,6 @@ export default function Story({ steps, ui }) {
             onLocateApplied={() => setPendingLocate(null)}
           />
         </div>
-        {showScatter && (
-          <div className="story-scatter">
-            {reachedScatter
-              ? <ScatterLazy ui={ui} />
-              : <div className="scatter-loading">{ui?.scatterScrollHint ?? "Scroll to load…"}</div>}
-          </div>
-        )}
         <div className="story-cap">
           <span className="dot" /> {cap}{ui?.mapCaptionSuffix ?? ""}
         </div>
@@ -209,7 +181,9 @@ export default function Story({ steps, ui }) {
                 <>
                   <div className="eyebrow">{s.kicker}</div>
                   <h2>{s.title}</h2>
-                  {s.paras.map((p, j) => <p key={j}>{p}</p>)}
+                  {s.paras.map((p, j) => (
+                    <ContentHtml as="p" html={p} key={j} />
+                  ))}
                 </>
               )}
 
@@ -233,28 +207,9 @@ export default function Story({ steps, ui }) {
                   defaultMode="sunburst"
                 />
               )}
-              {s.extra === "reg-ld" && stateValues && selectedValues && (
-                <RegistrationChart
-                  values={selectedValues}
-                  label={ui?.regChartLdLabel ?? "Selected legislative district compared with statewide registration"}
-                  compareValues={stateValues}
-                  outerLabel={ui?.regChartOuterLabel ?? "Arizona statewide"}
-                  innerLabel={selectedLabel}
-                  defaultMode="sunburst"
-                />
-              )}
-              {s.extra === "avp-links" && (
+              {i === lastStepIndex && appLinks.length > 0 && (
                 <div className="story-cta">
-                  {(ui?.json?.avpLinks ?? []).map((link) => (
-                    <Link className={`btn${link.primary ? " primary" : ""}`} href={link.href} key={link.href}>
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-              {s.extra === "app" && (
-                <div className="story-cta">
-                  {(ui?.json?.appLinks ?? []).map((link) => (
+                  {appLinks.map((link) => (
                     <Link className={`btn${link.primary ? " primary" : ""}`} href={link.href} key={link.href}>
                       {link.label}
                     </Link>

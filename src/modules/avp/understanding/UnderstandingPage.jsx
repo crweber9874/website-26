@@ -276,7 +276,7 @@ export default function Understanding({ sections, county, analysis, st, party, c
         </p>
         <p className="note" style={{ marginTop: 10 }}>
           {sections.builds.exploreLink}{" "}
-          <Link href="/explorer">Understanding Arizona Democracy through Data &rarr;</Link>
+          <Link href="/voter/explorer">Understanding Arizona Democracy through Data &rarr;</Link>
         </p>
       </section>
 
@@ -292,7 +292,7 @@ export default function Understanding({ sections, county, analysis, st, party, c
         <h2 style={{ marginBottom: 12 }}>{about.title}</h2>
         <p className="note" style={{ maxWidth: 680, marginBottom: 12, lineHeight: 1.55 }}>{about.intro}</p>
         <p>
-          <Link href="/story">{about.linkLabel}</Link>
+          <Link href="/voter/story">{about.linkLabel}</Link>
         </p>
       </section>
     </main>

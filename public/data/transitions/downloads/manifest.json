@@ -3,7 +3,7 @@
   "privacy": {
     "minimum_cell": 50,
     "unit": "matched persisting registrants per ZIP per window",
-    "note": "Only aggregated transition counts. ZIPs with fewer than 50 matched voters in a window are omitted entirely (see build_transitions.R SUPPRESS_FLOOR)."
+    "note": "Only aggregated transition counts. ZIPs with fewer than 50 matched voters in a window are omitted entirely."
   },
   "party_buckets": [
     "DEM",
@@ -70,7 +70,7 @@
         "2026-05-01..2026-06-01",
         "2026-06-01..2026-07-02"
       ],
-      "source": "pipeline/build_zip_flow_panel.py (BigQuery party_panel, all consecutive snapshot pairs)",
+      "source": "BigQuery party_panel, all consecutive snapshot pairs",
       "excluded_builds": {
         "2024-11-04": "partial build, 680k of ~6.2M rows"
       }
@@ -144,7 +144,7 @@
         "density_tier",
         "metro_proxy"
       ],
-      "acs_source": "pipeline/ref/tract_acs_extended.csv (ACS 5-year 2018\u20132022, tidycensus) aggregated to ZCTA with pipeline/ref/zcta_tract_rel_az.csv (Census 2020 tab20_zcta520_tract20_natl.txt, Arizona only). Mapped to USPS ZIP where the five-digit code matches ZCTA; non-matching ZIPs (PO boxes, unique USPS routes) have null ACS. Regenerate tract pull: Rscript pipeline/r/fetch_tract_acs_extended.R",
+      "acs_source": "ACS 5-year 2018–2022 (tidycensus), aggregated to ZCTA with Census 2020 ZCTA–tract overlap (Arizona only). Mapped to USPS ZIP where the five-digit code matches ZCTA; non-matching ZIPs (PO boxes, unique USPS routes) have null ACS.",
       "latino_columns": [
         "latino",
         "latino_share",
@@ -217,10 +217,10 @@
         "density_tier",
         "metro_proxy"
       ],
-      "acs_source": "pipeline/ref/tract_acs_extended.csv (ACS 5-year 2018\u20132022, tidycensus) aggregated to ZCTA with pipeline/ref/zcta_tract_rel_az.csv (Census 2020 tab20_zcta520_tract20_natl.txt, Arizona only). Mapped to USPS ZIP where the five-digit code matches ZCTA; non-matching ZIPs (PO boxes, unique USPS routes) have null ACS. Regenerate tract pull: Rscript pipeline/r/fetch_tract_acs_extended.R"
+      "acs_source": "ACS 5-year 2018–2022 (tidycensus), aggregated to ZCTA with Census 2020 ZCTA–tract overlap (Arizona only). Mapped to USPS ZIP where the five-digit code matches ZCTA; non-matching ZIPs (PO boxes, unique USPS routes) have null ACS."
     },
     "statewide_markov_flows.csv": {
-      "description": "Statewide pooled transition counts (6\u00d76 party buckets), matching the /party Markov matrix.",
+      "description": "Statewide pooled transition counts (6×6 party buckets), matching the /party Markov matrix.",
       "rows": 36,
       "columns": [
         "from_party",
@@ -240,7 +240,7 @@
   },
   "waves": [
     {
-      "source": "site/public/data/transitions/party/zip/summary.json",
+      "source": "/data/transitions/party/zip/summary.json",
       "file_date": "2026-07-02",
       "window": "2026-06-01..2026-07-02",
       "window_start": "2026-06-01",
@@ -250,13 +250,8 @@
     }
   ],
   "gaps": {
-    "multi_wave_zip": "Only one adjacent build pair is published at ZIP level today. Run pipeline/r/build_transitions.R for each PRIOR..CUR pair with BigQuery access, then re-run this script to append waves.",
-    "entrants_excluded": "Flows cover persisting registrants only. New registrations and file exits are in transitions/entrant and transitions/churn.",
-    "ruca_codes": "USDA RUCA codes are not bundled. Urban/rural proxies use population density tiers (urban \u22651000/sq mi, suburban 100\u2013999, rural <100) and metro_proxy (density \u2265500/sq mi)."
-  },
-  "pipeline": {
-    "acs_extract": "Rscript pipeline/r/fetch_tract_acs_extended.R",
-    "extract": "Rscript pipeline/r/build_transitions.R [CUR] [PRIOR] party ZIP",
-    "publish": "python3 pipeline/export_transition_downloads.py"
+    "multi_wave_zip": "Only one adjacent build pair is published at ZIP level today.",
+    "entrants_excluded": "Flows cover persisting registrants only. New registrations and file exits are tracked separately.",
+    "ruca_codes": "USDA RUCA codes are not bundled. Urban/rural proxies use population density tiers (urban ≥1000/sq mi, suburban 100–999, rural <100) and metro_proxy (density ≥500/sq mi)."
   }
 }

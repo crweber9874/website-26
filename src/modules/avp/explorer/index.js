@@ -14,9 +14,8 @@ export const moduleMeta = {
   id: "explorer",
   title: "Democracy through Data",
   routes: [
-    { href: "/explorer", label: "Democracy through Data" },
-    { href: "/search", label: "Search" },
-    { href: "/story", label: "Story" },
+    { href: "/voter/explorer", label: "Democracy through Data" },
+    { href: "/voter/story", label: "Story" },
   ],
   nav: { label: "Democracy through Data", group: "Democracy through Data" },
 };

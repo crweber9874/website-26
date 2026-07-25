@@ -41,6 +41,32 @@ function titleFromGeoid(geoid) {
   return geoid;
 }
 
+function isCodeGeography(geography) {
+  return geography === "zip" || geography === "zcta";
+}
+
+function codeFromGeoid(geoid) {
+  if (!geoid) return "";
+  if (geoid.startsWith("AZ-ZIP-")) return geoid.replace("AZ-ZIP-", "");
+  if (geoid.startsWith("AZ-ZCTA-")) return geoid.replace("AZ-ZCTA-", "");
+  return "";
+}
+
+/** Match a typed ZIP/ZCTA against geoids present in the loaded summary. */
+function resolveCodeGeoid(raw, geography, geoids) {
+  const digits = String(raw ?? "").replace(/\D/g, "");
+  const label = geography === "zcta" ? "ZCTA" : "ZIP";
+  if (digits.length !== 5) {
+    return { error: `Enter a 5-digit ${label}.` };
+  }
+  const prefix = geography === "zcta" ? "AZ-ZCTA-" : "AZ-ZIP-";
+  const id = `${prefix}${digits}`;
+  if (!geoids.some((g) => g.id === id)) {
+    return { error: `Unknown ${label}.` };
+  }
+  return { id };
+}
+
 /** Pull origin stocks from a geography summary artifact. */
 function stockFromRows(rows, states) {
   const fromMarginals = Object.fromEntries(states.map((s) => [s, 0]));
@@ -113,10 +139,13 @@ export default function TransitionSankey() {
   const [rows, setRows] = useState([]);
   const [ct, setCt] = useState(null);
   const [geoid, setGeoid] = useState("");
+  const [codeDraft, setCodeDraft] = useState("");
+  const [codeError, setCodeError] = useState("");
   const [loading, setLoading] = useState(false);
   const [horizonMonths, setHorizonMonths] = useState(12);
   const [hovered, setHovered] = useState(null);
   const svgRef = useRef(null);
+  const typedUnit = isCodeGeography(geography);
 
   useEffect(() => {
     fetch(publicUrl("/data/party/ct_markov.json"))
@@ -161,12 +190,44 @@ export default function TransitionSankey() {
   useEffect(() => {
     if (geoids.length === 0) {
       setGeoid("");
+      setCodeDraft("");
+      setCodeError("");
+      return;
+    }
+    if (geoid && geoids.some((g) => g.id === geoid)) {
+      if (typedUnit) {
+        setCodeDraft(codeFromGeoid(geoid));
+        setCodeError("");
+      }
+      return;
+    }
+    if (typedUnit) {
+      const preferred =
+        geoids.find((g) => /^\d{5}$/.test(codeFromGeoid(g.id))) || geoids[0];
+      setGeoid(preferred.id);
+      setCodeDraft(codeFromGeoid(preferred.id));
+      setCodeError("");
       return;
     }
     const maricopa = geoids.find((g) => g.id === "AZ-COUNTY-MARICOPA");
-    const first = maricopa?.id || geoids[0].id;
-    if (!geoid || !geoids.some((g) => g.id === geoid)) setGeoid(first);
-  }, [geoids, geoid]);
+    setGeoid(maricopa?.id || geoids[0].id);
+  }, [geoids, geoid, typedUnit]);
+
+  function applyCodeDraft(raw) {
+    const digits = String(raw ?? "").replace(/\D/g, "").slice(0, 5);
+    setCodeDraft(digits);
+    if (digits.length < 5) {
+      setCodeError("");
+      return;
+    }
+    const resolved = resolveCodeGeoid(digits, geography, geoids);
+    if (resolved.error) {
+      setCodeError(resolved.error);
+      return;
+    }
+    setCodeError("");
+    setGeoid(resolved.id);
+  }
 
   const selectedRows = useMemo(() => rows.filter((r) => r.geoid === geoid), [rows, geoid]);
   const timeWindow = selectedRows[0]?.window || ct?.meta?.newest_window || "";
@@ -280,20 +341,54 @@ export default function TransitionSankey() {
       <div className="sankey-controls">
         <label>
           Geography
-          <select value={geography} onChange={(e) => setGeography(e.target.value)}>
+          <select
+            value={geography}
+            onChange={(e) => {
+              setCodeError("");
+              setGeography(e.target.value);
+            }}
+          >
             {GEO_OPTIONS.map(([k, label]) => (
               <option key={k} value={k}>{label}</option>
             ))}
           </select>
         </label>
-        <label>
-          Unit
-          <select value={geoid} onChange={(e) => setGeoid(e.target.value)}>
-            {geoids.map((g) => (
-              <option key={g.id} value={g.id}>{titleFromGeoid(g.id)}</option>
-            ))}
-          </select>
-        </label>
+        {typedUnit ? (
+          <label>
+            {geography === "zcta" ? "ZCTA" : "ZIP"}
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={5}
+              placeholder="85001"
+              value={codeDraft}
+              aria-invalid={Boolean(codeError)}
+              className={codeError ? "is-invalid" : undefined}
+              onChange={(e) => applyCodeDraft(e.target.value)}
+              onBlur={() => {
+                if (codeDraft.length === 5) {
+                  applyCodeDraft(codeDraft);
+                  return;
+                }
+                if (codeDraft.length > 0) {
+                  setCodeError(`Enter a 5-digit ${geography === "zcta" ? "ZCTA" : "ZIP"}.`);
+                }
+                if (geoid) setCodeDraft(codeFromGeoid(geoid));
+              }}
+            />
+            {codeError ? <span className="sankey-unit-error">{codeError}</span> : null}
+          </label>
+        ) : (
+          <label>
+            Unit
+            <select value={geoid} onChange={(e) => setGeoid(e.target.value)}>
+              {geoids.map((g) => (
+                <option key={g.id} value={g.id}>{titleFromGeoid(g.id)}</option>
+              ))}
+            </select>
+          </label>
+        )}
         <label>
           Horizon (months)
           <input
@@ -315,22 +410,17 @@ export default function TransitionSankey() {
       </div>
 
       <div className="sankey-meta stat">
-        {loading ? "Loading transitions..." : null}
-        {!loading && geoid ? `${titleFromGeoid(geoid)} · stocks from ${timeWindow || "latest window"}` : null}
-        {!loading && selectedN ? ` · matched n=${fmt(selectedN)}` : null}
+        {loading ? "Loading…" : null}
+        {!loading && geoid ? `${titleFromGeoid(geoid)} · ${timeWindow || "latest"}` : null}
+        {!loading && selectedN ? ` · n=${fmt(selectedN)}` : null}
       </div>
 
       <div className="sankey-meta">
-        Expected switchers over {horizonMonths} month{horizonMonths === 1 ? "" : "s"}{" "}
-        (off-diagonal only): <b>{fmt1(horizonSwitchers)}</b>
-        {canProject ? " · continuous-time P(t) = expm(Q·t)" : ""}
+        Expected switchers · {horizonMonths} mo: <b>{fmt1(horizonSwitchers)}</b>
       </div>
 
       {!canProject ? (
-        <p className="note">
-          Continuous-time projections need <code>ct_markov.json</code>. Re-fit the
-          generator from the multi-window flow panel to enable this view.
-        </p>
+        <p className="note">Needs <code>ct_markov.json</code>.</p>
       ) : null}
 
       <div className="sankey-svgbox" ref={svgRef}>
@@ -410,16 +500,7 @@ export default function TransitionSankey() {
         ) : null}
       </div>
 
-      <p className="note">
-        Model: one statewide continuous-time generator <code>Q</code> fit by panel MLE across{" "}
-        {ct?.meta?.n_windows ?? 36} irregular windows ({ct?.meta?.window_days_min ?? 7}–
-        {ct?.meta?.window_days_max ?? 183} days). Local stocks come from the selected geography;
-        ribbons are expected switchers only (stayers omitted) via <code>P(t) = expm(Q·t)</code>.
-      </p>
-      <p className="note">
-        Guardrail: this is a closed matched-panel world — new registrations, deaths, and purges
-        are outside the model. Read flows as switching propensity among people who stay on the file.
-      </p>
+      <p className="note">MSM · projects from fitted Q · horizon = months ahead. Switchers only.</p>
     </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import { useCallback, useRef, useState } from "react";
 import {
-  AVP_WATERMARK,
   downloadWatermarkedDataUrl,
 } from "@/modules/avp/shared/lib/watermark-download";
 
@@ -75,7 +74,6 @@ export default function SandboxChart({ title, src }) {
           type="button"
           onClick={onDownload}
           disabled={busy}
-          title={`Downloads with “${AVP_WATERMARK}” watermark`}
           className="shrink-0 rounded-full border border-ink/20 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper disabled:opacity-50"
         >
           {busy ? "Preparing…" : "Download PNG"}

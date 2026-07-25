@@ -48,7 +48,6 @@ export const media = [
   { outlet: "The Science of Politics", note: "How Authoritarian Parenting Attitudes Explain our Partisan Divide", href: "https://podcasts.apple.com/us/podcast/how-authoritarian-parenting-attitudes-explain-our-political/id1295747297?i=1000746100762" },
   { outlet: "AZ Central / Arizona Republic", note: "2024 Arizona voter-turnout election forecast", href: "https://www.azcentral.com/story/news/politics/elections/2024/11/02/voter-turnout-in-arizona-could-be-lower-than-2020-projections-sayin-2024-it-could-be-lower-than-2020/75994759007/" },
   { outlet: "The New York Times (with Samara Klar)", note: "Why Would a Republican Vote Biden? Ask Arizonans — Op-ed" },
-  { outlet: "The Public Morality (NPR)", note: "Interview — Episode 324", href: "https://soundcloud.com/the-public-morality/episode-324-chris-weber." },
   { outlet: "Washington Post: Monkey Cage", note: "How Authoritarianism is Shaping American Politics (and it's not just about Trump)" },
   { outlet: "C-SPAN Washington Journal", note: "Live panelist" },
   { outlet: "The Atlantic", note: "Expert interview" },

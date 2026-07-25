@@ -1,30 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "@/modules/avp/shared/lib/Link";
-import {
-  Chart as ChartJS, LinearScale, PointElement, LineElement, Tooltip,
-} from "chart.js";
-import { Scatter } from "react-chartjs-2";
 import TransitionSankey from "@/modules/avp/party/components/TransitionSankey";
 import { ContentHtml } from "@/modules/avp/shared/components/ContentHtml";
-import { chartTooltip } from "@/modules/avp/shared/lib/chart-tooltip";
 import { partyLabel } from "@/modules/avp/shared/lib/map-tooltip";
 import { fillTemplate } from "@/modules/avp/shared/lib/content-utils";
 import { filterValidWaves } from "@/modules/avp/shared/lib/waves";
 import { publicUrl } from "@/modules/avp/shared/lib/public-url";
 
-ChartJS.register(LinearScale, PointElement, LineElement, Tooltip);
-
 const PC = { DEM: "#0C234B", REP: "#AB0520", PND: "#6b7785", LBT: "#C9A227", NOL: "#378DBD", OTH: "#9AA7B1" };
 const pct = (v) => (v == null ? "—" : `${(v * 100).toFixed(v < 0.01 ? 3 : 1)}%`);
-
-// OLS line for the scatter (steady_partisan ~ party_share_rep), drawn client-side.
-function fit(pts) {
-  const n = pts.length; let sx = 0, sy = 0, sxx = 0, sxy = 0;
-  for (const [x, y] of pts) { sx += x; sy += y; sxx += x * x; sxy += x * y; }
-  const b = (n * sxy - sx * sy) / (n * sxx - sx * sx), a = (sy - b * sx) / n;
-  return { a, b };
-}
 
 function matrixRow(P, from, states) {
   const row = P?.[from];
@@ -38,19 +22,12 @@ function matrixRow(P, from, states) {
 export default function PartyModule({ copy }) {
   const [mk, setMk] = useState(null);
   const [ct, setCt] = useState(null);
-  const [zip, setZip] = useState(null);
   const [analysis, setAnalysis] = useState(null);
-  const [dl, setDl] = useState(null);
   useEffect(() => {
     const u = (p) => publicUrl(`/data/party/${p}`);
     fetch(u("markov.json")).then((r) => r.json()).then(setMk).catch(() => {});
     fetch(u("ct_markov.json")).then((r) => r.json()).then(setCt).catch(() => {});
-    fetch(u("zip_transitions.json")).then((r) => r.json()).then(setZip).catch(() => {});
     fetch(u("transition_analysis.json")).then((r) => r.json()).then(setAnalysis).catch(() => {});
-    fetch(publicUrl("/data/transitions/downloads/manifest.json"))
-      .then((r) => (r.ok ? r.json() : null))
-      .then(setDl)
-      .catch(() => {});
   }, []);
 
   const states = ct?.states ?? mk?.states ?? [];
@@ -70,21 +47,7 @@ export default function PartyModule({ copy }) {
   const currentShare = ct?.current_share ?? {};
   const dwellOrder = [...states].sort((a, b) => (dwell[b] ?? 0) - (dwell[a] ?? 0));
 
-  const zpts = (zip?.rows ?? [])
-    .filter((r) => Number.isFinite(r.party_share_rep) && Number.isFinite(r.steady_partisan))
-    .map((r) => ({
-      x: r.party_share_rep,
-      y: r.steady_partisan,
-      zip: r.zip,
-      demShare: r.party_share_dem,
-      repShare: r.party_share_rep,
-    }));
-  const line = zpts.length > 2 ? fit(zpts.map((p) => [p.x, p.y])) : null;
-  const xs = zpts.map((p) => p.x);
-  const lineData = line ? [Math.min(...xs), Math.max(...xs)].map((x) => ({ x, y: line.a + line.b * x })) : [];
-
   const cov = analysis?.zip_covariates?.steady_partisan;
-  const ageParty = analysis?.age_party;
   const primaryWin = analysis?.primary_affiliation_window;
   const recentWaves = filterValidWaves(analysis?.waves).slice(-6);
   const entrants = analysis?.entrant_party_skew;
@@ -198,12 +161,7 @@ export default function PartyModule({ copy }) {
             </table>
           </div>
           <p className="note" style={{ marginTop: 8 }}>
-            {copy.msm.dwellNote}{" "}
-            {ct.interpretation?.headline}
-          </p>
-          <p className="note">
-            {ct.interpretation?.method} Relaxation time ≈ {ct.relaxation_years?.toFixed?.(0) ?? "—"} years
-            — the mix moves slowly even when switching rates are stable.
+            {copy.msm.dwellNote}
           </p>
         </section>
       )}
@@ -279,106 +237,6 @@ export default function PartyModule({ copy }) {
           </p>
         )}
       </section>
-
-      <section className="op-section">
-        <div className="op-head">
-          <span className="op-eyebrow">{copy.zip.eyebrow}</span>
-          <h2><ContentHtml html={copy.zip.title} /></h2>
-          <p>
-            <ContentHtml
-              html={fillTemplate(copy.zip.body, { r2: zip?.meta?.r2 ?? "≈0.48" })}
-            />
-          </p>
-        </div>
-        <div className="scatter-canvas" style={{ height: 360 }}>
-          {zpts.length > 0 && (
-            <Scatter
-              data={{
-                datasets: [
-                  { label: "ZIPs", data: zpts, backgroundColor: "rgba(30,82,136,0.55)", pointRadius: 3 },
-                  { label: "fit", data: lineData, type: "line", borderColor: "#AB0520", borderWidth: 2, pointRadius: 0 },
-                ],
-              }}
-              options={{
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: { display: false },
-                  tooltip: chartTooltip({
-                    callbacks: {
-                      label: (c) => {
-                        if (!c.raw?.zip) return null;
-                        const steady = (c.raw.y * 100).toFixed(0);
-                        const lines = [
-                          `ZIP ${c.raw.zip}: Markov steady-state partisan share ${steady}%`,
-                        ];
-                        if (Number.isFinite(c.raw.demShare)) {
-                          lines.push(`Democratic share: ${(c.raw.demShare * 100).toFixed(1)}%`);
-                        }
-                        if (Number.isFinite(c.raw.repShare)) {
-                          lines.push(`Republican share: ${(c.raw.repShare * 100).toFixed(1)}%`);
-                        }
-                        return lines;
-                      },
-                    },
-                  }),
-                },
-                scales: {
-                  x: { title: { display: true, text: "Republican registration share" }, ticks: { callback: (v) => `${(v * 100).toFixed(0)}%` } },
-                  y: { title: { display: true, text: "Markov steady-state partisan share" }, ticks: { callback: (v) => `${(v * 100).toFixed(0)}%` } },
-                },
-              }}
-            />
-          )}
-        </div>
-        <p className="note" style={{ marginTop: 8 }}>
-          {fillTemplate(copy.zip.footnoteTemplate, {
-            nZips: zip?.meta?.n_zips ?? "≈395",
-          })}
-        </p>
-        <div className="story-cta" style={{ marginTop: 14 }}>
-          {copy.zip.json.ctas.map((cta) => (
-            <Link className="btn" href={cta.href} key={cta.href}>{cta.label}</Link>
-          ))}
-        </div>
-      </section>
-
-      {copy.download && dl && (
-        <section className="op-section">
-          <div className="op-head">
-            <span className="op-eyebrow">{copy.download.eyebrow}</span>
-            <h2>{copy.download.title}</h2>
-            <p>
-              <ContentHtml
-                html={fillTemplate(copy.download.body, {
-                  window: dl.waves?.[0]?.window ?? "2026-06-01..2026-07-02",
-                })}
-              />
-            </p>
-          </div>
-          <div className="story-cta">
-            <a className="btn" href={publicUrl("/data/transitions/downloads/zip_party_flows.csv")} download>
-              ZIP party flows ({Number(dl.files?.["zip_party_flows.csv"]?.rows ?? 0).toLocaleString("en-US")} rows)
-            </a>
-            <a className="btn" href={publicUrl("/data/transitions/downloads/zip_covariates.csv")} download>
-              ZIP covariates ({Number(dl.files?.["zip_covariates.csv"]?.rows ?? 0).toLocaleString("en-US")} rows)
-            </a>
-            <a className="btn" href={publicUrl("/data/transitions/downloads/zip_acs_full.csv")} download>
-              ZIP ACS full ({Number(dl.files?.["zip_acs_full.csv"]?.rows ?? 0).toLocaleString("en-US")} ZIPs)
-            </a>
-            <a className="btn" href={publicUrl("/data/transitions/downloads/statewide_markov_flows.csv")} download>
-              Statewide pooled flows
-            </a>
-            <Link className="btn" href={copy.download.schemaLink}>Schema &amp; privacy →</Link>
-          </div>
-          <p className="note" style={{ marginTop: 10 }}>
-            Six party buckets per row (DEM, REP, PND, LBT, NOL, OTH). Counts only — ZIPs with
-            &lt;50 matched registrants suppressed.{" "}
-            {dl.waves?.length === 1 && (
-              <>Multi-wave ZIP panels require re-running <code>build_transitions.R</code> for each adjacent build pair.</>
-            )}
-          </p>
-        </section>
-      )}
 
       {/* appended transition research */}
       {analysis && (
@@ -517,65 +375,9 @@ export default function PartyModule({ copy }) {
               </>
             ) : (
               <p className="note" style={{ marginTop: 10 }}>
-                <b>New-entrant party mix.</b> Stage A supports an <code>entrant</code> transition
-                dimension (<code>build_transitions.R entrant</code>) that publishes each geography&apos;s
-                new-registrant party counts and median age. Rebuild with BigQuery access to populate
-                entrant skew in this section automatically.
+                <ContentHtml html={copy.entrants.entrantPlaceholder} />
               </p>
             )}
-          </section>
-
-          <section className="op-section">
-            <div className="op-head">
-              <span className="op-eyebrow">{copy.age?.eyebrow ?? "7 · Age and party lean"}</span>
-              <h2>{copy.age?.title ?? "Are younger voters leaning to a party?"}</h2>
-              <p>
-                At ZIP scale, younger registrant populations lean substantially less Republican. This
-                pattern shows up in both static registration shares and the Markov steady-state models
-                above — but monthly <em>switching</em> rates remain tiny for all age groups.
-              </p>
-            </div>
-            <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit,minmax(200px,1fr))", maxWidth: 640 }}>
-              <div className="card" style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "var(--mono)" }}>
-                  {ageParty?.age_vs_rep_share_r != null ? ageParty.age_vs_rep_share_r.toFixed(2) : "—"}
-                </div>
-                <div className="note">Age vs Rep share (r across ZIPs)</div>
-              </div>
-              <div className="card" style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "var(--mono)" }}>
-                  {ageParty?.mean_rep_share_age_under_40 != null
-                    ? `${(ageParty.mean_rep_share_age_under_40 * 100).toFixed(0)}%`
-                    : "—"}
-                </div>
-                <div className="note">Mean Rep share · ZIPs with median age &lt; 40</div>
-              </div>
-              <div className="card" style={{ textAlign: "center" }}>
-                <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "var(--mono)" }}>
-                  {ageParty?.mean_rep_share_age_55_plus != null
-                    ? `${(ageParty.mean_rep_share_age_55_plus * 100).toFixed(0)}%`
-                    : "—"}
-                </div>
-                <div className="note">Mean Rep share · ZIPs with median age ≥ 55</div>
-              </div>
-            </div>
-            <p className="note" style={{ marginTop: 10 }}>
-              Younger ZIPs average{" "}
-              {Math.round((ageParty?.mean_rep_share_age_under_40 ?? 0) * 100)}% Republican registration vs{" "}
-              {Math.round((ageParty?.mean_rep_share_age_55_plus ?? 0) * 100)}% in older ZIPs — a{" "}
-              {ageParty
-                ? Math.round((ageParty.mean_rep_share_age_55_plus - ageParty.mean_rep_share_age_under_40) * 100)
-                : "—"}
-              -point gap. The Markov steady state tilts more Republican than today&apos;s stock (
-              {analysis.markov_statewide?.steady_state_rep != null
-                ? `${(analysis.markov_statewide.steady_state_rep * 100).toFixed(1)}%`
-                : "44.5%"}
-              {" "}steady-state Rep vs{" "}
-              {analysis.markov_statewide?.steady_state_dem != null
-                ? `${(analysis.markov_statewide.steady_state_dem * 100).toFixed(1)}%`
-                : "22.6%"}
-              {" "}Dem), a diagnostic of switching direction — not a demographic forecast.
-            </p>
           </section>
         </>
       )}
