@@ -87,6 +87,6 @@ agreeLegend: · right column = the gap (0–100). Green = common ground, red = d
 
 eyebrow: About the data
 followup: For change <em>over time</em> in the electorate itself, see the <a href="/party">party-transition / Markov analysis &rarr;</a>
-footerTemplate: Source: Arizona Voter Survey (The Arizona Voter Project, in collaboration with the Arizona Policy Lab at the University of Arizona; YouGov, 2023–2024). Build {fileDate}.
+footerTemplate: Source: Arizona Voter Survey (The Arizona Voter Project, in collaboration with the Arizona Policy Lab at the University of Arizona; YouGov, 2023–2024).
 
-The Arizona Voter Survey was fielded by <b>YouGov</b> over two waves (2023, 2024) of Arizona adults, matched and weighted to the state population; a subset of respondents recur across waves (a short <b>panel</b>), which is what lets us look at change. Every figure here is a group mean or share, small cells (&lt;{minCell}) suppressed — no individual responses are shown. The measures span partisan affect, democratic norms &amp; tolerance, issue positions, feeling thermometers, and metacognition (recodes documented in <code>political_segregation_extremism</code>).
+The Arizona Voter Survey was fielded by <b>YouGov</b> over two waves (2023, 2024) of Arizona adults, matched and weighted to the state population; a subset of respondents recur across waves (a short <b>panel</b>), which is what lets us look at change. Every figure here is a group mean or share, small cells (&lt;{minCell}) suppressed — no individual responses are shown. The measures span partisan affect, democratic norms &amp; tolerance, issue positions, feeling thermometers, and metacognition.

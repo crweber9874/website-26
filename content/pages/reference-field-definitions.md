@@ -8,7 +8,7 @@ metaDescription: Column-by-column definitions for Arizona voter file records use
 eyebrow: Reference · The voter file
 title: Field definitions
 
-Every person on the Arizona voter file is one row. The state export contains dozens of columns; AVP uses a focused subset for analysis and publication. This page defines each field you will encounter in the example record on the Understanding page or in the pipeline documentation.
+Every person on the Arizona voter file is one row. The state export contains dozens of columns; AVP uses a focused subset for analysis and publication. This page defines each field you will encounter in the example record on the Understanding page.
 
 ## identity
 

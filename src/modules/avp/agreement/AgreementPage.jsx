@@ -1,6 +1,5 @@
 import Agreement from "@/modules/avp/agreement/components/Agreement";
 import { loadAgreement } from "@/modules/avp/agreement/lib/agreement";
-import { ContentHtml } from "@/modules/avp/shared/components/ContentHtml";
 import { fillTemplate, loadContent } from "@/modules/avp/shared/lib/content";
 
 export const metadata = {
@@ -26,7 +25,6 @@ export default function AgreePage() {
     n: ui.nTemplate,
     footer: fillTemplate(ui.footer, {
       minCell: data.meta?.min_cell ?? 25,
-      fileDate: data.meta?.file_date ?? "",
     }),
   };
 
@@ -36,9 +34,6 @@ export default function AgreePage() {
         <div className="wrap">
           <div className="eyebrow">{sections.hero.eyebrow}</div>
           <h1>{sections.hero.title}</h1>
-          <p className="lede">
-            <ContentHtml html={sections.hero.body} />
-          </p>
         </div>
       </section>
       <main className="wrap content-after-hero">

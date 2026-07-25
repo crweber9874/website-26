@@ -551,7 +551,7 @@
       "window": "2026-06-01..2026-07-02",
       "file_date": "2026-07-02",
       "n_waves": 1,
-      "source": "site/public/data/transitions/entrant and data/v001_*/transitions/entrant"
+      "source": "/data/transitions/entrant"
     },
     "statewide": {
       "n_entrants": 19943,
@@ -571,7 +571,7 @@
       {
         "file_date": "2026-07-02",
         "window": "2026-06-01..2026-07-02",
-        "source": "site/public/data/transitions/entrant/zip/summary.json",
+        "source": "/data/transitions/entrant/zip/summary.json",
         "n_entrants": 19943,
         "party_share_dem": 0.22929838874158678,
         "party_share_rep": 0.23337752396491943,

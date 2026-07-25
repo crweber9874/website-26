@@ -6,6 +6,15 @@ export interface Dashboard {
   tag: string;
 }
 
+/** Hub teaser — full scrollytelling tour lives at /voter/story. */
+export const myStory = {
+  eyebrow: "My Story",
+  title: "A tour through the voter file",
+  body: "Who is registered, where they live, and whether they voted — never who they voted for. Scroll from counties to congressional districts.",
+  href: "/voter/story",
+  cta: "Take the tour →",
+};
+
 export const dashboards: Dashboard[] = [
   {
     n: "01",
@@ -40,15 +49,15 @@ export interface SandboxChart {
 
 export const sandboxCharts: SandboxChart[] = [
   {
-    title: "Party profiles — radar comparison",
+    title: "Party profiles",
     src: "/sandbox/party_radar_comparison_20260315_121108.html",
   },
   {
-    title: "Republican share — 3D precinct surface",
+    title: "Trump vote share",
     src: "/sandbox/map3d_trump_percent_20260317_111111.html",
   },
   {
-    title: "Republican share — precinct density",
+    title: "Republican share",
     src: "/sandbox/density_pct_republican_20260314_180222.html",
   },
 ];

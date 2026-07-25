@@ -550,7 +550,8 @@ section.block { padding: 36px 0; border-top: 1px solid var(--line); }
   color: var(--faint);
 }
 .sankey-controls select,
-.sankey-controls input[type="range"] {
+.sankey-controls input[type="range"],
+.sankey-controls input[type="text"] {
   font-family: var(--body);
   font-size: 13px;
   padding: 6px 8px;
@@ -558,6 +559,22 @@ section.block { padding: 36px 0; border-top: 1px solid var(--line); }
   border-radius: 8px;
   background: var(--bg);
   color: var(--text);
+}
+.sankey-controls input[type="text"] {
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+  width: 7.5rem;
+}
+.sankey-controls input[type="text"].is-invalid {
+  border-color: #AB0520;
+}
+.sankey-unit-error {
+  color: #AB0520;
+  font-family: var(--body);
+  font-size: 12px;
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 0;
 }
 .sankey-tabs {
   display: inline-flex;

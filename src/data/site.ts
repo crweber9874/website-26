@@ -3,8 +3,7 @@ export const site = {
   shortName: "Christopher Weber",
   role: "Professor of Political Science",
   affiliation: "School of Government and Public Policy, University of Arizona",
-  tagline:
-    "Political psychology, public opinion, and the hidden architecture of the American electorate.",
+  description: "Professor of Political Science, University of Arizona.",
   email: "chrisweber@arizona.edu",
   office: "333 Social Sciences Building, Tucson, AZ 85721-0027",
   voterProject: "https://voterproject.arizona.edu",

@@ -19,9 +19,7 @@ export default function OpinionPage() {
       ...sections.about,
       body: fillTemplate(sections.about.body, { minCell: data.meta?.min_cell ?? 25 }),
       followup: sections.about.followup,
-      footer: fillTemplate(sections.about.footerTemplate, {
-        fileDate: data.meta?.file_date ?? "",
-      }),
+      footer: sections.about.footerTemplate,
     },
   };
 

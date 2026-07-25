@@ -159,5 +159,5 @@ linkHref: /reference
 
 eyebrow: About the Arizona Voter Project
 title: What is the Arizona Voter Project?
-intro: The Arizona Voter Project is a non-partisan initiative supported by the University of Arizona&rsquo;s School of Government and Public Policy. It provides tools and analysis to better capture the political, social, and cultural richness of the Arizona electorate — developing resources to access, experiment, and interact with data so everyone can learn more about politics and communities within the state. A scroll-through introduction walks through Arizona&rsquo;s voter file from the state level down to neighborhoods, with links to every analysis module.
+intro: The Arizona Voter Project is a non-partisan initiative supported by the University of Arizona&rsquo;s School of Government and Public Policy. It provides tools and analysis to better capture the political, social, and cultural richness of the Arizona electorate — developing resources to access, experiment, and interact with data so everyone can learn more about politics and communities within the state. A short scroll-through introduction walks through Arizona&rsquo;s voter file from counties to congressional districts, with links to the full explorer.
 linkLabel: What is the Arizona Voter Project? →
