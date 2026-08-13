@@ -1,158 +1,210 @@
 ---
-import Base from "@/layouts/Base.astro";
-import SandboxChart from "@/components/react/SandboxChart.tsx";
-import { dashboards, myStory, sandboxCharts } from "@/data/voter";
-import { site } from "@/data/site";
+import CommonLayout from "@/layouts/CommonLayout.astro"
+import Button from "@/components/base/Button.astro"
+import Card from "@/components/base/card/Card.astro"
+import CardContent from "@/components/base/card/CardContent.astro"
+import CardGroup from "@/components/base/card/CardGroup.astro"
+import CardHeader from "@/components/base/card/CardHeader.astro"
+import CardTitle from "@/components/base/card/CardTitle.astro"
+import Section from "@/components/layout/Section.astro"
+import SandboxChart from "@/components/react/SandboxChart.tsx"
+import { sandboxCharts } from "@/data/voter"
+
+const modules = [
+  {
+    title: "My Story",
+    href: "/voter/story",
+    tag: "Guided tour",
+    blurb:
+      "Who is registered, where they live, and whether they voted — never who they voted for. Scroll from counties to congressional districts.",
+  },
+  {
+    title: "The Explorer",
+    href: "/voter/explorer",
+    tag: "Choropleth · time series",
+    blurb:
+      "Explore characteristics of the Arizona voter file, aggregated to counties, districts, precincts, ZCTAs, tracts, and block groups.",
+  },
+  {
+    title: "Party Transitions",
+    href: "/voter/party",
+    tag: "Sankey · Markov model",
+    blurb:
+      "Movement between party registrations from a continuous-time Markov model, so irregular file windows share one rate clock, with steady-state projections.",
+  },
+  {
+    title: "Common Ground",
+    href: "/voter/agreement",
+    tag: "Overlap",
+    blurb:
+      "How much do Arizonans actually overlap? An overlapping-coefficient (OVL) tool measuring shared opinion across party, race, religion, and demographics.",
+  },
+  {
+    title: "Voting",
+    href: "/voter/voting",
+    tag: "Precinct analytics",
+    blurb:
+      "Precinct-level turnout and vote distributions, with county comparisons.",
+  },
+  {
+    title: "Opinion",
+    href: "/voter/opinion",
+    tag: "Survey",
+    blurb: "Opinion measures alongside the registration and turnout record.",
+  },
+  {
+    title: "Understanding the file",
+    href: "/voter/understanding",
+    tag: "Reference",
+    blurb:
+      "Field definitions, de-identification, small-cell suppression, party buckets, and build-over-build comparisons.",
+  },
+]
+
+const description =
+  "Maps and models of Arizona's electorate — registration, turnout, party movement, and shared opinion."
 ---
 
-<Base title="Voter Project">
-  <!-- Hero -->
-  <section
-    class="relative overflow-hidden bg-gradient-to-b from-ink-800 to-ink px-6 pb-16 pt-40 md:px-10 grain"
-  >
-    <div
-      class="pointer-events-none absolute -right-32 top-10 h-[34rem] w-[34rem] rounded-full bg-sky/10 blur-[130px]"
-    >
-    </div>
-    <div class="relative mx-auto max-w-5xl">
-      <div class="flex flex-wrap items-center gap-3" data-reveal>
-        <p class="font-mono text-xs uppercase tracking-[0.3em] text-sky">
-          Public-facing data science
-        </p>
-        <span
-          class="rounded-full bg-paper px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink"
-          >Beta</span
-        >
-      </div>
-      <h1
-        class="mt-4 font-display text-4xl font-light leading-[1.05] tracking-tight text-paper sm:text-6xl"
-        data-reveal
-      >
-        The Arizona<br />Voter Project
-      </h1>
-      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-paper/75" data-reveal>
-        Maps and models of Arizona’s electorate — registration, turnout, party
-        movement, and shared opinion.
-      </p>
-      <div class="mt-8 flex flex-wrap gap-4" data-reveal>
-        <a
-          href="/voter/story"
-          class="rounded-full bg-paper px-7 py-3 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
-          >Take the story tour</a
-        >
-        <a
-          href="/voter/explorer"
-          class="rounded-full border border-paper/25 px-7 py-3 text-sm font-semibold text-paper transition-colors hover:border-paper/60"
-          >Open the Explorer</a
-        >
-        <a
-          href={site.voterProject}
-          target="_blank"
-          rel="noopener"
-          class="rounded-full border border-paper/25 px-7 py-3 text-sm font-semibold text-paper transition-colors hover:border-paper/60"
-          >voterproject.arizona.edu ↗</a
-        >
-      </div>
-    </div>
-  </section>
+<CommonLayout
+  title="The Arizona Voter Project"
+  description={description}
+  breadcrumbs={[{ label: "Voter Project" }]}
+  prose={false}
+>
+  <p class="voter-beta">
+    <strong>Beta.</strong> Every module below is a beta release. Figures and underlying
+    data are preliminary, under active development, and will migrate to the official
+    <a href="https://voterproject.arizona.edu" rel="noopener" target="_blank"
+      >project website</a
+    >.
+  </p>
 
-  <!-- My Story — teaser into the scrollytelling tour -->
-  <section class="bg-ink-800 px-6 py-14 md:px-10">
-    <div class="mx-auto max-w-3xl" data-reveal>
-      <p class="font-mono text-xs uppercase tracking-[0.3em] text-sky">
-        {myStory.eyebrow}
-      </p>
-      <h2
-        class="mt-3 font-display text-2xl font-light tracking-tight text-paper sm:text-3xl"
-      >
-        {myStory.title}
-      </h2>
-      <p class="mt-4 text-base leading-relaxed text-paper/70">
-        {myStory.body}
-      </p>
-      <a
-        href={myStory.href}
-        class="mt-6 inline-block text-sm font-semibold text-sky transition-colors hover:text-paper"
-      >
-        {myStory.cta}
-      </a>
-    </div>
-  </section>
+  <div class="voter-actions">
+    <Button href="/voter/story" variant="primary">Take the story tour</Button>
+    <Button href="/voter/explorer" variant="default">Open the Explorer</Button>
+  </div>
 
-  <!-- Dashboard grid -->
-  <section class="bg-ink px-6 py-20 md:px-10">
-    <div class="mx-auto max-w-7xl">
-      <h2
-        class="font-display text-3xl font-light tracking-tight text-paper sm:text-4xl"
-        data-reveal
-      >
-        Three ways into the data
-      </h2>
-      <div
-        class="mt-5 flex items-start gap-3 rounded-xl border border-paper/15 bg-white/[0.04] p-4 text-sm text-paper/70"
-        data-reveal
-      >
-        <span
-          class="mt-0.5 shrink-0 rounded-full bg-paper px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink"
-          >Beta</span
-        >
-        <p>
-          Every dashboard below is a <strong class="text-paper">beta release</strong>.
-          Figures and underlying data are preliminary, under active development,
-          and will migrate to the official project website.
-        </p>
-      </div>
-      <div class="mt-8 grid gap-px overflow-hidden rounded-2xl bg-white/5 sm:grid-cols-2 lg:grid-cols-3">
-        {
-          dashboards.map((d) => (
-            <a
-              href={d.href}
-              class="group relative flex flex-col bg-ink p-8 transition-colors hover:bg-ink-800"
-              data-reveal
-            >
-              <div class="flex items-center justify-between">
-                <span class="font-mono text-xs text-sky">{d.n}</span>
-                <div class="flex items-center gap-2">
-                  <span class="rounded-full bg-white/8 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-paper/50">
-                    {d.tag}
-                  </span>
-                  <span class="rounded-full border border-paper/40 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-paper">
-                    Beta
-                  </span>
-                </div>
-              </div>
-              <h3 class="mt-4 font-display text-2xl font-medium text-paper transition-colors group-hover:text-sky">
-                {d.title}
-              </h3>
-              <p class="mt-3 flex-1 text-sm leading-relaxed text-paper/60">
-                {d.blurb}
-              </p>
-              <span class="mt-6 text-xs font-medium text-paper/40 transition-colors group-hover:text-sky">
-                Launch dashboard →
-              </span>
-            </a>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+  <Section title="Modules">
+    <CardGroup columns={2}>
+      {
+        modules.map((mod) => (
+          <Card as="article" href={mod.href} padding="compact">
+            <CardHeader>
+              <CardTitle>{mod.title}</CardTitle>
+              <p class="voter-tag">{mod.tag}</p>
+            </CardHeader>
+            <CardContent>
+              <p class="voter-blurb">{mod.blurb}</p>
+            </CardContent>
+          </Card>
+        ))
+      }
+    </CardGroup>
+  </Section>
 
-  <!-- Sandbox charts -->
-  <section class="bg-paper px-6 py-20 text-ink md:px-10">
-    <div class="mx-auto max-w-7xl">
-      <h2
-        class="font-display text-3xl font-light tracking-tight sm:text-4xl"
-        data-reveal
-      >
-        Charts
-      </h2>
-      <div class="mt-12 grid gap-6 lg:grid-cols-3">
-        {
-          sandboxCharts.map((c) => (
-            <SandboxChart client:only="react" title={c.title} src={c.src} />
-          ))
-        }
-      </div>
+  <Section title="Charts">
+    <div class="voter-charts">
+      {
+        sandboxCharts.map((chart) => (
+          <SandboxChart client:only="react" title={chart.title} src={chart.src} />
+        ))
+      }
     </div>
-  </section>
-</Base>
+  </Section>
+</CommonLayout>
+
+<style>
+  .voter-beta {
+    padding: var(--space-2xs);
+    border-inline-start: 3px solid var(--primary);
+    background: var(--muted);
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+    max-inline-size: 72ch;
+  }
+
+  .voter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-s);
+  }
+
+  .voter-tag {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+  }
+
+  .voter-blurb {
+    margin: 0;
+  }
+
+  .voter-charts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-s);
+  }
+
+  :global(.sandbox-chart) {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    background: var(--background);
+  }
+
+  :global(.sandbox-chart-bar) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2xs);
+    padding: var(--space-3xs) var(--space-2xs);
+    border-block-end: 1px solid var(--border);
+  }
+
+  :global(.sandbox-chart-title) {
+    color: var(--muted-foreground);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+
+  :global(.sandbox-chart-download) {
+    flex-shrink: 0;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--foreground);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background var(--motion-duration) var(--motion-ease);
+  }
+
+  :global(.sandbox-chart-download:hover) {
+    background: var(--muted);
+  }
+
+  :global(.sandbox-chart-download:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  :global(.sandbox-chart-frame) {
+    display: block;
+    inline-size: 100%;
+    block-size: 360px;
+    border: 0;
+  }
+
+  :global(.sandbox-chart-error) {
+    margin: 0;
+    padding: var(--space-3xs) var(--space-2xs);
+    border-block-start: 1px solid var(--border);
+    color: var(--destructive);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+  }
+</style>

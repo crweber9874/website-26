@@ -18,7 +18,7 @@ const ui = stepsContent.sections.ui;
       <p class="lede" set:html={hero.body} />
       <div class="story-cta" style="justify-content: center">
         {
-          hero.json.ctas.map((cta) => (
+          hero.json.ctas.map((cta: { href: string; label: string; primary?: boolean }) => (
             <a
               class={`btn${cta.primary ? " primary" : ""}`}
               href={cta.href}

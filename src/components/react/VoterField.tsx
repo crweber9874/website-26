@@ -133,7 +133,7 @@ export default function VoterField() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 h-full w-full"
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
       aria-hidden="true"
     />
   );

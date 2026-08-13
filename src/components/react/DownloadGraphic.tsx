@@ -9,14 +9,6 @@ import {
 /**
  * Download button that captures the nearest graphic inside `targetRef`
  * (or a CSS selector) and stamps an Arizona Voter Project watermark.
- *
- * @param {{
- *   targetRef?: React.RefObject<HTMLElement | null>;
- *   selector?: string;
- *   filename?: string;
- *   className?: string;
- *   label?: string;
- * }} props
  */
 export default function DownloadGraphic({
   targetRef,
@@ -24,6 +16,12 @@ export default function DownloadGraphic({
   filename = "avp-graphic",
   className = "avp-dl-btn",
   label = "Download PNG",
+}: {
+  targetRef?: React.RefObject<HTMLElement | null>;
+  selector?: string;
+  filename?: string;
+  className?: string;
+  label?: string;
 }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -34,7 +32,7 @@ export default function DownloadGraphic({
     try {
       const root =
         targetRef?.current ??
-        (selector ? document.querySelector(selector) : null);
+        (selector ? document.querySelector<HTMLElement>(selector) : null);
       if (!root) throw new Error("Graphic not ready");
       await downloadWatermarkedGraphic(root, filename);
     } catch (e) {

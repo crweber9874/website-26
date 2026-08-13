@@ -1,0 +1,74 @@
+[
+  {
+    "id": "ua-professor-2022",
+    "category": "research",
+    "title": "Professor",
+    "org": "University of Arizona, School of Government and Public Policy",
+    "orgUrl": "https://sgpp.arizona.edu",
+    "startDate": "2022-01",
+    "location": "Tucson, AZ"
+  },
+  {
+    "id": "avp-director-2020",
+    "category": "research",
+    "title": "Director, The Arizona Voter Project",
+    "org": "University of Arizona",
+    "orgUrl": "https://voterproject.arizona.edu",
+    "startDate": "2020-01",
+    "location": "Tucson, AZ",
+    "description": "Statewide voter-file research program: registration and turnout histories, partisan change, and public-facing data tools."
+  },
+  {
+    "id": "ua-associate-2014",
+    "category": "research",
+    "title": "Associate Professor",
+    "org": "University of Arizona, School of Government and Public Policy",
+    "orgUrl": "https://sgpp.arizona.edu",
+    "startDate": "2014-01",
+    "endDate": "2022-01",
+    "location": "Tucson, AZ"
+  },
+  {
+    "id": "ua-assistant-2013",
+    "category": "research",
+    "title": "Assistant Professor",
+    "org": "University of Arizona, School of Government and Public Policy",
+    "orgUrl": "https://sgpp.arizona.edu",
+    "startDate": "2013-01",
+    "endDate": "2014-01",
+    "location": "Tucson, AZ"
+  },
+  {
+    "id": "lsu-assistant-2008",
+    "category": "research",
+    "title": "Assistant Professor",
+    "org": "Louisiana State University, Political Science & Manship School of Mass Communication",
+    "orgUrl": "https://www.lsu.edu",
+    "startDate": "2008-01",
+    "endDate": "2013-01",
+    "location": "Baton Rouge, LA",
+    "description": "Douglas L. Manship, Sr. Professorship, 2011--2013."
+  },
+  {
+    "id": "phd-stony-brook",
+    "category": "education",
+    "title": "Ph.D., Political Science",
+    "org": "Stony Brook University",
+    "orgUrl": "https://www.stonybrook.edu",
+    "startDate": "2003-09",
+    "endDate": "2008-05",
+    "location": "Stony Brook, NY",
+    "description": "M.A., Political Science, 2005."
+  },
+  {
+    "id": "ba-minnesota",
+    "category": "education",
+    "title": "B.A., Psychology (Political Science minor)",
+    "org": "University of Minnesota, Twin Cities",
+    "orgUrl": "https://twin-cities.umn.edu",
+    "startDate": "1999-09",
+    "endDate": "2003-05",
+    "location": "Minneapolis, MN",
+    "description": "Summa Cum Laude."
+  }
+]

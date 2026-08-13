@@ -1,0 +1,35 @@
+{
+  "description": "Tools I use for research computing, voter-file infrastructure, and public data products.",
+  "groups": [
+    {
+      "name": "Computation & web",
+      "icon": "mingcute:code-line",
+      "items": ["R", "tidyverse", "Python", "JavaScript", "Stan / brms"]
+    },
+    {
+      "name": "Data warehousing",
+      "icon": "mingcute:server-line",
+      "items": ["Google BigQuery", "SQL", "Encrypted cloud storage"]
+    },
+    {
+      "name": "Machine learning",
+      "icon": "mingcute:ai-line",
+      "items": ["TensorFlow / Keras", "Vote-behavior models", "Bayesian estimation"]
+    },
+    {
+      "name": "Geospatial",
+      "icon": "mingcute:map-line",
+      "items": ["Google Maps API", "Geocoding", "Choropleths", "MapLibre"]
+    },
+    {
+      "name": "Cloud",
+      "icon": "mingcute:cloud-line",
+      "items": ["Google Cloud Platform", "Reproducible pipelines"]
+    },
+    {
+      "name": "Visualization",
+      "icon": "mingcute:chart-bar-line",
+      "items": ["D3", "Tableau", "Shiny", "Looker", "Chart.js"]
+    }
+  ]
+}

@@ -1,30 +1,69 @@
 {
   "name": "chrisweber-website",
-  "type": "module",
-  "version": "1.0.0",
   "description": "Personal academic site for Christopher R. Weber",
+  "type": "module",
+  "version": "2.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "build:books": "bash scripts/render-books.sh"
+    "sync": "astro sync",
+    "generate:favicons": "node scripts/generate-favicons.mjs",
+    "generate:social": "node scripts/generate-social-preview.mjs",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "oxlint --type-aware",
+    "lint:styles": "node scripts/check-style-architecture.mjs",
+    "build:books": "bash scripts/render-books.sh",
+    "clean": "rm -rf dist/ .astro/ node_modules/.astro/data-store.json"
   },
   "dependencies": {
-    "@astrojs/react": "^4.2.0",
-    "astro": "^5.5.0",
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/markdown-satteri": "^0.3.4",
+    "@astrojs/react": "^6.0.2",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "@citation-js/core": "^0.7.21",
+    "@citation-js/plugin-bibtex": "^0.7.21",
+    "@date-fns/tz": "^1.5.0",
+    "@expressive-code/plugin-collapsible-sections": "^0.42.0",
+    "@expressive-code/plugin-line-numbers": "^0.42.0",
+    "@iconify-json/academicons": "^1.2.4",
+    "@iconify-json/mingcute": "^1.2.7",
+    "@iconify/utils": "^3.1.3",
+    "astro": "^7.1.3",
     "chart.js": "^4.5.1",
-    "lenis": "^1.1.20",
+    "date-fns": "^4.4.0",
+    "github-slugger": "^2.0.0",
+    "hast-util-select": "^6.0.4",
+    "hast-util-to-html": "^9.0.5",
+    "hastscript": "^9.0.1",
     "maplibre-gl": "^4.7.1",
     "motion": "^11.15.0",
     "react": "18.3.1",
     "react-chartjs-2": "^5.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "satori": "^0.26.0",
+    "satteri": "^0.9.4",
+    "satteri-expressive-code": "^0.1.17",
+    "temml": "^0.13.3",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "^4.0.0",
+    "@biomejs/biome": "^2.5.2",
+    "@types/hast": "^3.0.4",
+    "@types/mdast": "^4.0.4",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "tailwindcss": "^4.0.0"
-  }
+    "mdast-util-to-hast": "^13.2.0",
+    "oxlint": "^1.72.0",
+    "oxlint-tsgolint": "^0.24.0",
+    "sharp": "^0.35.3"
+  },
+  "//pnpm": "Build-script allowlist lives in pnpm-workspace.yaml (pnpm >= 11)."
 }

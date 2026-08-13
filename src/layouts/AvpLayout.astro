@@ -1,7 +1,7 @@
 ---
 import "maplibre-gl/dist/maplibre-gl.css";
 import "@/styles/avp.css";
-import { site } from "@/data/site";
+import { SITE } from "@site-config";
 
 interface Props {
   title?: string;
@@ -88,13 +88,17 @@ const fullTitle = title
         <a href="/voter/explorer" class={module === "explorer" ? "active" : ""}>Explorer</a>
         <a href="/voter/party" class={module === "party" ? "active" : ""}>Party</a>
         <a href="/voter/agreement" class={module === "agreement" ? "active" : ""}>Common Ground</a>
-        <a href="/">{site.shortName}</a>
+        <a href="/voter/voting" class={module === "voting" ? "active" : ""}>Voting</a>
+        <a href="/voter/understanding" class={module === "understanding" ? "active" : ""}>The file</a>
+        <a href="/">{SITE.title}</a>
       </nav>
     </header>
     <div class="avp-beta-note">
       <strong>BETA</strong> — this module is a work in progress. Figures and
       data are preliminary and will migrate to the official
-      <a href={site.voterProject} style="color:#fff;">Arizona Voter Project</a>
+      <a href="https://voterproject.arizona.edu" style="color:#fff;"
+        >Arizona Voter Project</a
+      >
       site.
     </div>
     <div class="page-body">

@@ -1,0 +1,7 @@
+- ISPP Governing Council (2025--)
+- Co-Editor, *Political Psychology* (2020--2024)
+- Director, ISPP Summer Academy (2015--2020)
+- Director, The Arizona Voter Project (2020--)
+- Co-Coordinator, Arizona Policy Lab (2020--)
+- Director of Doctoral Studies, School of Government and Public Policy (2018--2021)
+- University of Arizona Institutional Review Board (2016--)

@@ -3,18 +3,21 @@
 Personal academic site for **Christopher R. Weber** — Professor of Political
 Science, University of Arizona; Director, The Arizona Voter Project.
 
-An immersive, scrollable site (inspired by beautifulbiology.org) built with
-**Astro + Tailwind + React islands**. The Arizona Voter Project dashboards from
-the `avp-web-modules` repo are **ported in as native React components** (not
-iframed).
+Built on **Astro 7** with the
+[Astro Scholar](https://github.com/mychiffonn/astro-scholar) theme (Apache-2.0 —
+see `THEME-LICENSE`), native CSS, and **React islands** for the Arizona Voter
+Project dashboards, which are ported from the `avp-web-modules` repo as native
+React components (not iframed).
 
 ## Sections
 
 | Route | What it is |
 |---|---|
-| `/` | Immersive scrollytelling landing (animated voter-field hero) |
-| `/research` | All publications, grouped into seven themes, with DOIs + collapsible abstracts |
-| `/voter` | Arizona Voter Project hub → launches six native dashboards |
+| `/` | Profile, career highlights, latest updates, selected publications |
+| `/publications` | Full publication list from `src/content/publications/main.bib`, with abstracts and keyword filters |
+| `/projects` | Research programs (The Arizona Voter Project) + tech stack |
+| `/voter` | Arizona Voter Project hub → launches the native dashboards |
+| `/voter/story` | Guided tour through the voter file |
 | `/voter/understanding` | The voter file: growth, churn, build-over-build |
 | `/voter/explorer` | Choropleth explorer across six geographies (MapLibre) |
 | `/voter/party` | Party-transition Markov model + Sankey |
@@ -24,17 +27,22 @@ iframed).
 | `/pedagogy` | Teaching resources — POL 682 & POL 683 texts hosted in-repo |
 | `/pedagogy/pol682/` | Linear Regression Analysis (Quarto book) |
 | `/pedagogy/pol683/` | Advanced Regression & Causal Inference (bookdown) |
-| `/about` | Bio, appointments, honors, service, media |
-| `/cv` | Full curriculum vitae (print → PDF) |
+| `/cv` | Appointments, education, honors, service, works in progress, full publication list |
+| `/now` | Current work |
+| `/blog` | Empty until the first post lands in `src/content/blog/` |
 
 ## Develop
 
+Requires **Node ≥ 22.12** and **pnpm**.
+
 ```bash
-npm install
-npm run dev         # http://localhost:4321
-npm run build       # static output -> dist/
-npm run preview
-npm run build:books # re-render teaching books into public/pedagogy/ (needs Quarto + R/bookdown)
+pnpm install
+pnpm dev            # http://localhost:4321
+pnpm build          # static output -> dist/
+pnpm preview
+pnpm astro check    # types
+pnpm generate:social # regenerate the OG card + placeholder avatar
+pnpm build:books    # re-render teaching books into public/pedagogy/ (needs Quarto + R/bookdown)
 ```
 
 Astro telemetry is disabled in CI via `ASTRO_TELEMETRY_DISABLED=1`; set it
@@ -83,8 +91,14 @@ site; the book is served from `/pedagogy/pol682/`.
 
 ## Architecture notes
 
-- **Design system**: `src/styles/global.css` (black / grey / white palette,
-  Fraunces / Inter / IBM Plex Mono). Content data lives in `src/data/*`.
+- **Design system**: the theme's `src/styles/*.css` (native CSS, no Tailwind).
+  `src/styles/color.css` carries the palette — `--primary` is UA azurite,
+  `--accent` is UA chili. Site identity, nav, and publication display rules live
+  in `src/site.config.ts`.
+- **Content**: Astro content collections under `src/content/` — `about.md`,
+  `services.md`, `misc.md`, `now.md`, `experience.json`, `people.toml`,
+  `publications/main.bib`, `projects/`, `updates/`, `blog/`. Remaining hand-kept
+  data (`cv.ts`, `teaching.ts`, `voter.ts`) lives in `src/data/`.
 - **Ported AVP modules**: `src/modules/avp/*` (copied from `avp-web-modules`,
   then adapted for Astro — `next/link` → local `Link` shim, `NEXT_PUBLIC_BASE_PATH`
   → Astro `BASE_URL`, JSX `.js` files renamed to `.jsx`).
@@ -94,13 +108,12 @@ site; the book is served from `/pedagogy/pol682/`.
 - **AVP styling** is isolated: dashboard routes use `src/layouts/AvpLayout.astro`
   (AVP's own `src/styles/avp.css`), so the AVP look never bleeds into the main
   site aesthetic.
-- Regenerate publication metadata with `node scripts/fetch-crossref.mjs`.
 
 ## Deploying to GitHub Pages + christopher-weber.com
 
 The repo is preconfigured:
 
-- `astro.config.mjs` → `site: "https://christopher-weber.com"`, `base: "/"`
+- `astro.config.ts` → `site: "https://christopher-weber.com"`
 - `public/CNAME` → `christopher-weber.com`
 - `.github/workflows/deploy.yml` → builds and deploys on push to `main`/`master`
 
@@ -159,8 +172,17 @@ Squarespace hosting.
 
 ## Editing content
 
-- **Publications**: `src/data/publications.ts` (selected on `/research`; full list on `/cv`).
+- **Publications**: `src/content/publications/main.bib`. `selected={true}`
+  features an entry on the home page; `keywords` become the filter chips on
+  `/publications`. Abstracts written for this site rather than taken from the
+  publisher are marked "(Editorial summary — not the published abstract.)".
+- **Bio / profile**: `src/content/about.md` and `PROFILE` in `src/site.config.ts`.
+- **Appointments & education**: `src/content/experience.json`.
+- **Service, honors, media**: `src/content/services.md`, `src/content/misc.md`.
+- **Works in progress**: `src/content/now.md` (and `src/data/cv.ts` for `/cv`).
+- **Updates** (home page + `/now`): `src/content/updates/YYYY-MM-DD-slug.md`.
 - **Teaching cards**: `src/data/teaching.ts` (links to in-repo books under `/pedagogy/pol682|683/`).
-- **Book chapters**: `teaching/pol682/`, `teaching/pol683/` — then `npm run build:books`.
-- **CV / About**: `src/data/cv.ts`.
-- **Voter dashboards list & sandbox charts**: `src/data/voter.ts`.
+- **Book chapters**: `teaching/pol682/`, `teaching/pol683/` — then `pnpm build:books`.
+- **CV extras**: `src/data/cv.ts` (honors, service, skills, media, working papers).
+- **Voter sandbox charts**: `src/data/voter.ts`; the module cards are in `src/pages/voter.astro`.
+- **Headshot**: replace `src/assets/avatar.png` (currently a generated `CW` placeholder).

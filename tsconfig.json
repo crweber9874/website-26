@@ -1,13 +1,12 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"],
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"],
+      "@icon-config": ["./src/icon.config.ts"],
+      "@site-config": ["./src/site.config.ts"]
     }
-  }
+  },
+  "include": [".astro/types.d.ts", "src/**/*", "*.ts", "*.mjs"],
+  "exclude": ["dist", "public", "node_modules", "teaching"]
 }

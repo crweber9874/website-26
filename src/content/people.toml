@@ -1,0 +1,9 @@
+[crweber]
+id       = "crweber"
+name     = "Christopher Weber"
+bio      = "Professor of Political Science, University of Arizona. Director, The Arizona Voter Project."
+
+[crweber.links]
+website = "https://christopher-weber.com"
+email   = "chrisweber@arizona.edu"
+github  = "https://github.com/crweber9874"

@@ -1,240 +1,175 @@
 ---
-import Base from "@/layouts/Base.astro";
-import VoterField from "@/components/react/VoterField.tsx";
-import { site } from "@/data/site";
-import { themes } from "@/data/publications";
+import { getCollection } from "astro:content"
+
+import { PROFILE, SITE } from "@site-config"
+import { PostManager } from "@/lib/blog"
+import { loadSelectedPublications } from "@/lib/publications/loader"
+import { getLatestUpdates } from "@/lib/updates"
+import Layout from "@/layouts/Layout.astro"
+import Button from "@/components/base/Button.astro"
+import CardGroup from "@/components/base/card/CardGroup.astro"
+import PreviewCard from "@/components/blog/PreviewCard.astro"
+import Section from "@/components/layout/Section.astro"
+import Profile from "@/components/profile/Profile.astro"
+import PubCard from "@/components/publications/PubCard.astro"
+import ExperienceTimeline from "@/components/timeline/ExperienceTimeline.astro"
+import UpdatesInline from "@/components/timeline/UpdatesInline.astro"
+
+import {
+  Content as MiscContent,
+  rawContent as miscRaw,
+} from "@/content/misc.md"
+import {
+  Content as ServicesContent,
+  rawContent as servicesRaw,
+} from "@/content/services.md"
+
+import "@/styles/callout.css"
+
+const hasServices = servicesRaw().trim().length > 0
+const hasMisc = miscRaw().trim().length > 0
+
+const {
+  home: { careerHighlightCount, updateCount, publicationCount },
+  blog: { featuredPostCount },
+} = SITE
+
+const careerHighlights =
+  careerHighlightCount > 0 ? await getCollection("experience") : []
+const cvHref =
+  typeof PROFILE.links.cv === "object"
+    ? PROFILE.links.cv?.href
+    : PROFILE.links.cv
+const renderedUpdates =
+  updateCount > 0 ? await getLatestUpdates(updateCount) : []
+const selectedPublications =
+  publicationCount > 0
+    ? (await loadSelectedPublications()).slice(0, publicationCount)
+    : []
+
+// Blog
+const postManager = PostManager.getInstance()
+const recentPosts =
+  featuredPostCount > 0 ? await postManager.getMainPosts(featuredPostCount) : []
+const recentPostsMetadata = await Promise.all(
+  recentPosts.map((post) => postManager.getMetadata(post.id)),
+)
 ---
 
-<Base>
-  <!-- ============================ HERO ============================ -->
-  <section
-    class="relative flex min-h-screen items-center overflow-hidden bg-ink grain"
-  >
-    <div class="absolute inset-0 opacity-70">
-      <VoterField client:load />
-    </div>
-    <div
-      class="pointer-events-none absolute inset-0 bg-gradient-to-b from-ink/20 via-ink/40 to-ink"
-    >
-    </div>
-    <div
-      class="pointer-events-none absolute -right-40 top-1/4 h-[40rem] w-[40rem] rounded-full bg-terra/10 blur-[120px]"
-    >
-    </div>
+<Layout title="Home">
+  <Profile profile={PROFILE} />
 
-    <div class="relative z-10 mx-auto w-full max-w-7xl px-6 md:px-10">
-      <h1
-        class="font-display text-5xl font-light leading-[0.95] tracking-tight text-paper sm:text-6xl lg:text-7xl"
-        data-reveal
+  {careerHighlights.length > 0 && (
+      <Section
+        title="Career highlights"
+        moreLink={cvHref}
+        moreText="see CV →"
       >
-        Christopher <span class="italic text-sand">Weber</span>
-      </h1>
-      <div
-        class="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-paper/60"
-        data-reveal
-      >
-        <span>Professor of Political Science</span>
-        <span class="text-paper/25">·</span>
-        <span>University of Arizona</span>
-        <span class="text-paper/25">·</span>
-        <span>Ph.D., Stony Brook</span>
-        <span class="text-paper/25">·</span>
-        <span>Director, The Arizona Voter Project</span>
-      </div>
+        <ExperienceTimeline
+          entries={careerHighlights}
+          limit={careerHighlightCount}
+          itemClass="home-experience-content"
+        />
+      </Section>
+    )}
 
-      <div class="mt-10 flex flex-wrap gap-4" data-reveal>
-        <a
-          href="/research"
-          class="rounded-full bg-paper px-7 py-3 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5 hover:bg-white"
-        >
-          Explore the research
-        </a>
-        <a
-          href="/voter"
-          class="rounded-full border border-paper/25 px-7 py-3 text-sm font-semibold text-paper transition-colors hover:border-paper/60"
-        >
-          The Arizona Voter Project
-        </a>
-      </div>
-    </div>
+  {renderedUpdates.length > 0 && (
+      <Section title="Latest updates" moreLink="/now">
+        <UpdatesInline renderedUpdates={renderedUpdates} itemClass="home-update-content" />
+      </Section>
+    )}
 
-    <div
-      class="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-paper/40"
-      aria-hidden="true"
-    >
-      <div class="flex flex-col items-center gap-2">
-        <span class="font-mono text-[10px] uppercase tracking-[0.3em]">Scroll</span>
-        <span class="h-10 w-px animate-pulse bg-paper/40"></span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ========================== THEMES =========================== -->
-  <section class="relative bg-ink px-6 py-28 md:px-10 md:py-40">
-    <div class="mx-auto max-w-7xl">
-      <div class="flex items-end justify-between" data-reveal>
-        <h2
-          class="font-display text-3xl font-light tracking-tight text-paper sm:text-5xl"
-        >
-          Lines of inquiry
-        </h2>
-        <a
-          href="/research"
-          class="link-underline hidden text-sm font-medium text-terra sm:block"
-          >All publications →</a
-        >
-      </div>
-
-      <div class="mt-16 grid gap-px overflow-hidden rounded-2xl bg-white/5 md:grid-cols-2">
-        {
-          themes.map((theme, i) => (
-            <a
-              href={`/research#${theme.id}`}
-              class="group relative bg-ink p-8 transition-colors hover:bg-ink-800 md:p-10"
-              data-reveal
-            >
-              <span class="font-mono text-xs text-terra">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <h3 class="mt-3 font-display text-2xl font-medium text-paper transition-colors group-hover:text-terra-bright">
-                {theme.title}
-              </h3>
-              <p class="mt-3 text-sm leading-relaxed text-paper/60">
-                {theme.blurb}
-              </p>
-              <span class="mt-5 inline-block text-xs font-medium text-paper/40">
-                Selected works →
-              </span>
-            </a>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- ======================= VOTER PROJECT ======================= -->
-  <section
-    class="relative overflow-hidden bg-gradient-to-br from-ink-800 to-ink px-6 py-28 md:px-10 md:py-40 grain"
-  >
-    <div
-      class="pointer-events-none absolute -left-32 bottom-0 h-[30rem] w-[30rem] rounded-full bg-sky/10 blur-[120px]"
-    >
-    </div>
-    <div class="relative mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
-      <div data-reveal>
-        <div class="flex flex-wrap items-center gap-3">
-          <p class="font-mono text-xs uppercase tracking-[0.3em] text-sky">
-            Public-facing data science
-          </p>
-          <span
-            class="rounded-full bg-paper px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink"
-            >Beta</span
-          >
+  {selectedPublications.length > 0 && (
+      <Section title="Selected publications" moreLink="/publications">
+        <CardGroup class="selected-publications">
+          {selectedPublications.map((pub) => (
+            <PubCard pub={pub} filterableTags={false} />
+          ))}
+        </CardGroup>
+      </Section>
+    )}
+  {recentPostsMetadata.length > 0 && (
+      <Section title="Latest posts">
+        <ul class="latest-posts-list">
+          {recentPostsMetadata.map((metadata) => (
+            <li>
+              <PreviewCard metadata={metadata} />
+            </li>
+          ))}
+        </ul>
+        <div class="latest-posts-actions">
+          <Button href="/blog" variant="default" class="home-arrow-button">
+            See all posts <span aria-hidden="true">&rarr;</span>
+          </Button>
+          <Button href="/blog/tags" variant="ghost" class="home-arrow-button">
+            Browse by tags <span aria-hidden="true">&rarr;</span>
+          </Button>
         </div>
-        <h2
-          class="mt-4 font-display text-4xl font-light tracking-tight text-paper sm:text-5xl"
-        >
-          The Arizona Voter Project
-        </h2>
-        <p class="mt-6 max-w-lg text-lg leading-relaxed text-paper/70">
-          A University of Arizona initiative turning millions of voter-file and
-          survey records into accessible visualizations of who Arizonans are,
-          how they register, and how they vote — built on Google BigQuery,
-          machine learning, and interactive maps.
-        </p>
-        <a
-          href="/voter"
-          class="mt-8 inline-block rounded-full bg-paper px-7 py-3 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
-        >
-          Enter the dashboards
-        </a>
-      </div>
-      <div class="grid grid-cols-2 gap-4" data-reveal>
-        {
-          [
-            ["The Explorer", "Choropleth maps of Arizona"],
-            ["Party transitions", "Markov flows across registrations"],
-            ["Common ground", "Where groups overlap"],
-          ].map(([t, d]) => (
-            <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-              <p class="font-display text-lg text-paper">{t}</p>
-              <p class="mt-1 text-xs text-paper/50">{d}</p>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+      </Section>
+    )}
 
-  <!-- ========================= PEDAGOGY ========================== -->
-  <section class="relative bg-paper px-6 py-28 text-ink md:px-10 md:py-40">
-    <div class="mx-auto max-w-7xl">
-      <div class="grid gap-16 lg:grid-cols-[1fr_1.2fr] lg:items-center">
-        <div data-reveal>
-          <p class="font-mono text-xs uppercase tracking-[0.3em] text-terra">
-            Teaching
-          </p>
-          <h2
-            class="mt-4 font-display text-4xl font-light tracking-tight sm:text-5xl"
-          >
-            Teaching resources
-          </h2>
-          <p class="mt-6 max-w-lg text-lg leading-relaxed text-ink/70">
-            Course readers that accompany the field's standard textbooks — drawing
-            on their concepts and formulas, published with this site.
-          </p>
-          <a
-            href="/pedagogy"
-            class="mt-8 inline-block rounded-full bg-ink px-7 py-3 text-sm font-semibold text-paper transition-transform hover:-translate-y-0.5"
-          >
-            Browse teaching resources
-          </a>
-        </div>
-        <div class="space-y-4" data-reveal>
-          {
-            [
-              ["POL 682", "Linear Regression Analysis"],
-              ["POL 683", "Advanced Regression & Causal Inference"],
-            ].map(([c, t]) => (
-              <div class="flex items-baseline gap-6 border-b border-ink/10 pb-4">
-                <span class="font-mono text-sm text-terra">{c}</span>
-                <span class="font-display text-xl">{t}</span>
-              </div>
-            ))
-          }
-        </div>
-      </div>
-    </div>
-  </section>
+  {hasServices && (
+      <Section title="Services">
+        <prose-content>
+          <ServicesContent />
+        </prose-content>
+      </Section>
+    )}
 
-  <!-- ========================== CONTACT ========================== -->
-  <section class="bg-ink px-6 py-28 text-center md:px-10 md:py-40">
-    <div class="mx-auto max-w-3xl" data-reveal>
-      <h2
-        class="font-display text-3xl font-light tracking-tight text-paper sm:text-5xl"
-      >
-        Let's talk.
-      </h2>
-      <p class="mt-6 text-lg text-paper/60">
-        Questions about the research, the data, or collaboration?
-      </p>
-      <a
-        href={`mailto:${site.email}`}
-        class="mt-8 inline-block font-display text-2xl text-terra transition-colors hover:text-terra-bright"
-      >
-        {site.email}
-      </a>
-      <p class="mt-16 text-xs leading-relaxed text-paper/35">
-        This site was built with assistance from
-        <a
-          href="https://cursor.com"
-          target="_blank"
-          rel="noopener"
-          class="underline decoration-paper/20 underline-offset-2 transition-colors hover:text-paper/55"
-          >Cursor</a
-        >
-        (AI-assisted development).
-      </p>
-    </div>
-  </section>
-</Base>
+  {hasMisc && (
+      <Section title="Miscellaneous">
+        <prose-content>
+          <MiscContent />
+        </prose-content>
+      </Section>
+    )}
+</Layout>
+
+<style>
+  .selected-publications {
+    gap: var(--space-s);
+  }
+
+  .latest-posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .latest-posts-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2xs);
+    margin-block-start: var(--space-s);
+  }
+
+  :global(.home-arrow-button span[aria-hidden="true"]) {
+    display: inline-block;
+    transition: transform var(--motion-duration) var(--motion-ease);
+  }
+
+  :global(.home-arrow-button:hover span[aria-hidden="true"]) {
+    transform: translateX(0.25rem);
+  }
+
+  :global(.home-experience-content) {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  :global(.home-update-content) {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+
+    @media (width >= 48rem) {
+      -webkit-line-clamp: 3;
+    }
+  }
+</style>
