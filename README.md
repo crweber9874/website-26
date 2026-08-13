@@ -24,9 +24,9 @@ React components (not iframed).
 | `/voter/opinion` | Arizona Voter Survey (affect, tolerance, norms) |
 | `/voter/agreement` | Overlapping-coefficient "common ground" tool |
 | `/voter/voting` | Certified precinct returns, 2022 & 2024 |
-| `/pedagogy` | Teaching resources — POL 682 & POL 683 texts hosted in-repo |
-| `/pedagogy/pol682/` | Linear Regression Analysis (Quarto book) |
-| `/pedagogy/pol683/` | Advanced Regression & Causal Inference (bookdown) |
+| `/teaching` | POL 682 & POL 683 course readers with their companion texts |
+| `/teaching/pol682/` | Linear Regression Analysis (Quarto book) |
+| `/teaching/pol683/` | Advanced Regression & Causal Inference (Quarto book) |
 | `/cv` | Appointments, education, honors, service, works in progress, full publication list |
 | `/now` | Current work |
 | `/blog` | Empty until the first post lands in `src/content/blog/` |
@@ -42,43 +42,49 @@ pnpm build          # static output -> dist/
 pnpm preview
 pnpm astro check    # types
 pnpm generate:social # regenerate the OG card + placeholder avatar
-pnpm build:books    # re-render teaching books into public/pedagogy/ (needs Quarto + R/bookdown)
+pnpm sync:readers   # pull the rendered course readers from methodology_ground_up
 ```
 
 Astro telemetry is disabled in CI via `ASTRO_TELEMETRY_DISABLED=1`; set it
 locally too if your machine blocks writes to `~/Library/Preferences`.
 
-## Teaching books (POL 682 & POL 683)
+## Teaching readers (POL 682 & POL 683)
 
-This repo is the **canonical staging ground** for both graduate methods texts.
-They are authored here and published with the site on GitHub Pages — not on
-Netlify or a separate course GitHub Pages site.
+**The books are no longer authored in this repo.** They live in
+[crweber9874/methodology_ground_up](https://github.com/crweber9874/methodology_ground_up),
+the shared graduate-methodology hub maintained with Chad Westerland. This site
+only *publishes* them.
 
-| Course | Source | Published path |
-|--------|--------|----------------|
-| POL 682 | `teaching/pol682/` (Quarto book) | `/pedagogy/pol682/` |
-| POL 683 | `teaching/pol683/` (bookdown) | `/pedagogy/pol683/` |
+| Course | Source (in the hub) | Published path |
+|--------|---------------------|----------------|
+| POL 682 | `readers/weber/linear-regression/` (Quarto) | `/teaching/pol682/` |
+| POL 683 | `readers/weber/advanced-regression/` (Quarto, converted from bookdown) | `/teaching/pol683/` |
 
-**Workflow when editing a book**
+**Workflow when a book changes**
 
-1. Edit chapters under `teaching/pol682/` or `teaching/pol683/`.
-2. Run `npm run build:books` (requires [Quarto](https://quarto.org) and R with
-   `bookdown`).
-3. Commit both the source changes **and** the updated HTML under
-   `public/pedagogy/`.
+1. Edit and render in the hub repo (`scripts/render-readers.sh weber/<slug>`).
+2. Here, run `pnpm sync:readers` — it copies the rendered books into
+   `public/teaching/` and re-injects the back-to-site bar. Add `--render` to
+   render in the hub first (needs [Quarto](https://quarto.org) and R/`renv`).
+3. Commit the updated HTML under `public/teaching/`.
 4. Push — GitHub Actions deploys the Astro site (including the books).
 
-Intermediate `_site/` / `_book/` / `.quarto/` trees under `teaching/` are
-gitignored; only `public/pedagogy/**` is the deployable artifact. Slides will
-live under `teaching/*/slides/` in a later class cycle (placeholders only for now).
+The sync assumes the hub is cloned beside this repo; override with
+`HUB=/path/to/methodology_ground_up pnpm sync:readers`. Only
+`public/teaching/**` is the deployable artifact, and nothing under it should be
+hand-edited — a sync overwrites it.
+
+The legacy `teaching/pol682/` and `teaching/pol683/` source trees in this repo
+are superseded by the hub and can be deleted once you are satisfied the hub
+copies are complete.
 
 ### Retiring advancedregression.com (Netlify)
 
 The POL 683 book previously lived at `advancedregression.com` on Netlify. It now
-lives at `https://christopher-weber.com/pedagogy/pol683/`.
+lives at `https://christopher-weber.com/teaching/pol683/`.
 
 1. At your DNS / Netlify host, set up a **301 redirect** from
-   `advancedregression.com` (and `www`) → `https://christopher-weber.com/pedagogy/pol683/`.
+   `advancedregression.com` (and `www`) → `https://christopher-weber.com/teaching/pol683/`.
 2. Disable or delete the Netlify site for `advancedRegression_text` once the
    redirect is confirmed.
 3. Do **not** attach `advancedregression.com` as a second GitHub Pages custom
@@ -87,7 +93,7 @@ lives at `https://christopher-weber.com/pedagogy/pol683/`.
 
 The old POL 682 course Pages URL
 (`crweber9874.github.io/linear_regression_class/`) is no longer linked from this
-site; the book is served from `/pedagogy/pol682/`.
+site; the book is served from `/teaching/pol682/`.
 
 ## Architecture notes
 
@@ -181,8 +187,9 @@ Squarespace hosting.
 - **Service, honors, media**: `src/content/services.md`, `src/content/misc.md`.
 - **Works in progress**: `src/content/now.md` (and `src/data/cv.ts` for `/cv`).
 - **Updates** (home page + `/now`): `src/content/updates/YYYY-MM-DD-slug.md`.
-- **Teaching cards**: `src/data/teaching.ts` (links to in-repo books under `/pedagogy/pol682|683/`).
-- **Book chapters**: `teaching/pol682/`, `teaching/pol683/` — then `pnpm build:books`.
+- **Courses**: `src/data/teaching.ts` — description, what the reader covers, and the
+  companion texts. Readers are served from `/teaching/pol682|683/`.
+- **Book chapters**: edited in the methodology_ground_up hub, then `pnpm sync:readers`.
 - **CV extras**: `src/data/cv.ts` (honors, service, skills, media, working papers).
 - **Voter sandbox charts**: `src/data/voter.ts`; the module cards are in `src/pages/voter.astro`.
 - **Headshot**: replace `src/assets/avatar.png` (currently a generated `CW` placeholder).

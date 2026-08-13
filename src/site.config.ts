@@ -75,7 +75,7 @@ export const PROFILE: ProfileConfig = {
 export const NAV_LINKS: LinkConfig[] = [
   { href: "/publications", label: "Publications" },
   { href: "/voter", label: "Voter Project" },
-  { href: "/pedagogy", label: "Pedagogy" },
+  { href: "/teaching", label: "Teaching" },
   { href: "/projects", label: "Projects" },
   { href: "/cv", label: "CV" },
 ]

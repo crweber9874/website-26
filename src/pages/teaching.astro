@@ -1,0 +1,186 @@
+---
+import CommonLayout from "@/layouts/CommonLayout.astro"
+import Button from "@/components/base/Button.astro"
+import Section from "@/components/layout/Section.astro"
+import { courses } from "@/data/teaching"
+
+const description =
+  "Graduate methods course readers for the University of Arizona, written to accompany the texts each course is built around."
+
+// The site is configured with trailingSlash: "never", so course reader paths
+// (authored with a trailing slash in teaching.ts) are normalized here.
+const readerHref = (url: string) => url.replace(/\/$/, "")
+---
+
+<CommonLayout
+  title="Teaching"
+  description={description}
+  breadcrumbs={[{ label: "Teaching" }]}
+  prose={false}
+>
+  <div class="how-to-read">
+    <p>
+      <strong>How to use these.</strong> Each course has a reader — a book I wrote
+      for the course — that you read <em>alongside</em> the textbooks listed with
+      it, not instead of them. The readers restate the standard material in one
+      notation, work every example in R, and show the code.
+    </p>
+    <p>
+      Take the two in order: <strong>POL 682</strong> builds the linear model and
+      the assumptions behind it; <strong>POL 683</strong> picks up where those
+      assumptions run out.
+    </p>
+    <p class="how-to-read-source">
+      The readers are written in the <a
+        href="https://github.com/crweber9874/methodology_ground_up"
+        rel="noopener"
+        target="_blank">methodology_ground_up</a
+      > repository, a shared teaching hub with Chad Westerland, and published here.
+    </p>
+  </div>
+
+  {
+    courses.map((course) => (
+      <Section title={`${course.code} · ${course.title}`}>
+        <p class="course-subtitle">{course.subtitle}</p>
+        <p class="course-description">{course.description}</p>
+
+        {course.url && (
+          <div class="course-actions">
+            <Button href={readerHref(course.url)} variant="primary">
+              Open the {course.code} reader
+            </Button>
+            {course.repo && (
+              <Button href={course.repo} variant="ghost">
+                Source
+              </Button>
+            )}
+          </div>
+        )}
+
+        <div class="course-block">
+          <p class="course-block-label">What the reader covers</p>
+          <ul class="course-covers">
+            {course.covers.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </div>
+
+        {course.coreTexts && course.coreTexts.length > 0 && (
+          <div class="course-block">
+            <p class="course-block-label">
+              Companion texts — read alongside the reader
+            </p>
+            <ul class="course-texts">
+              {course.coreTexts.map((text) => (
+                <li>
+                  <span class="course-text-authors">{text.authors}</span> ({text.year}).{" "}
+                  <em>{text.title}.</em> {text.publisher}.
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <ul class="course-topics">
+          {course.topics.map((topic) => (
+            <li>{topic}</li>
+          ))}
+        </ul>
+      </Section>
+    ))
+  }
+</CommonLayout>
+
+<style>
+  .how-to-read {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    margin-block-start: var(--space-2xs);
+    padding-inline-start: var(--space-2xs);
+    border-inline-start: 3px solid var(--primary);
+    max-inline-size: 68ch;
+  }
+
+  .how-to-read p {
+    margin: 0;
+  }
+
+  .how-to-read-source {
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+  }
+
+  .course-subtitle {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+  }
+
+  .course-description {
+    margin: 0;
+    max-inline-size: 68ch;
+  }
+
+  .course-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+  }
+
+  .course-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+  }
+
+  .course-block-label {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: var(--step--2);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .course-covers,
+  .course-texts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3xs);
+    margin: 0;
+    padding-inline-start: var(--space-2xs);
+    border-inline-start: 2px solid var(--border);
+    list-style: none;
+    max-inline-size: 72ch;
+  }
+
+  .course-texts {
+    font-size: var(--step--1);
+    color: var(--muted-foreground);
+  }
+
+  .course-text-authors {
+    color: var(--foreground);
+    font-weight: 500;
+  }
+
+  .course-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .course-topics li {
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+  }
+</style>

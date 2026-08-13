@@ -19,7 +19,7 @@
     "format:check": "biome format .",
     "lint": "oxlint --type-aware",
     "lint:styles": "node scripts/check-style-architecture.mjs",
-    "build:books": "bash scripts/render-books.sh",
+    "sync:readers": "bash scripts/sync-readers.sh",
     "clean": "rm -rf dist/ .astro/ node_modules/.astro/data-store.json"
   },
   "dependencies": {
