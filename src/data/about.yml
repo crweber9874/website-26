@@ -1,0 +1,131 @@
+hero:
+  title: About
+  description: >
+    Professor in the School of Government and Public Policy at the University of Arizona,
+    where I direct The Arizona Voter Project. My research sits at the intersection of
+    political psychology and political behavior, with a focus on American political
+    campaigns, ideology, and authoritarianism — and, increasingly, the data science of
+    large voter files.
+
+profile:
+  - label: Current Role
+    value: Professor, School of Government and Public Policy, University of Arizona
+  - label: Research Areas
+    value: Political psychology, political behavior, measurement, voter file data science
+  - label: Education
+    value: Ph.D., Political Science, Stony Brook University, 2008
+  - label: Office
+    value: 333 Social Sciences Building, Tucson, AZ 85721-0027
+  - label: Email
+    value: chrisweber@arizona.edu
+
+experience:
+  - role: Professor
+    organization: University of Arizona, School of Government and Public Policy
+    period: 2022 — Present
+    bullets:
+      - Direct The Arizona Voter Project, a statewide voter-file research program and public data platform.
+      - Co-coordinate the Arizona Policy Lab.
+  - role: Associate Professor
+    organization: University of Arizona, School of Government and Public Policy
+    period: 2014 — 2022
+    bullets:
+      - Director of Doctoral Studies, 2018 — 2021.
+  - role: Assistant Professor
+    organization: University of Arizona, School of Government and Public Policy
+    period: 2013 — 2014
+  - role: Assistant Professor
+    organization: Louisiana State University, Political Science & Manship School of Mass Communication
+    period: 2008 — 2013
+    bullets:
+      - Douglas L. Manship, Sr. Professorship, 2011 — 2013.
+
+education:
+  - degree: Ph.D., Political Science
+    institution: Stony Brook University
+    year: 2008
+  - degree: M.A., Political Science
+    institution: Stony Brook University
+    year: 2005
+  - degree: B.A., Psychology (Political Science minor), Summa Cum Laude
+    institution: University of Minnesota, Twin Cities
+    year: 2003
+
+service:
+  - role: Governing Council
+    organization: International Society of Political Psychology (ISPP)
+    period: 2025 — Present
+  - role: Co-Editor
+    organization: Political Psychology
+    period: 2020 — 2024
+  - role: Director
+    organization: ISPP Summer Academy
+    period: 2015 — 2020
+  - role: Director
+    organization: The Arizona Voter Project
+    period: 2020 — Present
+  - role: Co-Coordinator
+    organization: Arizona Policy Lab
+    period: 2020 — Present
+  - role: Director of Doctoral Studies
+    organization: School of Government and Public Policy, University of Arizona
+    period: 2018 — 2021
+  - role: Member
+    organization: University of Arizona Institutional Review Board
+    period: 2016 — Present
+
+sections:
+  - title: Honors, Awards & Grants
+    icon: i-mdi:trophy-award
+    items:
+      - title: Innovation and Entrepreneurship Award
+        subtitle: College of Social and Behavioral Sciences, University of Arizona
+        date: 2024
+      - title: Google Cloud Champion Innovator, Development Expert
+        date: 2023 — Present
+      - title: University of Arizona RII Grant
+        subtitle: The Arizona Voter Project
+        description: $600,000 award supporting statewide voter-file research infrastructure.
+      - title: Udall Center Fellowship
+        subtitle: University of Arizona
+        description: Course release for Change and Resistance.
+      - title: Douglas L. Manship, Sr. Professorship
+        subtitle: Louisiana State University
+        date: 2011 — 2013
+      - title: Manship School Seed Grant (Co-PI)
+        subtitle: Media Coverage of Female Political Candidates
+        date: 2010 — 2011
+
+  - title: Technology & Skills
+    icon: i-mdi:code-braces
+    items:
+      - title: Computation & web
+        description: R, tidyverse, Python, JavaScript
+      - title: Data warehousing
+        description: Google BigQuery, SQL, encrypted cloud storage
+      - title: Machine learning
+        description: TensorFlow / Keras — vote-behavior models
+      - title: Geospatial
+        description: Google Maps API, geocoding, choropleths, MapLibre
+      - title: Cloud
+        description: Google Cloud Platform, reproducible pipelines
+      - title: Visualization
+        description: D3, Tableau, Shiny, Looker, Chart.js
+
+  - title: Recent Media
+    icon: i-mdi:broadcast
+    items:
+      - title: How Authoritarian Parenting Attitudes Explain our Partisan Divide
+        subtitle: The Science of Politics
+        description: https://podcasts.apple.com/us/podcast/how-authoritarian-parenting-attitudes-explain-our-political/id1295747297?i=1000746100762
+      - title: 2024 Arizona voter-turnout election forecast
+        subtitle: AZ Central / Arizona Republic
+        description: https://www.azcentral.com/story/news/politics/elections/2024/11/02/voter-turnout-in-arizona-could-be-lower-than-2020-projections-sayin-2024-it-could-be-lower-than-2020/75994759007/
+      - title: Why Would a Republican Vote Biden? Ask Arizonans
+        subtitle: The New York Times (op-ed, with Samara Klar)
+      - title: How Authoritarianism is Shaping American Politics (and it's not just about Trump)
+        subtitle: "Washington Post: Monkey Cage"
+      - title: Live panelist
+        subtitle: C-SPAN Washington Journal
+      - title: Expert interview
+        subtitle: The Atlantic

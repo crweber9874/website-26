@@ -1,0 +1,234 @@
+import { readdir, readFile } from "node:fs/promises";
+
+const root = new URL("../dist/", import.meta.url);
+
+async function readDist(path) {
+	return readFile(new URL(path, root), "utf8");
+}
+
+async function readDistCss() {
+	const assetRoot = new URL("_astro/", root);
+	const entries = await readdir(assetRoot);
+	const cssFiles = entries.filter((entry) => entry.endsWith(".css"));
+	const contents = await Promise.all(
+		cssFiles.map((file) => readFile(new URL(file, assetRoot), "utf8")),
+	);
+	return contents.join("\n");
+}
+
+async function readDistJs() {
+	const assetRoot = new URL("_astro/", root);
+	const entries = await readdir(assetRoot);
+	const jsFiles = entries.filter((entry) => entry.endsWith(".js"));
+	const contents = await Promise.all(
+		jsFiles.map((file) => readFile(new URL(file, assetRoot), "utf8")),
+	);
+	return contents.join("\n");
+}
+
+function assert(condition, message) {
+	if (!condition) {
+		throw new Error(message);
+	}
+}
+
+function titles(html) {
+	return [...html.matchAll(/<title>(.*?)<\/title>/g)].map((match) => match[1]);
+}
+
+function countMatches(html, value) {
+	return html.split(value).length - 1;
+}
+
+function footer(html) {
+	return html.match(/<footer[\s\S]*?<\/footer>/)?.[0] ?? "";
+}
+
+function readAttribute(html, pattern) {
+	return html.match(pattern)?.[1] ?? "";
+}
+
+function canonicalUrl(html) {
+	return readAttribute(html, /<link rel="canonical" href="([^"]+)"/);
+}
+
+function assertPageMetadata(html, pageName) {
+	const canonical = canonicalUrl(html);
+	const ogUrl = readAttribute(
+		html,
+		/<meta property="og:url" content="([^"]+)"/,
+	);
+	const ogImage = readAttribute(
+		html,
+		/<meta property="og:image" content="([^"]+)"/,
+	);
+
+	assert(
+		titles(html).length === 1 && titles(html)[0].trim(),
+		`${pageName} page should emit one non-empty title`,
+	);
+	assert(
+		/^https?:\/\//.test(canonical) && ogUrl === canonical,
+		`${pageName} page should emit matching absolute canonical and Open Graph URLs`,
+	);
+	assert(
+		/^https?:\/\//.test(ogImage) &&
+			Boolean(readAttribute(html, /<meta property="og:image:alt" content="([^"]+)"/)) &&
+			Boolean(readAttribute(html, /<meta name="author" content="([^"]+)"/)) &&
+			Boolean(
+				readAttribute(
+					html,
+					/<meta name="twitter:card" content="(summary(?:_large_image)?)"/,
+				),
+			),
+		`${pageName} page should emit complete social and author metadata`,
+	);
+
+	return canonical;
+}
+
+function assertFilterGroup(html, pageName) {
+	assert(
+		html.includes('role="group"') &&
+			html.includes('aria-label="Filter sections"') &&
+			!html.includes('role="toolbar"'),
+		`${pageName} page should render filter controls as a labeled button group`,
+	);
+	assert(
+		countMatches(html, 'data-filter="all"') === 1 &&
+			html.includes('data-active="true"') &&
+			html.includes('aria-pressed="true"'),
+		`${pageName} page should render one active all filter button`,
+	);
+	assert(
+		html.includes("data-filter-icon") &&
+			html.includes("data-filter-count") &&
+			html.includes("data-filter-label"),
+		`${pageName} page should render semantic filter button markers`,
+	);
+}
+
+function assertOptionalFilterGroup(html, pageName) {
+	if (html.includes('role="group"')) {
+		assertFilterGroup(html, pageName);
+	} else {
+		assert(
+			!html.includes('role="toolbar"') && !html.includes('data-filter="all"'),
+			`${pageName} page should omit filter controls when fewer than two groups have items`,
+		);
+	}
+}
+
+const index = await readDist("index.html");
+const siteTitleLink = index.match(/<a[^>]*data-site-title[^>]*>/)?.[0] ?? "";
+assert(
+	siteTitleLink && !siteTitleLink.includes("aria-label"),
+	"site title link should use its visible text as its accessible name",
+);
+const indexCanonical = assertPageMetadata(index, "home");
+assert(
+	index.includes('"@type":"ProfilePage"') &&
+		index.includes('"@type":"Person"') &&
+		index.includes('"@type":"WebSite"'),
+	"home page should render linked profile and website structured data",
+);
+assert(
+	index.includes('meta name="astro-view-transitions-enabled" content="true"'),
+	"pages should enable Astro client-side navigation",
+);
+if (index.includes('data-astro-image="constrained"')) {
+	assert(
+		index.includes('fetchpriority="high"') && index.includes('loading="eager"'),
+		"rendered home profile images should use priority loading hints",
+	);
+}
+assert(
+	!index.includes("data-abstract-toggle") &&
+		(!index.includes("<details") || index.includes("<summary")),
+	"home page abstracts should use native disclosure elements when rendered",
+);
+
+const research = await readDist("researches/index.html");
+const researchCanonical = assertPageMetadata(research, "research");
+assertOptionalFilterGroup(research, "research");
+assert(
+	!research.includes('aria-label="Page sections"') &&
+		!research.includes("data-abstract-toggle") &&
+		(!research.includes("<details") || research.includes("<summary")),
+	"research filters should not duplicate section navigation and abstracts should work natively when rendered",
+);
+
+const postEntries = await readdir(new URL("posts/", root), {
+	withFileTypes: true,
+});
+const firstPost = postEntries.find((entry) => entry.isDirectory());
+if (firstPost) {
+	const post = await readDist(`posts/${firstPost.name}/index.html`);
+	assertPageMetadata(post, "post");
+	assert(
+		post.includes('meta property="og:type" content="article"') &&
+			post.includes('"@type":"BlogPosting"') &&
+			post.includes('"@type":"BreadcrumbList"'),
+		"post pages should render article metadata and structured data",
+	);
+}
+
+const about = await readDist("about/index.html");
+const aboutCanonical = assertPageMetadata(about, "about");
+assert(
+	footer(index) === footer(about) &&
+		footer(index).includes('class="flex justify-end text-right"') &&
+		footer(index).includes(`&copy; ${new Date().getFullYear()}`),
+	"all pages should render the same right-aligned copyright footer",
+);
+
+const projects = await readDist("projects/index.html");
+assertPageMetadata(projects, "projects");
+assertOptionalFilterGroup(projects, "projects");
+
+const teaching = await readDist("teaching/index.html");
+assertPageMetadata(teaching, "teaching");
+assertOptionalFilterGroup(teaching, "teaching");
+assert(
+	!teaching.includes('aria-label="Page sections"'),
+	"teaching filters should not duplicate section navigation",
+);
+
+const sitemap = await readDist("sitemap-0.xml");
+assert(
+	sitemap.includes(indexCanonical) &&
+		sitemap.includes(aboutCanonical) &&
+		sitemap.includes(researchCanonical),
+	"sitemap should use the configured production URL",
+);
+const robots = await readDist("robots.txt");
+assert(
+	robots.includes("User-agent: *") &&
+		robots.includes("Allow: /") &&
+		robots.includes(`Sitemap: ${new URL("sitemap-index.xml", indexCanonical)}`),
+	"robots.txt should be generated from the configured production URL",
+);
+
+const css = await readDistCss();
+assert(
+	css.includes(".min-h-10{min-height:2.5rem}"),
+	"filter button touch target utility should be generated in CSS",
+);
+assert(
+	/@media\s*\(prefers-reduced-motion:reduce\)/.test(css) &&
+		css.includes("animation-duration:.01ms!important") &&
+		css.includes("animation-iteration-count:1!important") &&
+		css.includes("scroll-behavior:auto!important") &&
+		css.includes("transition-duration:.01ms!important"),
+	"layout should include global reduced-motion overrides",
+);
+
+const js = await readDistJs();
+assert(
+	js.includes("mobile-menu-toggle") &&
+		js.includes("back-to-top") &&
+		js.includes("prefers-reduced-motion: reduce") &&
+		js.includes("astro:page-load") &&
+		js.includes("AbortController"),
+	"layout browser behavior should be bundled in generated JavaScript",
+);

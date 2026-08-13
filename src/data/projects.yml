@@ -1,0 +1,59 @@
+- title: The Arizona Voter Project
+  subtitle: Statewide voter-file research program and public data platform
+  status: active
+  period: 2020 — Present
+  featured: true
+  description: >
+    Assembles and documents Arizona's statewide voter file across build dates, then turns it
+    into research infrastructure and public data products covering registration, turnout, and
+    partisan change. Supported by a University of Arizona RII grant.
+  badges:
+    - Beta
+    - Public data
+  highlights:
+    - Party transitions estimated from a continuous-time Markov model, so irregular file windows share one rate clock.
+    - Registration, roll churn, and time-series comparisons across counties, districts, precincts, and block groups.
+    - De-identification, small-cell suppression, and build-over-build comparison documented alongside the figures.
+  metadata:
+    - label: Role
+      value: Director
+    - label: Coverage
+      value: Arizona statewide
+  tech:
+    - R / tidyverse
+    - Google BigQuery
+    - MapLibre
+    - Chart.js
+    - Markov models
+  links:
+    - label: Open the data modules
+      href: /voter/
+    - label: Official project site
+      href: https://voterproject.arizona.edu
+
+- title: Graduate methods course readers
+  subtitle: POL 682 and POL 683, University of Arizona
+  status: active
+  period: 2023 — Present
+  description: >
+    Two book-length course readers for the graduate methods sequence, written in Quarto and
+    published with this site. Written to accompany the standard textbooks rather than replace
+    them.
+  highlights:
+    - POL 682 covers the linear model, inference, diagnostics, and reproducible workflows in R.
+    - POL 683 covers limited dependent variables, simulation, hierarchical models, and causal inference.
+    - Authored in the shared methodology_ground_up hub with Chad Westerland, and synced here for publication.
+  metadata:
+    - label: Source
+      value: crweber9874/methodology_ground_up
+  tech:
+    - Quarto
+    - renv
+    - R
+  links:
+    - label: POL 682 reader
+      href: /teaching/pol682/
+    - label: POL 683 reader
+      href: /teaching/pol683/
+    - label: Teaching page
+      href: /teaching/

@@ -1,158 +1,227 @@
 ---
-import Base from "@/layouts/Base.astro";
-import SandboxChart from "@/components/react/SandboxChart.tsx";
-import { dashboards, myStory, sandboxCharts } from "@/data/voter";
-import { site } from "@/data/site";
+import Layout from "../layouts/Layout.astro";
+import SandboxChart from "../components/react/SandboxChart.tsx";
+import { sandboxCharts } from "../data/voter";
+
+const modules = [
+  {
+    title: "My Story",
+    href: "/voter/story",
+    code: "Guided tour",
+    summary:
+      "Who is registered, where they live, and whether they voted — never who they voted for. Scroll from counties to congressional districts.",
+  },
+  {
+    title: "The Explorer",
+    href: "/voter/explorer",
+    code: "Choropleth · time series",
+    summary:
+      "Explore characteristics of the Arizona voter file, aggregated to counties, districts, precincts, ZCTAs, tracts, and block groups.",
+  },
+  {
+    title: "Party Transitions",
+    href: "/voter/party",
+    code: "Sankey · Markov model",
+    summary:
+      "Movement between party registrations from a continuous-time Markov model, so irregular file windows share one rate clock, with steady-state projections.",
+  },
+  {
+    title: "Common Ground",
+    href: "/voter/agreement",
+    code: "Overlap",
+    summary:
+      "How much do Arizonans actually overlap? An overlapping-coefficient (OVL) tool measuring shared opinion across party, race, religion, and demographics.",
+  },
+  {
+    title: "Voting",
+    href: "/voter/voting",
+    code: "Precinct analytics",
+    summary:
+      "Precinct-level turnout and vote distributions, with county comparisons.",
+  },
+  {
+    title: "Opinion",
+    href: "/voter/opinion",
+    code: "Survey",
+    summary:
+      "Opinion measures alongside the registration and turnout record.",
+  },
+  {
+    title: "Understanding the file",
+    href: "/voter/understanding",
+    code: "Reference",
+    summary:
+      "Field definitions, de-identification, small-cell suppression, party buckets, and build-over-build comparisons.",
+  },
+];
+
+const pageTitle = "The Arizona Voter Project";
+const pageDescription =
+  "Maps and models of Arizona's electorate — registration, turnout, party movement, and shared opinion.";
 ---
 
-<Base title="Voter Project">
-  <!-- Hero -->
-  <section
-    class="relative overflow-hidden bg-gradient-to-b from-ink-800 to-ink px-6 pb-16 pt-40 md:px-10 grain"
-  >
-    <div
-      class="pointer-events-none absolute -right-32 top-10 h-[34rem] w-[34rem] rounded-full bg-sky/10 blur-[130px]"
-    >
-    </div>
-    <div class="relative mx-auto max-w-5xl">
-      <div class="flex flex-wrap items-center gap-3" data-reveal>
-        <p class="font-mono text-xs uppercase tracking-[0.3em] text-sky">
-          Public-facing data science
-        </p>
-        <span
-          class="rounded-full bg-paper px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink"
-          >Beta</span
-        >
-      </div>
-      <h1
-        class="mt-4 font-display text-4xl font-light leading-[1.05] tracking-tight text-paper sm:text-6xl"
-        data-reveal
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  schemaType="CollectionPage"
+>
+  <div class="page-stack">
+    <header class="page-header">
+      <p class="page-kicker">Public-facing data science</p>
+      <h1 class="page-title">{pageTitle}</h1>
+      <p class="page-description">{pageDescription}</p>
+
+      <p
+        class="mt-3 border-l-2 border-accent-500 pl-4 text-sm text-gray-600 dark:text-gray-300"
       >
-        The Arizona<br />Voter Project
-      </h1>
-      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-paper/75" data-reveal>
-        Maps and models of Arizona’s electorate — registration, turnout, party
-        movement, and shared opinion.
-      </p>
-      <div class="mt-8 flex flex-wrap gap-4" data-reveal>
+        <strong>Beta.</strong> Every module below is a beta release. Figures and
+        underlying data are preliminary, under active development, and will
+        migrate to the official
         <a
-          href="/voter/story"
-          class="rounded-full bg-paper px-7 py-3 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
-          >Take the story tour</a
-        >
+          href="https://voterproject.arizona.edu"
+          target="_blank"
+          rel="noreferrer"
+          class="underline">project website</a
+        >.
+      </p>
+
+      <div class="flex flex-wrap gap-2 pt-2">
+        <a href="/voter/story" class="action-link glass-control px-3.5 min-h-11">
+          <span class="i-mdi:map-marker-path" aria-hidden="true"></span>
+          Take the story tour
+        </a>
         <a
           href="/voter/explorer"
-          class="rounded-full border border-paper/25 px-7 py-3 text-sm font-semibold text-paper transition-colors hover:border-paper/60"
-          >Open the Explorer</a
+          class="action-link glass-control px-3.5 min-h-11"
         >
-        <a
-          href={site.voterProject}
-          target="_blank"
-          rel="noopener"
-          class="rounded-full border border-paper/25 px-7 py-3 text-sm font-semibold text-paper transition-colors hover:border-paper/60"
-          >voterproject.arizona.edu ↗</a
-        >
+          <span class="i-mdi:chart-box-outline" aria-hidden="true"></span>
+          Open the Explorer
+        </a>
       </div>
-    </div>
-  </section>
+    </header>
 
-  <!-- My Story — teaser into the scrollytelling tour -->
-  <section class="bg-ink-800 px-6 py-14 md:px-10">
-    <div class="mx-auto max-w-3xl" data-reveal>
-      <p class="font-mono text-xs uppercase tracking-[0.3em] text-sky">
-        {myStory.eyebrow}
-      </p>
-      <h2
-        class="mt-3 font-display text-2xl font-light tracking-tight text-paper sm:text-3xl"
+    <section class="content-section space-y-5">
+      <header
+        class="flex items-end justify-between gap-4 border-b border-gray-200 pb-3 dark:border-gray-700"
       >
-        {myStory.title}
-      </h2>
-      <p class="mt-4 text-base leading-relaxed text-paper/70">
-        {myStory.body}
-      </p>
-      <a
-        href={myStory.href}
-        class="mt-6 inline-block text-sm font-semibold text-sky transition-colors hover:text-paper"
-      >
-        {myStory.cta}
-      </a>
-    </div>
-  </section>
-
-  <!-- Dashboard grid -->
-  <section class="bg-ink px-6 py-20 md:px-10">
-    <div class="mx-auto max-w-7xl">
-      <h2
-        class="font-display text-3xl font-light tracking-tight text-paper sm:text-4xl"
-        data-reveal
-      >
-        Three ways into the data
-      </h2>
-      <div
-        class="mt-5 flex items-start gap-3 rounded-xl border border-paper/15 bg-white/[0.04] p-4 text-sm text-paper/70"
-        data-reveal
-      >
-        <span
-          class="mt-0.5 shrink-0 rounded-full bg-paper px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink"
-          >Beta</span
+        <div class="space-y-1">
+          <p class="section-kicker">Data modules</p>
+          <h2 class="section-heading">Seven ways into the file</h2>
+        </div>
+        <p
+          class="shrink-0 text-xs font-semibold uppercase tracking-[0.14em] text-accent-700 dark:text-accent-300"
         >
-        <p>
-          Every dashboard below is a <strong class="text-paper">beta release</strong>.
-          Figures and underlying data are preliminary, under active development,
-          and will migrate to the official project website.
+          {modules.length} modules
         </p>
-      </div>
-      <div class="mt-8 grid gap-px overflow-hidden rounded-2xl bg-white/5 sm:grid-cols-2 lg:grid-cols-3">
-        {
-          dashboards.map((d) => (
-            <a
-              href={d.href}
-              class="group relative flex flex-col bg-ink p-8 transition-colors hover:bg-ink-800"
-              data-reveal
-            >
-              <div class="flex items-center justify-between">
-                <span class="font-mono text-xs text-sky">{d.n}</span>
-                <div class="flex items-center gap-2">
-                  <span class="rounded-full bg-white/8 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-paper/50">
-                    {d.tag}
-                  </span>
-                  <span class="rounded-full border border-paper/40 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-paper">
-                    Beta
-                  </span>
-                </div>
-              </div>
-              <h3 class="mt-4 font-display text-2xl font-medium text-paper transition-colors group-hover:text-sky">
-                {d.title}
-              </h3>
-              <p class="mt-3 flex-1 text-sm leading-relaxed text-paper/60">
-                {d.blurb}
-              </p>
-              <span class="mt-6 text-xs font-medium text-paper/40 transition-colors group-hover:text-sky">
-                Launch dashboard →
-              </span>
-            </a>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+      </header>
 
-  <!-- Sandbox charts -->
-  <section class="bg-paper px-6 py-20 text-ink md:px-10">
-    <div class="mx-auto max-w-7xl">
-      <h2
-        class="font-display text-3xl font-light tracking-tight sm:text-4xl"
-        data-reveal
-      >
-        Charts
-      </h2>
-      <div class="mt-12 grid gap-6 lg:grid-cols-3">
+      <div class="grid gap-4 md:grid-cols-2">
         {
-          sandboxCharts.map((c) => (
-            <SandboxChart client:only="react" title={c.title} src={c.src} />
+          modules.map((module) => (
+            <article class="surface-card-hover border-t-2 border-t-accent-500">
+              <div class="space-y-3">
+                <p class="font-mono text-xs font-semibold uppercase tracking-[0.12em] text-accent-700 dark:text-accent-300">
+                  {module.code}
+                </p>
+                <h3 class="entry-title">
+                  <a href={module.href} class="no-underline hover:underline">
+                    {module.title}
+                  </a>
+                </h3>
+                <p class="entry-summary">{module.summary}</p>
+                <a href={module.href} class="action-link min-h-11">
+                  <span class="i-mdi:arrow-right" aria-hidden="true" />
+                  Launch module
+                </a>
+              </div>
+            </article>
           ))
         }
       </div>
-    </div>
-  </section>
-</Base>
+    </section>
+
+    <section class="content-section space-y-5">
+      <header
+        class="flex items-end justify-between gap-4 border-b border-gray-200 pb-3 dark:border-gray-700"
+      >
+        <div class="space-y-1">
+          <p class="section-kicker">Sandbox</p>
+          <h2 class="section-heading">Charts</h2>
+        </div>
+      </header>
+
+      <div class="space-y-6">
+        {
+          sandboxCharts.map((chart) => (
+            <SandboxChart client:only="react" title={chart.title} src={chart.src} />
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style is:global>
+  .sandbox-chart {
+    overflow: hidden;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.75rem;
+    background: #fff;
+  }
+  .dark .sandbox-chart {
+    border-color: rgb(55 65 81);
+    background: rgb(17 24 39);
+  }
+  .sandbox-chart-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgb(229 231 235);
+  }
+  .dark .sandbox-chart-bar {
+    border-color: rgb(55 65 81);
+  }
+  .sandbox-chart-title {
+    font-family: ui-monospace, monospace;
+    font-size: 0.75rem;
+    color: rgb(75 85 99);
+  }
+  .dark .sandbox-chart-title {
+    color: rgb(209 213 219);
+  }
+  .sandbox-chart-download {
+    flex-shrink: 0;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid rgb(209 213 219);
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font-family: ui-monospace, monospace;
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+  }
+  .sandbox-chart-download:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .sandbox-chart-frame {
+    display: block;
+    width: 100%;
+    height: 360px;
+    border: 0;
+    background: #fff;
+  }
+  .sandbox-chart-error {
+    margin: 0;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid rgb(229 231 235);
+    color: rgb(185 28 28);
+    font-family: ui-monospace, monospace;
+    font-size: 0.6875rem;
+  }
+</style>

@@ -6,7 +6,7 @@ import Understanding from "@/modules/avp/understanding/UnderstandingPage.jsx";
 import { loadContent } from "@/modules/avp/shared/lib/content.js";
 
 const DIR = path.join(process.cwd(), "public", "data");
-const read = (p) => JSON.parse(fs.readFileSync(path.join(DIR, p), "utf8"));
+const read = (p: string) => JSON.parse(fs.readFileSync(path.join(DIR, p), "utf8"));
 
 const { sections } = loadContent("understanding");
 const county = read("county/summary.json");

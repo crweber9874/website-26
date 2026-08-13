@@ -1,0 +1,84 @@
+# Courses and their readers.
+#
+# The readers themselves are authored in the methodology_ground_up repo and
+# synced into public/teaching/ by scripts/sync-readers.sh — do not edit the
+# rendered HTML here.
+
+current:
+  - term: Graduate methods sequence · University of Arizona
+    modules:
+      - title: Linear Regression Analysis
+        code: POL 682
+        summary: >
+          First semester. The linear model from the ground up: least squares, the
+          Gauss–Markov assumptions, inference, and what to do when the assumptions
+          fail. Worked in R throughout, with a reproducible workflow.
+        badges:
+          - Graduate
+          - Fall
+          - Quarto reader
+        highlights:
+          - "Foundations: simple regression, BLUE, estimation, and the matrix form of the model."
+          - "Inference: variable selection, interactions, and interpretation."
+          - "When assumptions fail: heteroskedasticity, multicollinearity, autocorrelation, measurement error, and endogeneity."
+          - "Applications: panel data, plus a documented data appendix."
+        texts:
+          - authors: Fox, John
+            year: 2016
+            title: Applied Regression Analysis and Generalized Linear Models (3rd ed.)
+            publisher: Sage
+          - authors: Fox, John, and Sanford Weisberg
+            year: 2019
+            title: An R Companion to Applied Regression (3rd ed.)
+            publisher: Sage
+          - authors: Gelman, Andrew, and Jennifer Hill
+            year: 2007
+            title: Data Analysis Using Regression and Multilevel/Hierarchical Models
+            publisher: Cambridge University Press
+        tags:
+          - OLS
+          - Inference
+          - Diagnostics
+          - Reproducibility
+          - R / tidyverse
+        links:
+          - label: Open the POL 682 reader
+            href: /teaching/pol682/
+
+      - title: Advanced Regression & Causal Inference
+        code: POL 683
+        summary: >
+          Second semester. What to do when the outcome is not continuous and the
+          design is not experimental: limited dependent variables, simulation as a
+          tool for understanding models, and the causal inference toolkit.
+        badges:
+          - Graduate
+          - Spring
+          - Quarto reader
+        highlights:
+          - "Inference and matrix algebra, revisited as the working language of the sequence."
+          - "Limited dependent variables: binary, ordinal, multicategory, and count outcomes."
+          - "Simulation for interpretation, prediction, and uncertainty."
+          - "Causal inference and model fit."
+        texts:
+          - authors: Long, J. Scott
+            year: 1997
+            title: Regression Models for Categorical and Limited Dependent Variables
+            publisher: Sage
+          - authors: McElreath, Richard
+            year: 2020
+            title: "Statistical Rethinking: A Bayesian Course with Examples in R and Stan (2nd ed.)"
+            publisher: CRC Press
+          - authors: Gelman, Andrew, John Carlin, Hal Stern, David Dunson, Aki Vehtari, and Donald Rubin
+            year: 2014
+            title: Bayesian Data Analysis (3rd ed.)
+            publisher: CRC Press
+        tags:
+          - Logit / probit
+          - Count models
+          - Causal inference
+          - Simulation
+          - Hierarchical models
+        links:
+          - label: Open the POL 683 reader
+            href: /teaching/pol683/

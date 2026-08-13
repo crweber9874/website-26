@@ -5,13 +5,25 @@ export { fillTemplate, paragraphs } from "./content-utils";
 
 const CONTENT_DIR = path.join(process.cwd(), "content", "pages");
 
-/** Load and parse a page content file (Markdown + optional JSON blocks). */
+/**
+ * @typedef {{ meta: Record<string, string>, sections: Record<string, any> }} PageContent
+ */
+
+/**
+ * Load and parse a page content file (Markdown + optional JSON blocks).
+ * @param {string} slug
+ * @returns {PageContent}
+ */
 export function loadContent(slug) {
   const file = path.join(CONTENT_DIR, `${slug}.md`);
   return loadMarkdownFile(file);
 }
 
-/** Load and parse a markdown file at an absolute path (same section format as content/pages). */
+/**
+ * Load and parse a markdown file at an absolute path (same section format as content/pages).
+ * @param {string} filePath
+ * @returns {PageContent}
+ */
 export function loadMarkdownFile(filePath) {
   const raw = fs.readFileSync(filePath, "utf8");
   return parseContent(raw);

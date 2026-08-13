@@ -5,13 +5,15 @@ import {
   downloadWatermarkedDataUrl,
 } from "@/modules/avp/shared/lib/watermark-download";
 
-/**
- * Same-origin Plotly sandbox iframe with a watermarked PNG download.
- *
- * @param {{ title: string; src: string }} props
- */
-export default function SandboxChart({ title, src }) {
-  const iframeRef = useRef(null);
+/** Same-origin Plotly sandbox iframe with a watermarked PNG download. */
+export default function SandboxChart({
+  title,
+  src,
+}: {
+  title: string;
+  src: string;
+}) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -23,7 +25,7 @@ export default function SandboxChart({ title, src }) {
       const doc = iframeRef.current?.contentDocument;
       if (!win || !doc) throw new Error("Chart not loaded");
 
-      const Plotly = win.Plotly;
+      const Plotly = (win as Window & { Plotly?: any }).Plotly;
       const plot =
         doc.querySelector(".js-plotly-plot") ||
         doc.querySelector(".plotly-graph-div") ||
@@ -67,14 +69,14 @@ export default function SandboxChart({ title, src }) {
   }, [title]);
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-xl shadow-black/5">
-      <div className="flex items-center justify-between gap-3 border-b border-ink/10 px-4 py-2.5">
-        <span className="font-mono text-xs text-ink/60">{title}</span>
+    <div className="sandbox-chart">
+      <div className="sandbox-chart-bar">
+        <span className="sandbox-chart-title">{title}</span>
         <button
           type="button"
           onClick={onDownload}
           disabled={busy}
-          className="shrink-0 rounded-full border border-ink/20 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper disabled:opacity-50"
+          className="sandbox-chart-download"
         >
           {busy ? "Preparing…" : "Download PNG"}
         </button>
@@ -84,13 +86,9 @@ export default function SandboxChart({ title, src }) {
         src={src}
         title={title}
         loading="lazy"
-        className="h-[360px] w-full"
+        className="sandbox-chart-frame"
       />
-      {err && (
-        <p className="border-t border-ink/10 px-4 py-2 font-mono text-[11px] text-red-700">
-          {err}
-        </p>
-      )}
+      {err && <p className="sandbox-chart-error">{err}</p>}
     </div>
   );
 }

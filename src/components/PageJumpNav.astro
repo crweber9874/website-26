@@ -1,0 +1,28 @@
+---
+interface Item {
+  href: string;
+  label: string;
+}
+
+interface Props {
+  items: Item[];
+}
+
+const { items } = Astro.props;
+---
+
+{items.length > 1 && (
+  <nav
+    class="page-jump-nav sticky top-18 z-20 -mx-2 flex items-center gap-1 overflow-x-auto border-y border-paper-300/90 bg-paper-50/96 px-2 py-2 text-sm dark:border-ink-700 dark:bg-ink-950/96 sm:mx-0 sm:w-fit"
+    aria-label="Page sections"
+  >
+    {items.map((item) => (
+      <a
+        href={item.href}
+        class="glass-control inline-flex min-h-11 shrink-0 items-center justify-center rounded-[0.625rem] px-3.5 font-semibold text-gray-600 no-underline transition-colors hover:text-accent-800 focus-visible:ring-2 focus-visible:ring-accent-500 dark:text-gray-300 dark:hover:text-accent-200"
+      >
+        {item.label}
+      </a>
+    ))}
+  </nav>
+)}

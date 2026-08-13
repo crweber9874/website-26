@@ -9,7 +9,7 @@ import re
 import sys
 
 root = Path(sys.argv[1])
-dirs = [root / "public/pedagogy/pol682", root / "public/pedagogy/pol683"]
+dirs = [root / "public/teaching/pol682", root / "public/teaching/pol683"]
 
 gh = re.compile(
     r'\s*<a href="https://github\.com/[^"]*" title="Source Code"[^>]*>.*?</a>\s*',

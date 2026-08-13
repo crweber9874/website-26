@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>8&nbsp; An Introduction to Causal Inference – Advanced Regression and Causal Inference</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/07-model-fit.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-80910fc466353037dd99c735dbab8f1a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-27dab2b312a4aa79ed5b30649f65c133.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+<div id="cw-site-bar" style="position:sticky;top:0;z-index:99999;display:flex;gap:16px;align-items:center;justify-content:space-between;padding:8px 16px;background:#0C234B;color:#fff;font:600 13px/1.3 system-ui,sans-serif;border-bottom:3px solid #AB0520"><a href="/teaching" style="color:#fff;text-decoration:none">&larr; Teaching</a><span style="color:rgba(255,255,255,.75);font-weight:500">POL 683 · Advanced Regression & Causal Inference</span><a href="/" style="color:rgba(255,255,255,.75);text-decoration:none">christopher-weber.com</a></div>
+
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/05-causal-inference.html">Part III: Causal Inference</a></li><li class="breadcrumb-item"><a href="../chapters/05-causal-inference.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">An Introduction to Causal Inference</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Advanced Regression and Causal Inference</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/crweber9874/methodology_ground_up/tree/main/readers/weber/advanced-regression/" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I: Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">A Brief Review, and the Logic of Statistical Inference</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-matrix-algebra.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Matrix Algebra</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-simulation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Simulation and Statistical Models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II: Limited and Discrete Outcomes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-binary-outcomes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Binary Dependent Variables</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-ordinal-multicategory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Ordinal and Multicategory Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/08-count-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Count Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/07-model-fit.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Comments On Model Fit and Interpretation</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part III: Causal Inference</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-causal-inference.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">An Introduction to Causal Inference</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#causal-estimands-and-the-do-operator" id="toc-causal-estimands-and-the-do-operator" class="nav-link active" data-scroll-target="#causal-estimands-and-the-do-operator"><span class="header-section-number">8.1</span> Causal Estimands and the Do Operator</a></li>
+  <li><a href="#mediation-or-the-pipe" id="toc-mediation-or-the-pipe" class="nav-link" data-scroll-target="#mediation-or-the-pipe"><span class="header-section-number">8.2</span> Mediation, or the Pipe</a></li>
+  <li><a href="#why-conditioning-on-post-treatment-variables-is-problematic" id="toc-why-conditioning-on-post-treatment-variables-is-problematic" class="nav-link" data-scroll-target="#why-conditioning-on-post-treatment-variables-is-problematic"><span class="header-section-number">8.3</span> Why Conditioning on Post-Treatment Variables is Problematic</a>
+  <ul class="collapse">
+  <li><a href="#the-collider" id="toc-the-collider" class="nav-link" data-scroll-target="#the-collider"><span class="header-section-number">8.3.1</span> The Collider</a></li>
+  </ul></li>
+  <li><a href="#what-is-the-effect-of-age" id="toc-what-is-the-effect-of-age" class="nav-link" data-scroll-target="#what-is-the-effect-of-age"><span class="header-section-number">8.4</span> What is the Effect of Age?</a>
+  <ul class="collapse">
+  <li><a href="#what-is-the-effect-of-knowledge-or-education" id="toc-what-is-the-effect-of-knowledge-or-education" class="nav-link" data-scroll-target="#what-is-the-effect-of-knowledge-or-education"><span class="header-section-number">8.4.1</span> What is the effect of knowledge (or education)</a></li>
+  <li><a href="#return-of-the-do-operator" id="toc-return-of-the-do-operator" class="nav-link" data-scroll-target="#return-of-the-do-operator"><span class="header-section-number">8.4.2</span> Return of the Do Operator</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/05-causal-inference.html">Part III: Causal Inference</a></li><li class="breadcrumb-item"><a href="../chapters/05-causal-inference.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">An Introduction to Causal Inference</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">An Introduction to Causal Inference</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Much of the applied research conducted in political science attempts to make causal claims. Let’s call this, in a general sense, a “treatment effect.” Estimating a treatment effect is not solely restricted to experiments – though this is certaintly a reason to conduct an experiment – but can also be estimated with observational data. In many circumstances, we wish to know the consequence of an intervention. Think about the effect of a public policy change, or the influence of a drug, or the consequence of changing electoral laws on voter behavior.</p>
+<p>Causal explanations involve a statement about how units are influenced by a particular treatment or intervention. It’s useful to think about the problem in terms of the : How would an individual respond to a treatment, compared to an identical circumstance where that individual did not receive the treatment (Morton and Williams 2010)? For this reason, the exercise involves inferences about unit effects, the individual, whehter that be a person, a state, a country, or some other unit of analysis.</p>
+<p>Formally, we are interested in <span class="math inline">\(Y_{i,1}-Y_{i,0}\)</span>. What would the th respondent’s value of Y be in state 1 and state 0? For simplicity, let’s just call this the treatment, T, or the control, C. The difference <span class="math inline">\(\delta\)</span>, is just the difference in y across the two states, <span class="math inline">\(\delta_i=Y_{i,T}-Y_{i,C}\)</span> (Morton and Williams 2010). Every unit has been exposed to the treatment and control. Another way of thinking about this is in terms of confounding – how is a relationship modified by a third variable? So, after controlling for every possible confound, how would the unit respond in these two states? This, is referred to as the the “Rubin Causal Model” (RCM), named after the influential statistician, Donald Rubin.</p>
+<p>Notice, however, that this is largely a thought experiment. The counterfactual is unobservable. This is the . <span class="math inline">\(\delta_i\)</span> is not attainable, because the potential outcome is never directly observed!</p>
+<p>Instead we generally make assumptions about groups of individuals – or units – where some degree of control is exercised. That is, while the causal effect is not directly observable, we can make inferences about a causal effect, generating a causal <em>estimand</em> and then testing with a statistical <em>estimate</em>.</p>
+<p>While we cannot calculate the treatment effect from the counterfactuals, the ATE could be approximated using the the expected difference in treatment and control conditions.</p>
+<p><span class="math display">\[\begin{eqnarray}
+E(\delta_i)=E(Y_{i,T}-Y_{i,C})=E(Y_{i,T})-E(Y_{i,C})
+\end{eqnarray}\]</span></p>
+<p>There is a rather lively debate in the causal inference traditions between Donald Rubin’s <strong>potential outcomes</strong> framework, and the Judea Pearl <strong>causal graph</strong> framework. The potential outcomes framework adopts an approach that largely focuses on the individual unit, and how the individual unit might respond in a counterfactual scenario. For instance, what would have happened if the unit was exposed to the treatment, and what would have happened if the unit was not exposed to the treatment. The causal graph framework is largely expressed in the language of DAGs – many of which we have explored – in which we can use a scientific and statistical models, along with the <strong>do operator</strong> to estimate causal effects. There are important differences in these traditions for sure, but I’ll generally move between the two.</p>
+<section id="causal-estimands-and-the-do-operator" class="level2" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="causal-estimands-and-the-do-operator"><span class="header-section-number">8.1</span> Causal Estimands and the Do Operator</h2>
+<p>This is where another useful tool comes in – the <em>do</em> operator. The <em>do</em> operator is a way to denote that we are interested in the effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span> when <span class="math inline">\(X\)</span> is set to a particular value. Perhaps we wish to form an estimate of the causal effect of wealth on political conservatism. We could do this if we were able to exert control over wealth. For instance, if we as researchers were able to randomly assign people to a high or low wealth condition, we could then formulate an estimate of the causal effect of wealth on political conservatism, the difference between the two groups.</p>
+<p>We obviously can’t do this, but we could use data to approximate such a scenario. Here’s how we’ll do it.</p>
+<p>Imagine we have a large dataset, with a variable, wealth. Imagine two worlds; one where everyone has “high wealth” and one where everyone has “low wealth.” We can approximate these two worlds with our data: Create two versions of our data, the only difference being the wealth value.</p>
+<p>Now, we might use this as as <strong>data</strong>, fed to the model. Then we perhaps just average the predicted score, political conservatism in two “worlds,” one where everyone is “high wealth” and the other where everyone is “low wealth.”</p>
+<p>Use these data “worlds,” in conjunction with the statistical model to create predictions and causal estimates We just use these data to form predictions from the model. Then we perhaps just average the predicted score, political conservatism in two “worlds,” one where everyone is “high wealth” and the other where everyone is “low wealth.”</p>
+<p>Manipulating the DAG in this way has a desirable consequence: it removes all arrows pointing to the variable of interest. Age no longer correlates with wealth, because it’s a constant within each data set. The same goes for education. We’ve effectively “blocked” all paths to wealth, except for the path we’re interested in – the relationship between wealth and conservatism.</p>
+<p>Then we perhaps just average conservatism in these two “worlds,” one where everyone is “high wealth” and the other where everyone is “low wealth.” This is the causal estimand.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>education <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">2000</span>, <span class="dv">1</span>, <span class="fl">0.3</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>wealth <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> education <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">2000</span>, <span class="dv">0</span>, <span class="fl">0.5</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>political_conservatism <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fl">0.3</span> <span class="sc">*</span> wealth <span class="sc">-</span> <span class="fl">0.5</span> <span class="sc">*</span> education <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">2000</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>synthetic_data <span class="ot">=</span> <span class="fu">data.frame</span>(wealth, political_conservatism, education)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>synthetic_data <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     wealth political_conservatism education
+1 1.4720343               2.910152         0
+2 1.5774405              -1.777227         1
+3 1.8482874               2.140039         1
+4 1.5734142               3.100207         0
+5 0.7898437               1.986122         0
+6 0.1580947               1.727654         0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>my_model <span class="ot">=</span> <span class="fu">lm</span>(political_conservatism <span class="sc">~</span> wealth <span class="sc">+</span> education, <span class="at">data =</span> synthetic_data)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(my_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = political_conservatism ~ wealth + education, data = synthetic_data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-3.4452 -0.6510  0.0318  0.6713  3.6491 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.95573    0.05296  18.047  &lt; 2e-16 ***
+wealth       0.29453    0.04522   6.513 9.29e-11 ***
+education   -0.49075    0.06103  -8.042 1.50e-15 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 1.006 on 1997 degrees of freedom
+Multiple R-squared:  0.03351,   Adjusted R-squared:  0.03254 
+F-statistic: 34.62 on 2 and 1997 DF,  p-value: 1.663e-15</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data1 <span class="ot">=</span> synthetic_data <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">wealth =</span> <span class="dv">0</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>data2 <span class="ot">=</span> synthetic_data <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">wealth =</span> <span class="dv">1</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># The treatment effect is:</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(my_model, data2)  <span class="sc">%&gt;%</span> <span class="fu">mean</span>() <span class="sc">-</span> <span class="fu">predict</span>(my_model, data1) <span class="sc">%&gt;%</span> <span class="fu">mean</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.2945269</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(boot)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a function for bootstrapping</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>bootstrap_treatment_effect <span class="ot">&lt;-</span> <span class="cf">function</span>(data, indices) {</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Sample the data</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  sample_data <span class="ot">&lt;-</span> data[indices, ]</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  my_model <span class="ot">=</span> <span class="fu">lm</span>(political_conservatism <span class="sc">~</span> wealth <span class="sc">+</span> education, <span class="at">data =</span> sample_data)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create two worlds</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  data1 <span class="ot">&lt;-</span> sample_data <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">wealth =</span> <span class="dv">0</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  data2 <span class="ot">&lt;-</span> sample_data <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">wealth =</span> <span class="dv">1</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Calculate the treatment effect</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  treatment_effect <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">predict</span>(my_model, data2)) <span class="sc">-</span> <span class="fu">mean</span>(<span class="fu">predict</span>(my_model, data1))</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(treatment_effect)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>bootstrap_results <span class="ot">&lt;-</span> <span class="fu">boot</span>(<span class="at">data =</span> synthetic_data, <span class="at">statistic =</span> bootstrap_treatment_effect, <span class="at">R =</span> <span class="dv">100</span>)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>mean <span class="ot">=</span> <span class="fu">mean</span>(bootstrap_results<span class="sc">$</span>t)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>lower <span class="ot">=</span> <span class="fu">quantile</span>(bootstrap_results<span class="sc">$</span>t, <span class="fl">0.025</span>)</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>upper <span class="ot">=</span> <span class="fu">quantile</span>(bootstrap_results<span class="sc">$</span>t, <span class="fl">0.975</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"The average treatment effect is"</span>, mean, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The average treatment effect is 0.2990864 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"The 95% confidence interval is"</span>, lower, <span class="st">"to"</span>, upper, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The 95% confidence interval is 0.2184448 to 0.3852349 </code></pre>
+</div>
+</div>
+<p>The “fork” or “confound” should not be ignored. Doing so will lead to biased estimates. This is why we’re often encouraged to specify theoretically informed models, models that “control for” the effect of potential confounding variables.</p>
+</section>
+<section id="mediation-or-the-pipe" class="level2" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="mediation-or-the-pipe"><span class="header-section-number">8.2</span> Mediation, or the Pipe</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dagify</span>(m <span class="sc">~</span>x , y<span class="sc">~</span> m <span class="sc">+</span> x) <span class="sc">%&gt;%</span> <span class="fu">ggdag</span>()  <span class="sc">+</span> <span class="fu">theme_dag</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="05-causal-inference_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="576"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This is a common problem in the social sciences; it forms the basis for mediation analysis. Notice that <span class="math inline">\(x\)</span> can affect <span class="math inline">\(y\)</span> in a couple ways. One is <span class="math inline">\(x\rightarrow m \rightarrow y\)</span>. Another is <span class="math inline">\(x \rightarrow y\)</span>. Both combine to form thte total effect of x on y. The total effect is the sum of the direct and indirect effects. The direct effect is the effect of x on y, controlling for the mediator. The indirect effect is the effect of x on y, through the mediator.</p>
+<p>So, <span class="math inline">\(x\)</span> influences <span class="math inline">\(y\)</span> through two paths. The direct effect is the effect of <span class="math inline">\(x\)</span> on <span class="math inline">\(y\)</span>, controlling for the mediator. The indirect effect is the effect of <span class="math inline">\(x\)</span> on <span class="math inline">\(y\)</span>, through the mediator. The total effect can be thought of as the sum of the direct and indirect effects, and possibly their interaction.</p>
+<p>But, the regression of <span class="math inline">\(y\)</span> on <span class="math inline">\(x\)</span> and <span class="math inline">\(m\)</span> doesn’t give us the total effect. Statements like, <span class="math inline">\(x\)</span> has an effect on <span class="math inline">\(y\)</span> controlling for <span class="math inline">\(m\)</span> – while not incorrect – are somewhat misleading, as they don’t really acknowledge that sometimes one independent variable has an effect on another independent variable, also related to the dependent variable.</p>
+<p>But <span class="math inline">\(m\)</span> isn’t a fork, it’s pipe (also a “chain”). If we include <span class="math inline">\(m\)</span> in the model, we’re effectively blocking the path from <span class="math inline">\(x\)</span> to <span class="math inline">\(y\)</span> through <span class="math inline">\(m\)</span>.But if the indirect effect and direct effect form the total effect, can’t we just add them together? No, not really. The indirect effect is the effect of <span class="math inline">\(x\)</span> on <span class="math inline">\(y\)</span> through <span class="math inline">\(m\)</span>. The direct effect is the effect of <span class="math inline">\(x\)</span> on <span class="math inline">\(y\)</span>, controlling for <span class="math inline">\(m\)</span>. The total effect is the sum of the direct and indirect effects. What is the indirect effect, it’s just the path from <span class="math inline">\(x\)</span> to <span class="math inline">\(y\)</span> through <span class="math inline">\(m\)</span>.</p>
+<p>Think about it somewhat different. <span class="math inline">\(x\)</span> influences <span class="math inline">\(y\)</span> through two paths, and these are the <strong>means</strong> by which <span class="math inline">\(x\)</span> influences <span class="math inline">\(y\)</span>. From our review of independence, if</p>
+<p><span class="math inline">\(X \perp Y | M\)</span>, then <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are independent conditional on <span class="math inline">\(M\)</span>. But</p>
+<p>But absent <span class="math inline">\(M\)</span> two independent variables will be correlated.</p>
+<p><span class="math inline">\(X \not\perp Y\)</span></p>
+<p>How might we estimate the total effect? Don’t condition on <span class="math inline">\(M\)</span>. In this simple model, it’s entirely reasonable. That treatment effect should consist of both direct and indirect paths. Sometimes it’s easiest to see with data</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>synthetic_data <span class="ot">=</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">2000</span>, <span class="dv">1</span>, <span class="fl">0.45</span>),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    m <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">2000</span>, <span class="dv">0</span>, <span class="fl">0.5</span>),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="fl">0.05</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">*</span>m <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">2000</span>, <span class="dv">0</span>, <span class="fl">0.5</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"m"</span>, <span class="st">"y"</span>))</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>synthetic_data <span class="sc">%&gt;%</span> <span class="fu">head</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  x           m           y
+1 1  0.49185646 -0.27519818
+2 0  0.31167200  0.08208649
+3 0 -0.30839432  0.43378710
+4 1  0.09862058  0.14948526
+5 0  0.04833284  0.43521773
+6 0 -0.06168167 -0.67009301</code></pre>
+</div>
+</div>
+<p><span class="math inline">\(\bullet\)</span> x is a binary variable, drawn from a binomial density with a probability of 0.45. <span class="math inline">\(\bullet\)</span> m is a continuous variable, drawn from a normal density with a mean of <span class="math inline">\(0.5 \times x\)</span> and a standard deviation of 0.5. <span class="math inline">\(\times\)</span> y is a continuous variable, drawn from a normal density with a mean of <span class="math inline">\(0.05 \times x + 0.1 \times m\)</span> and a standard deviation of 0.5.</p>
+<p>Here’s the naive regression</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>synthetic_data <span class="ot">=</span> <span class="fu">data.frame</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">2000</span>, <span class="dv">1</span>, <span class="fl">0.45</span>),</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    m <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">2000</span>, <span class="dv">0</span>, <span class="fl">0.5</span>),</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="fl">0.05</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">*</span>m <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">2000</span>, <span class="dv">0</span>, <span class="fl">0.5</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"m"</span>, <span class="st">"y"</span>)) </span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(y <span class="sc">~</span> x <span class="sc">+</span> m, <span class="at">data =</span> synthetic_data) <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = y ~ x + m, data = synthetic_data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.7659 -0.3517  0.0076  0.3543  1.4942 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.02516    0.01521   1.654 0.098193 .  
+x            0.01866    0.02524   0.739 0.459972    
+m            0.08634    0.02334   3.699 0.000222 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.5057 on 1997 degrees of freedom
+Multiple R-squared:  0.01014,   Adjusted R-squared:  0.00915 
+F-statistic: 10.23 on 2 and 1997 DF,  p-value: 3.801e-05</code></pre>
+</div>
+</div>
+<p>Notice that it captures the direct effect of <span class="math inline">\(x\)</span> on <span class="math inline">\(y\)</span>, but not the total effect, nor do we see the indirect effect, because this model conditions on <span class="math inline">\(m\)</span>, but it’s not a model predicting <span class="math inline">\(m\)</span>.</p>
+<p>The total effect.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>synthetic_data <span class="ot">=</span> <span class="fu">data.frame</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">2000</span>, <span class="dv">1</span>, <span class="fl">0.45</span>),</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    m <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">2000</span>, <span class="dv">0</span>, <span class="fl">0.5</span>),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> <span class="fl">0.05</span> <span class="sc">*</span> x <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">*</span>m <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">2000</span>, <span class="dv">0</span>, <span class="fl">0.5</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span> </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(<span class="fu">c</span>(<span class="st">"x"</span>, <span class="st">"m"</span>, <span class="st">"y"</span>)) </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(y <span class="sc">~</span> x , <span class="at">data =</span> synthetic_data) <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = y ~ x, data = synthetic_data)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.60885 -0.33315  0.00301  0.33240  1.72517 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -0.01622    0.01533  -1.058     0.29    
+x            0.10661    0.02281   4.673 3.16e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.5077 on 1998 degrees of freedom
+Multiple R-squared:  0.01081,   Adjusted R-squared:  0.01032 
+F-statistic: 21.84 on 1 and 1998 DF,  p-value: 3.16e-06</code></pre>
+</div>
+</div>
+<p>This gives us the total effect, about 0.12. Notice that we never specified this. We only specified the paths. What is the indirect effect.</p>
+<p>One approach, the product of the coefficients, aka, trace the paths.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(y <span class="sc">~</span> x , <span class="at">data =</span> synthetic_data) <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = y ~ x, data = synthetic_data)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.60885 -0.33315  0.00301  0.33240  1.72517 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -0.01622    0.01533  -1.058     0.29    
+x            0.10661    0.02281   4.673 3.16e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.5077 on 1998 degrees of freedom
+Multiple R-squared:  0.01081,   Adjusted R-squared:  0.01032 
+F-statistic: 21.84 on 1 and 1998 DF,  p-value: 3.16e-06</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(y <span class="sc">~</span> x <span class="sc">+</span> m , <span class="at">data =</span> synthetic_data) <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = y ~ x + m, data = synthetic_data)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.61406 -0.33394  0.01061  0.33178  1.69014 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -0.01892    0.01524  -1.241   0.2147    
+x            0.05019    0.02519   1.993   0.0464 *  
+m            0.11836    0.02303   5.140 3.02e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.5045 on 1997 degrees of freedom
+Multiple R-squared:  0.02373,   Adjusted R-squared:  0.02275 
+F-statistic: 24.27 on 2 and 1997 DF,  p-value: 3.865e-11</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(m <span class="sc">~</span> x , <span class="at">data =</span> synthetic_data) <span class="sc">%&gt;%</span> <span class="fu">summary</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = m ~ x, data = synthetic_data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.6779 -0.3234  0.0102  0.3142  1.6854 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.02279    0.01480    1.54    0.124    
+x            0.47661    0.02202   21.64   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4901 on 1998 degrees of freedom
+Multiple R-squared:  0.1899,    Adjusted R-squared:  0.1895 
+F-statistic: 468.5 on 1 and 1998 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Notice that the indirect effect is the <span class="math inline">\(x\)</span> coefficient from the <span class="math inline">\(m\)</span> equation multiplied by the <span class="math inline">\(m\)</span> coefficient from the <span class="math inline">\(y\)</span> equation. It’s about 0.05. If the indirect effect is 0.05, and the total effect is 0.12, then the direct effect must be about 0.07, which it is.</p>
+<p>If you wanted to know the total effect of <span class="math inline">\(x\)</span> on <span class="math inline">\(y\)</span>, thinking that’s what you get by “controlling” for <span class="math inline">\(m\)</span>, think again. You’re only getting the direct effect.</p>
+<p>This is precisely why we need to exert care when specifying a “theoretically informed” model. Theoretically informed doesn’t mean swamping the model with a bunch of variables, thinking that these are all confounds that require statistical adjustment. It doesn’t mean throwing every variable outlined in the literature into the regression model. It means thinking carefully about the relationships among <strong>all</strong> variables, not just in predicting <span class="math inline">\(y\)</span>.</p>
+</section>
+<section id="why-conditioning-on-post-treatment-variables-is-problematic" class="level2" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="why-conditioning-on-post-treatment-variables-is-problematic"><span class="header-section-number">8.3</span> Why Conditioning on Post-Treatment Variables is Problematic</h2>
+<p>A pipe means we may not be estimating the actual parameters of interest. Instead, we’re estimating a direct effect, and the final step in a more indirect sequence of events to <span class="math inline">\(y\)</span>. This means the researcher should exert care in interpreting the regression parameters. There’s another issue that empiricists often encounter, and that’s conditioning on post-treatment (probably observed) variables.</p>
+<section id="the-collider" class="level3" data-number="8.3.1">
+<h3 data-number="8.3.1" class="anchored" data-anchor-id="the-collider"><span class="header-section-number">8.3.1</span> The Collider</h3>
+<p>Earlier in the course, I presented the issue with respect to campaign advertising.</p>
+<p>But what if,</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dagify</span>(turnout <span class="sc">~</span> efficacy <span class="sc">+</span> knowledge, efficacy <span class="sc">~</span>  negativity <span class="sc">+</span> knowledge, </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">labels =</span> <span class="fu">c</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"turnout"</span> <span class="ot">=</span> <span class="st">"Voting"</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"knowledge"</span> <span class="ot">=</span> <span class="st">"Political Knowledge"</span>,</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"efficacy"</span> <span class="ot">=</span> <span class="st">"Political Efficacy"</span>,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"negativity"</span> <span class="ot">=</span> <span class="st">"Negative Ad"</span>)) <span class="sc">%&gt;%</span> <span class="fu">ggdag</span>(<span class="at">text =</span> <span class="cn">FALSE</span>, <span class="at">use_labels =</span> <span class="st">"label"</span>) <span class="sc">+</span> <span class="fu">theme_dag</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="05-causal-inference_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>In this example, political efficacy is an inverted fork, known as a collider. It’s a collider because there are two arrows leading into the political efficacy node, one is political knowledge, the other is negative advertising. Say we are interested in a mediation inspired analysis, where we’ll estimate the effect of negative advertising on voting through political efficacy, meaning we’ll estimate one model where we regress voting on negative advertising <em>and</em> political efficacy, and another where we regress political efficacy on negative advertising.</p>
+<p>Isn’t this a useful way to sort out indirect and direct effects, consistent with what we just reviewed?</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load necessary libraries</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="fl">0.45</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>Z <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>,  <span class="fl">0.5</span>)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="fl">0.5</span> <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> Z <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="fl">0.5</span>)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>Y <span class="ot">&lt;-</span> <span class="fl">0.05</span> <span class="sc">*</span> X <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> M <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> Z <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="fl">0.5</span>)</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a data frame</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">X =</span> X, <span class="at">M =</span> M, <span class="at">Y =</span> Y, <span class="at">Z =</span> Z)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the first few rows of the data frame</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  X           M          Y          Z
+1 0  0.21082410  1.0212399  1.0687942
+2 0 -0.09183279  0.3881979 -0.5757142
+3 0  0.23003259  0.5847306  1.0964707
+4 0  0.35488006  0.6810748  0.2593340
+5 1  1.54211169  1.5157154  0.4788373
+6 1  0.11673563 -0.2300139  0.4275719</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># But we don't actually observe Z, only M</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(Y <span class="sc">~</span> X , <span class="at">data =</span> df) <span class="sc">%&gt;%</span> <span class="fu">summary</span>() <span class="co"># total effect</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Y ~ X, data = df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.47072 -0.44963 -0.00021  0.46896  2.57434 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.01553    0.02039   0.762    0.446    
+X            0.27539    0.03040   9.060   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.6763 on 1998 degrees of freedom
+Multiple R-squared:  0.03946,   Adjusted R-squared:  0.03898 
+F-statistic: 82.09 on 1 and 1998 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(Y <span class="sc">~</span> X <span class="sc">+</span> M , <span class="at">data =</span> df) <span class="sc">%&gt;%</span> <span class="fu">summary</span>() <span class="co"># ??</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Y ~ X + M, data = df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.96396 -0.38543  0.01809  0.37623  2.28007 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.01436    0.01645   0.873  0.38271    
+X           -0.08304    0.02685  -3.093  0.00201 ** 
+M            0.71830    0.02193  32.761  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.5455 on 1997 degrees of freedom
+Multiple R-squared:  0.3752,    Adjusted R-squared:  0.3746 
+F-statistic: 599.7 on 2 and 1997 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>The coefficient for both coefficients are quite a bit off. The reason is that we conditioned on something – <span class="math inline">\(m\)</span> – that is related to both the outcome and something unobserved, <span class="math inline">\(Z\)</span>. Our estimates are wrong, they are biased.</p>
+<p>This is often called <strong>post-treatment</strong> bias, and means more precisely that we’re conditioning on a collider variable. Because <span class="math inline">\(m\)</span>, the mediator, is often observed (not manipulated directly), it may share paths to the outcome <span class="math inline">\(y\)</span> through variables we don’t observe in our data. This is a serious problem, as nothing in the model will be accurately estimated.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>dag <span class="ot">&lt;-</span> <span class="fu">dagify</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  conservatism <span class="sc">~</span> moral_individualism <span class="sc">+</span> age <span class="sc">+</span> college,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  moral_individualism <span class="sc">~</span> age <span class="sc">+</span> college,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  college <span class="sc">~</span> age <span class="sc">+</span> geography,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">labels =</span> <span class="fu">c</span>(</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"moral_individualism"</span> <span class="ot">=</span> <span class="st">"MI"</span>,</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"college"</span> <span class="ot">=</span> <span class="st">"Knowledge"</span>,</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"age"</span> <span class="ot">=</span> <span class="st">"Age"</span>,</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"conservatism"</span> <span class="ot">=</span> <span class="st">"Conservatism"</span>,</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"geography"</span> <span class="ot">=</span> <span class="st">"zip"</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggdag</span>(dag, <span class="at">text =</span> <span class="cn">FALSE</span>, <span class="at">use_labels =</span> <span class="st">"label"</span>) <span class="sc">+</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_dag_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> label), <span class="at">alpha =</span> <span class="fl">0.01</span>, <span class="at">nudge_y =</span> <span class="fl">0.2</span>) <span class="sc">+</span>  <span class="co"># Adjust alpha for transparency</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dag</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="05-causal-inference_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="what-is-the-effect-of-age" class="level2" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="what-is-the-effect-of-age"><span class="header-section-number">8.4</span> What is the Effect of Age?</h2>
+<p>Do we control for moral individualism, or not? It’s clearly a mediator, but it’s also a collider. It’s influenced by political knowledge (in our data, college education), and we’re probably correct in placing other arrows leading to college education, like one’s geography. After all, in the United States, it’s well established that a variety of outcomes are influenced by the zipcode in which one grew up.</p>
+<p>And in this gnarled mess – but still a gross simplification of reality – so how do we piece together a treatment effect for age, or knowledge.</p>
+<section id="what-is-the-effect-of-knowledge-or-education" class="level3" data-number="8.4.1">
+<h3 data-number="8.4.1" class="anchored" data-anchor-id="what-is-the-effect-of-knowledge-or-education"><span class="header-section-number">8.4.1</span> What is the effect of knowledge (or education)</h3>
+<p>Graphs like these may seem hard to determine what to include in your model. Generally, if you’re interested in the effect of one variable, don’t condition on a collider. This is apparent when we want to estimate the effects of age on conservativism, versus the effect of knowledge on conservativism.</p>
+<p><strong>What model would estimate to determine the effect of age on conservatism?</strong></p>
+<p>This is still just age, and only age. The remaining variables are problematic, if we want to estimate the effect of age on conservatism.</p>
+<p><strong>What model would we estimate to determine the effect of knowledge on conservatism?</strong></p>
+<p>This question is more complicated, because if our interest is in knowledge, we would want to control for age. In this model, age is necessary because it’s a confounder.</p>
+<p>In <span class="math inline">\(\texttt{dagitty}\)</span>, we can use the <span class="math inline">\(\texttt{adjustmentSets()}\)</span> function to determine the appropriate adjustment sets for a given model.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>adjustment_sets <span class="ot">&lt;-</span> <span class="fu">adjustmentSets</span>(dag, <span class="at">exposure =</span> <span class="st">"college"</span>, <span class="at">outcome =</span> <span class="st">"conservatism"</span>)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>adjustment_sets</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{ age }</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>adjustment_sets <span class="ot">&lt;-</span> <span class="fu">adjustmentSets</span>(dag, <span class="at">exposure =</span> <span class="st">"age"</span>, <span class="at">outcome =</span> <span class="st">"conservatism"</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>adjustment_sets</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> {}</code></pre>
+</div>
+</div>
+</section>
+<section id="return-of-the-do-operator" class="level3" data-number="8.4.2">
+<h3 data-number="8.4.2" class="anchored" data-anchor-id="return-of-the-do-operator"><span class="header-section-number">8.4.2</span> Return of the Do Operator</h3>
+<p>Say our interest is then in piecing together the effect of college education and age on conservatism. Let’s estimate our models, then we’ll use the <strong>do operator</strong> to estimate the causal effect of age on conservatism, and the causal effect of college education on conservatism, <strong>again assuming the drawn diagram is correct.</strong></p>
+<p><span class="math display">\[y_{conservatism} = \beta_0 + \beta_1 x_{age} + \epsilon\]</span></p>
+<p><span class="math display">\[y_{conservatism} = \gamma_0 + \gamma_1 x_{age} + \gamma_2 x_{college} + \epsilon\]</span> Now, let’s use both models, simulating worlds where everyone is the same age, and everyone has the same level of education.</p>
+<p>To estimate the causal effect of age on conservatism, we could use the do-operator, setting age to a constant value, and observing it’s effect on conservatism. We would then compare these datasets – worlds – in which age is a constant value.</p>
+<p>To estimate the causal effect of college education on conservatism, we could use the do-operator, setting college education to a constant value, but letting age correspond to the <strong>age</strong> in the data. So, we might have one dataset where everyone in our data <strong>including age</strong> has a college education, and another where everyone in our data <strong>including age</strong> does not have a college education. We would then compare these datasets – worlds – in which college education is a constant value.</p>
+<p>It’s common in these situations to then use the boostrap, repeatedly drawing from sample dataframe – treating it as if it’s a population – and then estimating these causal effects at each iteration. This allows us to simulate uncertainty in our estimates.</p>
+<p>Returning to the cross-sectional data.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(brms)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: Rcpp</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading 'brms' package (version 2.23.0). Useful instructions
+can be found by typing help('brms'). A more detailed introduction
+to the package is available through vignette('brms_overview').</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'brms'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:stats':
+
+    ar</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"shared/data/dataActive.rda"</span>))</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>dataActive <span class="sc">%&gt;%</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">conservative =</span> <span class="fu">ifelse</span>(ideo5 <span class="sc">==</span> <span class="st">"Very conservative"</span><span class="sc">|</span> ideo5 <span class="sc">==</span> <span class="st">"Conservative"</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># `college` is a two-year degree or higher, matching the coding in the full</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># WSS 2020 instrument (educ x college there is exactly this split).</span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">college =</span> <span class="fu">ifelse</span>(educ <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"2-year"</span>, <span class="st">"4-year"</span>, <span class="st">"Post-grad"</span>), <span class="dv">1</span>, <span class="dv">0</span>)) <span class="ot">-&gt;</span> dat</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate the effect of age on conservatism</span></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>model_age <span class="ot">&lt;-</span> <span class="fu">glm</span>(conservative <span class="sc">~</span> age, <span class="at">data =</span> dat, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="st">"logit"</span>))</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>model_education <span class="ot">&lt;-</span> <span class="fu">glm</span>(conservative <span class="sc">~</span> college <span class="sc">+</span> age, <span class="at">data =</span> dat, <span class="at">family =</span> <span class="fu">binomial</span>(<span class="st">"logit"</span>))</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a><span class="co"># the effect of going from 20 to 80; </span></span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>datYoung <span class="ot">&lt;-</span> </span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>  dat <span class="sc">%&gt;%</span></span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># replace all in age with 20</span></span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="dv">20</span>)  </span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a>predYoung <span class="ot">=</span> <span class="fu">predict</span>(model_age, <span class="at">newdata =</span> datYoung, <span class="at">type =</span> <span class="st">"response"</span>) </span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>datOld <span class="ot">&lt;-</span></span>
+<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a>  dat <span class="sc">%&gt;%</span></span>
+<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># replace all in age with 80</span></span>
+<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="dv">80</span>) </span>
+<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-25"><a href="#cb41-25" aria-hidden="true" tabindex="-1"></a>predOld <span class="ot">=</span> <span class="fu">predict</span>(model_age,  <span class="at">newdata =</span> datOld, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb41-26"><a href="#cb41-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-27"><a href="#cb41-27" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"The effect of going from 20 to 80 years old leads to "</span>,</span>
+<span id="cb41-28"><a href="#cb41-28" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb41-29"><a href="#cb41-29" aria-hidden="true" tabindex="-1"></a>  predOld <span class="sc">%&gt;%</span> <span class="fu">mean</span>() <span class="sc">-</span> </span>
+<span id="cb41-30"><a href="#cb41-30" aria-hidden="true" tabindex="-1"></a>  predYoung <span class="sc">%&gt;%</span> <span class="fu">mean</span>(),</span>
+<span id="cb41-31"><a href="#cb41-31" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>)<span class="sc">*</span><span class="dv">100</span>, <span class="st">"percentage point increase in identifying as conservative</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The effect of going from 20 to 80 years old leads to  38 percentage point increase in identifying as conservative</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"shared/data/dataActive.rda"</span>))</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="co"># the effect of going from 20 to 80; </span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>datCollege <span class="ot">&lt;-</span> </span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  dat <span class="sc">%&gt;%</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># replace all in age with 20</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">college =</span> <span class="dv">1</span>)  <span class="sc">%&gt;%</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># redundant, but just to be clear</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> age)</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>predCollege <span class="ot">=</span> <span class="fu">predict</span>(model_education, <span class="at">newdata =</span> datCollege, <span class="at">type =</span> <span class="st">"response"</span>) </span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>datNocollege <span class="ot">&lt;-</span> </span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>  dat <span class="sc">%&gt;%</span></span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># replace all in age with 20</span></span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">college =</span> <span class="dv">0</span>)  <span class="sc">%&gt;%</span></span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># redundant, but just to be clear</span></span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> age)</span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>predNone <span class="ot">=</span> <span class="fu">predict</span>(model_age,  <span class="at">newdata =</span> datNocollege, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"The effect of going from no college to college years old leads to "</span>,</span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a><span class="fu">abs</span>(<span class="fu">round</span>(</span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>  predCollege <span class="sc">%&gt;%</span> <span class="fu">mean</span>() <span class="sc">-</span> </span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a>  predNone <span class="sc">%&gt;%</span> <span class="fu">mean</span>(),</span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>)<span class="sc">*</span><span class="dv">100</span>), <span class="st">"percentage point decrease in identifying as conservative</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The effect of going from no college to college years old leads to  2 percentage point decrease in identifying as conservative</code></pre>
+</div>
+</div>
+<p>We could also use the bootstrap to estimate the uncertainty in these estimates. We would add this to the interior of the function, sampling applying the function to the sample, and then returning the estimate.</p>
+<p>We can think of these “worlds” as just different counterfactuals – circumstances where everything is identical, except for the variable of interest. The difference between these data worlds is the is the causal estimand.</p>
+<p>Manipulating the DAG in this way has a desirable consequence: it removes all arrows pointing to the variable of interest. College education no longer correlates with age, because it’s a constant within each data set. The same goes for age. We’ve effectively “blocked” all paths.</p>
+<p>However, this still isn’t the effect of aging – it could be, but it also might be generational cohort differences. As a group, perhaps baby-boomers don’t differ all that drastically, but the difference between baby-boomers and millennials perhaps is quite large. It’s perhaps not an effect of aging, as much as growing up in a different historical context.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/crweber9874\.github\.io\/methodology_ground_up\/readers\/weber\/advanced-regression\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/07-model-fit.html" class="pagination-link" aria-label="Comments On Model Fit and Interpretation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Comments On Model Fit and Interpretation</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

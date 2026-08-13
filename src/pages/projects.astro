@@ -1,0 +1,250 @@
+---
+import Layout from "../layouts/Layout.astro";
+import FilterBar from "../components/FilterBar.astro";
+import { projects } from "../components/projects";
+import siteConfig from "../side.config";
+import { getProjectStatus } from "../lib/projects";
+
+const pageTitle = siteConfig.pageTitles.projects.title || "Projects";
+const pageDescription = siteConfig.pageTitles.projects.description ||
+  "Selected lab and community projects with a focus on reproducible research infrastructure, learning analytics, and open collaboration.";
+
+const activeProjects = projects.filter((project) => getProjectStatus(project) === "active");
+const pastProjects = projects.filter((project) => getProjectStatus(project) === "past");
+const unspecifiedProjects = projects.filter((project) => getProjectStatus(project) === "unspecified");
+const filterItems = [
+  {
+    filter: "active",
+    label: "active",
+    count: activeProjects.length,
+    icon: "i-mdi:rocket-launch",
+  },
+  {
+    filter: "past",
+    label: "past",
+    count: pastProjects.length,
+    icon: "i-mdi:archive",
+  },
+  {
+    filter: "unspecified",
+    label: "other",
+    count: unspecifiedProjects.length,
+    icon: "i-mdi:folder-open",
+  },
+];
+
+const projectGroups = [
+  {
+    filter: "active",
+    kicker: "01 / Current work",
+    title: "Active projects",
+    description: "Ongoing research, infrastructure, and collaborative initiatives.",
+    projects: activeProjects,
+    isActive: true,
+  },
+  {
+    filter: "past",
+    kicker: "02 / Archive",
+    title: "Past projects",
+    description: "Completed work and earlier lines of inquiry.",
+    projects: pastProjects,
+    isActive: false,
+  },
+  {
+    filter: "unspecified",
+    kicker: "03 / Additional work",
+    title: "Other projects",
+    description: "Selected experiments, tools, and community contributions.",
+    projects: unspecifiedProjects,
+    isActive: false,
+  },
+];
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  schemaType="CollectionPage"
+>
+  <div class="page-stack">
+    <header class="page-header">
+      <p class="page-kicker">
+        <span class="i-mdi:code-braces text-base" aria-hidden="true"></span>
+        Research portfolio
+      </p>
+      <h1 class="page-title">{pageTitle}</h1>
+      <p class="page-description">{pageDescription}</p>
+
+      <div class="border-t border-gray-200 pt-4 dark:border-gray-700">
+        <FilterBar
+          allIcon="i-mdi:code-braces"
+          total={projects.length}
+          items={filterItems}
+        />
+      </div>
+    </header>
+
+    <div class="space-y-7 sm:space-y-8" id="projects-container">
+      {projectGroups.filter((group) => group.projects.length > 0).map((group) => (
+        <section
+          class="content-section project-section space-y-4"
+          data-filter-section={group.filter}
+          aria-labelledby={`projects-${group.filter}`}
+        >
+          <div class="flex flex-col gap-3 border-b border-gray-200 pb-4 dark:border-gray-700 md:flex-row md:items-end md:justify-between">
+            <div class="space-y-1.5">
+              <p class="section-kicker">{group.kicker}</p>
+              <h2 id={`projects-${group.filter}`} class="section-heading">
+                {group.title}
+              </h2>
+              <p class="body-copy max-w-2xl text-gray-600 dark:text-gray-300">
+                {group.description}
+              </p>
+            </div>
+            <span class="meta-chip shrink-0 self-start md:self-auto">
+              {group.projects.length} {group.projects.length === 1 ? "project" : "projects"}
+            </span>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-2">
+            {group.projects.map((project) => {
+              const primaryLink = project.links[0];
+              const hasMultipleLinks = project.links.length > 1;
+              const isSingleLink = project.links.length === 1 && Boolean(primaryLink);
+              const Wrapper = isSingleLink ? "a" : "div";
+
+              return (
+                <Wrapper
+                  {...(isSingleLink && primaryLink
+                    ? {
+                        href: primaryLink.href,
+                        target: "_blank",
+                        rel: "noopener noreferrer",
+                        "aria-label": `${primaryLink.label}: ${project.title}`,
+                      }
+                    : {})}
+                  class={`surface-card surface-card-hover group relative flex h-full flex-col gap-3 no-underline ${isSingleLink ? "cursor-pointer" : ""}`}
+                >
+                  <article class="contents">
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="min-w-0 space-y-1.5">
+                      {project.period && (
+                        <p class="flex items-center gap-1.5 text-xs font-medium tabular-nums text-gray-500 dark:text-gray-400">
+                          <span class="i-mdi:calendar-range text-sm text-accent-600 dark:text-accent-300" aria-hidden="true"></span>
+                          {project.period}
+                        </p>
+                      )}
+					  <h3 class="entry-title transition-colors group-hover:text-accent-700 dark:group-hover:text-accent-200">
+                        {project.title}
+                      </h3>
+                      {project.subtitle && (
+						<p class="entry-supporting font-semibold text-accent-700 dark:text-accent-200">
+                          {project.subtitle}
+                        </p>
+                      )}
+                    </div>
+
+                    {group.isActive && (
+                      <span class="meta-chip shrink-0 gap-1.5 text-emerald-700 dark:text-emerald-300">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true"></span>
+                        Active
+                      </span>
+                    )}
+                  </div>
+
+				  <p class="entry-summary">
+                    {project.description}
+                  </p>
+
+                  {project.badges.length > 0 && (
+                    <div class="flex flex-wrap items-center gap-2" aria-label="Project attributes">
+                      {project.badges.map((badge) => (
+                        <span class="meta-chip">
+                          <span class="i-mdi:tag-outline text-sm" aria-hidden="true"></span>
+                          {badge}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {project.highlights.length > 0 && (
+                    <ul class="m-0 space-y-2 border-l-2 border-accent-200 pl-4 dark:border-accent-700">
+                      {project.highlights.slice(0, 3).map((highlight) => (
+                        <li class="body-copy flex items-start gap-2 text-gray-600 dark:text-gray-300">
+                          <span class="i-mdi:check-circle-outline mt-0.5 shrink-0 text-accent-600 dark:text-accent-300" aria-hidden="true"></span>
+                          <span>{highlight}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {project.metadata.length > 0 && (
+                    <dl class="grid gap-2 text-xs md:grid-cols-2">
+                      {project.metadata.slice(0, 4).map((item) => (
+                        <div class="border-l border-gray-200 pl-3 dark:border-gray-700">
+                          <dt class="font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            {item.label}
+                          </dt>
+                          <dd class="mt-0.5 text-gray-700 dark:text-gray-200">{item.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+
+                  {project.tech.length > 0 && (
+                    <div class="flex flex-wrap items-center gap-2">
+                      {project.tech.slice(0, 4).map((tag) => (
+                        <span class="meta-chip text-accent-700 dark:text-accent-200">
+                          <span class="i-mdi:code-tags text-sm" aria-hidden="true"></span>
+                          {tag}
+                        </span>
+                      ))}
+                      {project.tech.length > 4 && (
+                        <span class="text-xs font-medium text-gray-500 dark:text-gray-400">
+                          +{project.tech.length - 4} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {(hasMultipleLinks || isSingleLink) && (
+                    <div class="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-gray-200 pt-3 dark:border-gray-700">
+                      {hasMultipleLinks && project.links.map((link) => (
+                        <a
+                          href={link.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="action-link"
+                        >
+                          {link.icon && <span class={link.icon} aria-hidden="true"></span>}
+                          <span>{link.label}</span>
+                          <span class="i-mdi:open-in-new text-sm" aria-hidden="true"></span>
+                        </a>
+                      ))}
+
+                      {isSingleLink && primaryLink && (
+                        <span class="action-link">
+                          <span>{primaryLink.label}</span>
+                          <span class="i-mdi:arrow-right transition-transform group-hover:translate-x-0.5" aria-hidden="true"></span>
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  </article>
+                </Wrapper>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { setupFilterControls } from "../scripts/ui";
+
+  document.addEventListener("astro:page-load", () => {
+    setupFilterControls();
+  });
+</script>

@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>12&nbsp; The Exogeneity Assumption – Linear Regression Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/98-data.html" rel="next">
+<link href="../chapters/11-measurement-error.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-80910fc466353037dd99c735dbab8f1a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-27dab2b312a4aa79ed5b30649f65c133.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+<div id="cw-site-bar" style="position:sticky;top:0;z-index:99999;display:flex;gap:16px;align-items:center;justify-content:space-between;padding:8px 16px;background:#0C234B;color:#fff;font:600 13px/1.3 system-ui,sans-serif;border-bottom:3px solid #AB0520"><a href="/teaching" style="color:#fff;text-decoration:none">&larr; Teaching</a><span style="color:rgba(255,255,255,.75);font-weight:500">POL 682 · Linear Regression Analysis</span><a href="/" style="color:rgba(255,255,255,.75);text-decoration:none">christopher-weber.com</a></div>
+
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/06-interactions.html">Part II: Diagnostics and Extensions</a></li><li class="breadcrumb-item"><a href="../chapters/12-endogenous-regression.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">The Exogeneity Assumption</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Linear Regression Analysis</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/crweber9874/methodology_ground_up/tree/main/readers/weber/linear-regression/" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part I: Foundations</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/01-simple-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Understanding Linear Regression</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/02-BLUE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">The Gauss-Markov Assumptions</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/03-estimation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Estimation in <code>R</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/04-matrix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Multivariate Regression and Linear Algebra</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/05-inference-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Model Fit, Uncertainty, and Inference</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Part II: Diagnostics and Extensions</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/06-interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Interactions and Non-Additivity</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/07-heteroskedasticity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Heteroskedasticity and Weighted Least Squares</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/08-multicollinearity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Multicollinearity</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/09-autocorrelation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Autocorrelation: Time Series and Panel Data</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/10-application-panel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Application: Panel Data and Multilevel Models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/11-measurement-error.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Measurement Error</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/12-endogenous-regression.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">The Exogeneity Assumption</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/98-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data Sources</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/99-index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Index</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">12.1</span> Introduction</a></li>
+  <li><a href="#introducing-the-dag" id="toc-introducing-the-dag" class="nav-link" data-scroll-target="#introducing-the-dag"><span class="header-section-number">12.2</span> Introducing the DAG</a>
+  <ul class="collapse">
+  <li><a href="#exogeneity" id="toc-exogeneity" class="nav-link" data-scroll-target="#exogeneity"><span class="header-section-number">12.2.1</span> Exogeneity</a></li>
+  </ul></li>
+  <li><a href="#reading-a-dag" id="toc-reading-a-dag" class="nav-link" data-scroll-target="#reading-a-dag"><span class="header-section-number">12.3</span> Reading a DAG</a>
+  <ul class="collapse">
+  <li><a href="#paths" id="toc-paths" class="nav-link" data-scroll-target="#paths"><span class="header-section-number">12.3.1</span> Paths</a></li>
+  <li><a href="#three-intersections-pipes-chains-and-colliders" id="toc-three-intersections-pipes-chains-and-colliders" class="nav-link" data-scroll-target="#three-intersections-pipes-chains-and-colliders"><span class="header-section-number">12.3.2</span> Three Intersections: Pipes, Chains and Colliders</a></li>
+  <li><a href="#d-separation-and-the-backdoor-criterion" id="toc-d-separation-and-the-backdoor-criterion" class="nav-link" data-scroll-target="#d-separation-and-the-backdoor-criterion"><span class="header-section-number">12.3.3</span> d-Separation and the Backdoor Criterion</a></li>
+  <li><a href="#a-quick-example" id="toc-a-quick-example" class="nav-link" data-scroll-target="#a-quick-example"><span class="header-section-number">12.3.4</span> A Quick Example</a></li>
+  <li><a href="#three-rules-for-specification" id="toc-three-rules-for-specification" class="nav-link" data-scroll-target="#three-rules-for-specification"><span class="header-section-number">12.3.5</span> Three Rules for Specification</a></li>
+  </ul></li>
+  <li><a href="#endogeneity-in-a-dag" id="toc-endogeneity-in-a-dag" class="nav-link" data-scroll-target="#endogeneity-in-a-dag"><span class="header-section-number">12.4</span> Endogeneity in a DAG</a></li>
+  <li><a href="#instruments-pictorially" id="toc-instruments-pictorially" class="nav-link" data-scroll-target="#instruments-pictorially"><span class="header-section-number">12.5</span> Instruments, Pictorially</a></li>
+  <li><a href="#terminology-more-formally" id="toc-terminology-more-formally" class="nav-link" data-scroll-target="#terminology-more-formally"><span class="header-section-number">12.6</span> Terminology, More Formally</a></li>
+  <li><a href="#systems-of-equations" id="toc-systems-of-equations" class="nav-link" data-scroll-target="#systems-of-equations"><span class="header-section-number">12.7</span> Systems of Equations</a></li>
+  <li><a href="#practical-considerations" id="toc-practical-considerations" class="nav-link" data-scroll-target="#practical-considerations"><span class="header-section-number">12.8</span> Practical Considerations</a></li>
+  <li><a href="#identification-and-inefficiency" id="toc-identification-and-inefficiency" class="nav-link" data-scroll-target="#identification-and-inefficiency"><span class="header-section-number">12.9</span> Identification and Inefficiency</a></li>
+  <li><a href="#testing-for-endogeneity" id="toc-testing-for-endogeneity" class="nav-link" data-scroll-target="#testing-for-endogeneity"><span class="header-section-number">12.10</span> Testing for Endogeneity</a>
+  <ul class="collapse">
+  <li><a href="#recursive-equations" id="toc-recursive-equations" class="nav-link" data-scroll-target="#recursive-equations"><span class="header-section-number">12.10.1</span> Recursive Equations</a></li>
+  </ul></li>
+  <li><a href="#a-worked-example-2sls-in-the-2020-wss" id="toc-a-worked-example-2sls-in-the-2020-wss" class="nav-link" data-scroll-target="#a-worked-example-2sls-in-the-2020-wss"><span class="header-section-number">12.11</span> A Worked Example: 2SLS in the 2020 WSS</a>
+  <ul class="collapse">
+  <li><a href="#the-dag-we-are-assuming" id="toc-the-dag-we-are-assuming" class="nav-link" data-scroll-target="#the-dag-we-are-assuming"><span class="header-section-number">12.11.1</span> The DAG We Are Assuming</a></li>
+  <li><a href="#step-1-naive-ols" id="toc-step-1-naive-ols" class="nav-link" data-scroll-target="#step-1-naive-ols"><span class="header-section-number">12.11.2</span> Step 1: Naive OLS</a></li>
+  <li><a href="#step-2-the-first-stage" id="toc-step-2-the-first-stage" class="nav-link" data-scroll-target="#step-2-the-first-stage"><span class="header-section-number">12.11.3</span> Step 2: The First Stage</a></li>
+  <li><a href="#step-3-2sls-via-ivreg" id="toc-step-3-2sls-via-ivreg" class="nav-link" data-scroll-target="#step-3-2sls-via-ivreg"><span class="header-section-number">12.11.4</span> Step 3: 2SLS via <code>ivreg</code></a></li>
+  <li><a href="#step-4-compare-the-estimates" id="toc-step-4-compare-the-estimates" class="nav-link" data-scroll-target="#step-4-compare-the-estimates"><span class="header-section-number">12.11.5</span> Step 4: Compare the Estimates</a></li>
+  </ul></li>
+  <li><a href="#iv-regression-in-r" id="toc-iv-regression-in-r" class="nav-link" data-scroll-target="#iv-regression-in-r"><span class="header-section-number">12.12</span> IV Regression in R</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/06-interactions.html">Part II: Diagnostics and Extensions</a></li><li class="breadcrumb-item"><a href="../chapters/12-endogenous-regression.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">The Exogeneity Assumption</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">The Exogeneity Assumption</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level2" data-number="12.1">
+<h2 data-number="12.1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">12.1</span> Introduction</h2>
+<p>Recall that an assumption of the linear model is that the errors are uncorrelated with the independent variables. This can be violated in a number of ways.</p>
+<p>The assumption of <strong>exogeneity</strong> is the assumption that the independent variable(s) are determined outside the model; it is uncorrelated with the error term.</p>
+<p>As we’ve seen, several Gaussian assumptions overlap. <strong>Exogeneity</strong> one of the more encompassing ones. For instance, proper model specification is a necessary condition for exogeneity. If we omit a relevant variable that is correlated with both the independent variable and the dependent variable, that omitted variable gets absorbed into the error term, which creates a correlation between the independent variable and the error term. This produces bias. Violations of this assumption can follow from a number of sources:</p>
+<ul>
+<li><strong>Omitted variables.</strong> By omitting relevant variable that is related to both an independent variable <em>and</em> the dependent variable, it gets absorbed into the error term. This creates a non-zero correlation between the right-hand side variable(s) and the errors, which produces bias. Note that this is a problem of <em>omission</em> – if we include the confounder, the bias goes away.</li>
+<li><strong>Measurement error</strong> in an independent variable induces a correlation with the error and leads to attenuation bias (see the previous chapter).</li>
+<li><strong>Simultaneity.</strong> An independent variable may not be truly exogenous and fixed; instead, it may be influenced by the dependent variable itself.</li>
+</ul>
+<p>Each of these is a violation of what we call <em>exogeneity</em>.</p>
+</section>
+<section id="introducing-the-dag" class="level2" data-number="12.2">
+<h2 data-number="12.2" class="anchored" data-anchor-id="introducing-the-dag"><span class="header-section-number">12.2</span> Introducing the DAG</h2>
+<p>A <strong>Directed Acyclic Graph (DAG)</strong> is just a sketch of purportedly causal relationships. Nodes are variables; arrows are causal effects. “Acyclic” means no variable causes itself (even indirectly). DAGs let us see what OLS is doing – and why it sometimes fails – without working through the algebra.</p>
+<section id="exogeneity" class="level3" data-number="12.2.1">
+<h3 data-number="12.2.1" class="anchored" data-anchor-id="exogeneity"><span class="header-section-number">12.2.1</span> Exogeneity</h3>
+<p>An <strong>exogenous</strong> is a variable that is determined outside the model; outside the set of variables in our statistical model. In a DAG, that means it has no arrow pointing <em>into</em> it from anything else in the system. It might have arrows pointing from it, but nothing in our model causes it.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-exogenous" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-exogenous-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="12-endogenous-regression_files/figure-html/fig-exogenous-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-exogenous-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.1: Exogeneity: X is determined outside the model. No arrow points into X from Y or the error ε.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The DAG captures the assumption we need for OLS to be unbiased: <span class="math inline">\(X\)</span> and <span class="math inline">\(\epsilon\)</span> are unconnected. Values of <span class="math inline">\(X\)</span> are <em>predetermined</em> – not caused by anything else in the equation, and crucially not caused by <span class="math inline">\(Y\)</span>.</p>
+</section>
+</section>
+<section id="reading-a-dag" class="level2" data-number="12.3">
+<h2 data-number="12.3" class="anchored" data-anchor-id="reading-a-dag"><span class="header-section-number">12.3</span> Reading a DAG</h2>
+<p>Before we use DAGs to diagnose endogeneity (and related things), we need to develop the vocabulary for reading these diagrams.</p>
+<p>These rules come from Judea Pearl’s work on causal graphs, and the gist is always the same: <strong>for OLS to recover a causal effect, the covariates in our model must block every non-causal path between the treatment and the outcome, without blocking any of the causal paths.</strong></p>
+<section id="paths" class="level3" data-number="12.3.1">
+<h3 data-number="12.3.1" class="anchored" data-anchor-id="paths"><span class="header-section-number">12.3.1</span> Paths</h3>
+<p>A <strong>path</strong> is any sequence of arrows (in either direction) connecting two variables. Some paths are causal, some are not:</p>
+<ul>
+<li>A <strong>causal (directed) path</strong> follows arrows in one direction: <span class="math inline">\(X \to M \to Y\)</span>.</li>
+<li>A <strong>non-causal (backdoor) path</strong> has at least one arrow pointing against the direction you’re reading: <span class="math inline">\(X \leftarrow U \to Y\)</span>.</li>
+</ul>
+<p>Both kinds of paths transmit statistical association. Only the first is what we mean by a “causal effect.” The whole game is separating them.</p>
+</section>
+<section id="three-intersections-pipes-chains-and-colliders" class="level3" data-number="12.3.2">
+<h3 data-number="12.3.2" class="anchored" data-anchor-id="three-intersections-pipes-chains-and-colliders"><span class="header-section-number">12.3.2</span> Three Intersections: Pipes, Chains and Colliders</h3>
+<p>Every path is built from three kinds of relationships:</p>
+<ol type="1">
+<li><strong>Chain (a “pipe”):</strong> <span class="math inline">\(X \to M \to Y\)</span>. Association flows through <span class="math inline">\(M\)</span>. Conditioning on <span class="math inline">\(M\)</span> <em>blocks</em> it.</li>
+<li><strong>Fork (confounder):</strong> <span class="math inline">\(X \leftarrow U \to Y\)</span>. Association flows through <span class="math inline">\(U\)</span>. Conditioning on <span class="math inline">\(U\)</span> <em>blocks</em> it.</li>
+<li><strong>Collider:</strong> <span class="math inline">\(X \to C \leftarrow Y\)</span>. Association does <em>not</em> flow through <span class="math inline">\(C\)</span> in the graph. But conditioning on <span class="math inline">\(C\)</span> <em>opens</em> the path.</li>
+</ol>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-junctions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-junctions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="12-endogenous-regression_files/figure-html/fig-junctions-1.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-junctions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.2: The three building blocks of any DAG. Conditioning closes chains and forks, but it opens colliders.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="d-separation-and-the-backdoor-criterion" class="level3" data-number="12.3.3">
+<h3 data-number="12.3.3" class="anchored" data-anchor-id="d-separation-and-the-backdoor-criterion"><span class="header-section-number">12.3.3</span> d-Separation and the Backdoor Criterion</h3>
+<p>A path is <strong>blocked</strong> by a conditioning variable(s) <span class="math inline">\(\mathbf{Z}\)</span> if <span class="math inline">\(\mathbf{Z}\)</span> is the middle variable in a chain or fork, and <span class="math inline">\(\mathbf{Z}\)</span>is not a collider. A path is also blocked if the descendants are in <span class="math inline">\(\mathbf{Z}\)</span> Two variables are <strong>d-separated</strong> by <span class="math inline">\(\mathbf{Z}\)</span> if <em>every</em> path between them is blocked.</p>
+<p>The <strong>backdoor criterion</strong> translates this into a means for identifying the causal effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span>:</p>
+<blockquote class="blockquote">
+<p>Choose a set <span class="math inline">\(\mathbf{Z}\)</span> of covariates such that (a) <span class="math inline">\(\mathbf{Z}\)</span> blocks every backdoor path from <span class="math inline">\(X\)</span> to <span class="math inline">\(Y\)</span>, and (b) <span class="math inline">\(\mathbf{Z}\)</span> contains no descendants of <span class="math inline">\(X\)</span>.</p>
+</blockquote>
+<p>If such a <span class="math inline">\(\mathbf{Z}\)</span> exists, regressing <span class="math inline">\(Y\)</span> on <span class="math inline">\(X\)</span> and <span class="math inline">\(\mathbf{Z}\)</span> recovers the causal effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span>.</p>
+</section>
+<section id="a-quick-example" class="level3" data-number="12.3.4">
+<h3 data-number="12.3.4" class="anchored" data-anchor-id="a-quick-example"><span class="header-section-number">12.3.4</span> A Quick Example</h3>
+<p>Suppose we want the causal effect of <strong>college</strong> (<span class="math inline">\(X\)</span>) on <strong>voter engagement</strong> (<span class="math inline">\(Y\)</span>). Two other variables may play a role:</p>
+<ul>
+<li><strong>Parental SES</strong> (<span class="math inline">\(U\)</span>): affects both whether you go to college and whether you vote.</li>
+<li><strong>Political knowledge</strong> (<span class="math inline">\(M\)</span>): college increases knowledge, and knowledge increases engagement.</li>
+</ul>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-backdoor-example" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-backdoor-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="12-endogenous-regression_files/figure-html/fig-backdoor-example-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-backdoor-example-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.3: A running example: college (X) causes turnout (Y) both directly and through political knowledge (M). Parental SES (U) is a confounder — it causes both X and Y.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>List the paths from <span class="math inline">\(X\)</span> to <span class="math inline">\(Y\)</span>:</strong></p>
+<ol type="1">
+<li><span class="math inline">\(X \to Y\)</span> — causal (direct).</li>
+<li><span class="math inline">\(X \to M \to Y\)</span> — causal (indirect, through the mediator).</li>
+<li><span class="math inline">\(X \leftarrow U \to Y\)</span> — <strong>backdoor</strong> (non-causal; this is what biases OLS if we ignore <span class="math inline">\(U\)</span>).</li>
+</ol>
+<p><strong>Apply the backdoor criterion.</strong> We want the total effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span>, so we need to <em>block path 3</em> without touching paths 1 or 2.</p>
+<ul>
+<li><strong>Condition on <span class="math inline">\(U\)</span>?</strong> Yes. <span class="math inline">\(U\)</span> is the middle of a fork on path 3; including it as a regressor blocks that backdoor path. And <span class="math inline">\(U\)</span> is not a descendant of <span class="math inline">\(X\)</span>, so it’s allowed.</li>
+<li><strong>Condition on <span class="math inline">\(M\)</span>?</strong> No.&nbsp;<span class="math inline">\(M\)</span> is the middle of a chain on path 2 — the causal indirect effect. Including it would close the mediator and we’d recover only the direct effect, not the total effect.</li>
+</ul>
+<p>So the valid adjustment set is <span class="math inline">\(\mathbf{Z} = \{U\}\)</span>. The OLS regression <code>lm(Y ~ X + U)</code> recovers the total causal effect. <code>lm(Y ~ X + U + M)</code> recovers only the direct effect. <code>lm(Y ~ X)</code> alone is biased by the <span class="math inline">\(X \leftarrow U \to Y\)</span> confounding path.</p>
+<p>We can confirm with <code>dagitty</code> package:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>g_ex <span class="ot">&lt;-</span> dagitty<span class="sc">::</span><span class="fu">dagitty</span>(<span class="st">"dag {</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="st">  U -&gt; X</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="st">  U -&gt; Y</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="st">  X -&gt; M</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="st">  M -&gt; Y</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="st">  X -&gt; Y</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="st">}"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>dagitty<span class="sc">::</span><span class="fu">adjustmentSets</span>(g_ex, <span class="at">exposure =</span> <span class="st">"X"</span>, <span class="at">outcome =</span> <span class="st">"Y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{ U }</code></pre>
+</div>
+</div>
+<p>Now imagine <span class="math inline">\(U\)</span> is <strong>unobserved</strong> — a common situation. The backdoor path <span class="math inline">\(X \leftarrow U \to Y\)</span> cannot be blocked by conditioning, because we don’t have <span class="math inline">\(U\)</span> in our data. No valid adjustment set exists. That is exactly the situation in which instrumental variables enter the picture.</p>
+</section>
+<section id="three-rules-for-specification" class="level3" data-number="12.3.5">
+<h3 data-number="12.3.5" class="anchored" data-anchor-id="three-rules-for-specification"><span class="header-section-number">12.3.5</span> Three Rules for Specification</h3>
+<p>From the backdoor criterion, three operational rules fall out:</p>
+<ol type="1">
+<li><strong>Block every backdoor path.</strong> Control for confounders (forks).</li>
+<li><strong>Do not condition on a collider.</strong> Including one in your regression <em>creates</em> a spurious association between the parents of that collider.</li>
+<li><strong>Do not condition on a post-treatment variable (a mediator) if you want the total effect.</strong> Chains carry part of the causal signal; closing them throws that signal away.</li>
+</ol>
+<p>The <code>dagitty</code> package automates this: given a DAG and a (treatment, outcome) pair, <code>adjustmentSets()</code> returns every valid <span class="math inline">\(\mathbf{Z}\)</span>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> dagitty<span class="sc">::</span><span class="fu">dagitty</span>(<span class="st">"dag {</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="st">  U [unobserved]</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">  Z -&gt; X</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">  X -&gt; Y</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="st">  U -&gt; X</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="st">  U -&gt; Y</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">}"</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>dagitty<span class="sc">::</span><span class="fu">adjustmentSets</span>(g, <span class="at">exposure =</span> <span class="st">"X"</span>, <span class="at">outcome =</span> <span class="st">"Y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>No valid backdoor adjustment exists here because <span class="math inline">\(U\)</span> is unobserved. That is precisely the situation in which we mow turn: endogeneity and <strong>instrumental variables</strong>.</p>
+</section>
+</section>
+<section id="endogeneity-in-a-dag" class="level2" data-number="12.4">
+<h2 data-number="12.4" class="anchored" data-anchor-id="endogeneity-in-a-dag"><span class="header-section-number">12.4</span> Endogeneity in a DAG</h2>
+<p>An <strong>endogenous</strong> variable is determined by factors <em>inside</em> the model. The dependent variable is endogenous by definition. The problem arises when one of our <em>independent</em> variables is endogenous in a way that links it to the error.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-endogeneity-types" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-endogeneity-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="12-endogenous-regression_files/figure-html/fig-endogeneity-types-1.png" class="img-fluid figure-img" width="960">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-endogeneity-types-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.4: Three routes to endogeneity. Left: an omitted confounder U links X and Y through the error. Middle: Y causes X (simultaneity). Right: X is measured with error γ, so the observed X is correlated with the composite error.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In all three cases, a backdoor path connects <span class="math inline">\(X\)</span> to something that sits inside the error term. OLS can’t tell that path apart from the causal effect of <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span>, and the coefficient is biased.</p>
+</section>
+<section id="instruments-pictorially" class="level2" data-number="12.5">
+<h2 data-number="12.5" class="anchored" data-anchor-id="instruments-pictorially"><span class="header-section-number">12.5</span> Instruments, Pictorially</h2>
+<p>An <strong>instrumental variable</strong> <span class="math inline">\(Z\)</span> is an exogenous variable that is specifically useful for recovering the causal effect of an endogenous <span class="math inline">\(X\)</span> on <span class="math inline">\(Y\)</span>. A valid instrument satisfies two properties, both easiest to see in a picture:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-instrument" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-instrument-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="12-endogenous-regression_files/figure-html/fig-instrument-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-instrument-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.5: A valid instrument Z affects X (relevance) but reaches Y only through X (exclusion). The unobserved confounder U biases the X → Y relationship, but Z is unaffected by U.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The two conditions:</p>
+<ol type="1">
+<li><strong>Relevance.</strong> <span class="math inline">\(Z\)</span> has an arrow into <span class="math inline">\(X\)</span>. <span class="math inline">\(Z\)</span> actually moves <span class="math inline">\(X\)</span> around.</li>
+<li><strong>Exclusion.</strong> <span class="math inline">\(Z\)</span> has <em>no</em> direct arrow to <span class="math inline">\(Y\)</span> and <em>no</em> arrow to or from the confounder <span class="math inline">\(U\)</span>. The only path from <span class="math inline">\(Z\)</span> to <span class="math inline">\(Y\)</span> goes through <span class="math inline">\(X\)</span>.</li>
+</ol>
+<p>Two-stage least squares (2SLS) uses <span class="math inline">\(Z\)</span> to isolate the part of <span class="math inline">\(X\)</span> that is driven by the instrument – the “clean” variation – and uses <em>that</em> to estimate the effect on <span class="math inline">\(Y\)</span>.</p>
+</section>
+<section id="terminology-more-formally" class="level2" data-number="12.6">
+<h2 data-number="12.6" class="anchored" data-anchor-id="terminology-more-formally"><span class="header-section-number">12.6</span> Terminology, More Formally</h2>
+<p>An <strong>endogenous</strong> variable is determined inside the model. In the equation</p>
+<p><span class="math display">\[
+y_i = b_0 + b_1 x_i + e_i,
+\]</span></p>
+<p><span class="math inline">\(y\)</span> is endogenous. <strong>Exogeneity</strong> of <span class="math inline">\(x\)</span> asserts that <span class="math inline">\(x\)</span>’s values are predetermined outside the system (and, critically, not caused by <span class="math inline">\(y\)</span>).</p>
+<p>An <strong>instrumental variable</strong> <span class="math inline">\(z\)</span> is exogenous and affects a right-hand side endogenous variable but is excluded from the outcome equation:</p>
+<p><span class="math display">\[
+y_i = b_0 + b_1 x_i + e_{1i}, \qquad x_i = a_0 + a_1 z_i + e_{2i}.
+\]</span></p>
+<p>If we regress <span class="math inline">\(x\)</span> on <span class="math inline">\(z\)</span>, take the fitted values <span class="math inline">\(\hat{x}\)</span>, and plug them into the <span class="math inline">\(y\)</span> equation, we have <strong>two-stage least squares</strong>. Substituting the first stage into the second gives the <strong>reduced-form equation</strong> for <span class="math inline">\(y\)</span> in terms of the exogenous variables only.</p>
+</section>
+<section id="systems-of-equations" class="level2" data-number="12.7">
+<h2 data-number="12.7" class="anchored" data-anchor-id="systems-of-equations"><span class="header-section-number">12.7</span> Systems of Equations</h2>
+<p>So far we have talked about <em>one</em> equation at a time. But endogeneity is almost always a statement about a <strong>system of equations</strong> – once we admit that <span class="math inline">\(Y\)</span> might cause <span class="math inline">\(X\)</span>, or that an unobserved <span class="math inline">\(U\)</span> causes both, we have more than one dependent variable floating around.</p>
+<p>Consider two variables that move together:</p>
+<p><span class="math display">\[
+x_2 = b_{00} + b_{01} x_1 + e_1,
+\]</span></p>
+<p><span class="math display">\[
+x_1 = b_{10} + b_{11} x_2 + e_2.
+\]</span></p>
+<p>Both variables appear on the left-hand side of an equation <em>and</em> on the right-hand side of another. Both are endogenous. Every OLS assumption we have made breaks at once:</p>
+<ul>
+<li><span class="math inline">\(\text{cov}(x_1, e_1) \neq 0\)</span> because <span class="math inline">\(x_1\)</span> feeds back through <span class="math inline">\(x_2\)</span>.</li>
+<li><span class="math inline">\(\text{cov}(x_2, e_2) \neq 0\)</span> for the same reason.</li>
+</ul>
+<p>And without more information, the system is <strong>not identified</strong> – there’s not enough data to separate the two equations. Adding an exogenous variable <em>unique to each equation</em> addresses this, by identifiying the equations it:</p>
+<p><span class="math display">\[
+x_2 = b_{00} + b_{01} x_1 + \gamma_1 z_1 + e_1, \qquad
+x_1 = b_{10} + b_{11} x_2 + \gamma_2 z_2 + e_2.
+\]</span></p>
+<p>Now <span class="math inline">\(z_1\)</span> identifies the <span class="math inline">\(x_2\)</span> equation (it predicts <span class="math inline">\(x_1\)</span> but is excluded from the <span class="math inline">\(x_2\)</span> equation), and <span class="math inline">\(z_2\)</span> identifies the <span class="math inline">\(x_1\)</span> equation symmetrically. This is the general rule: <strong>to identify each equation in a system, we need at least one instrument excluded from that equation but included in the equation that generates the endogenous right-hand side variable.</strong></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Recursive vs.&nbsp;Non-Recursive (Simultaneous) Systems
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Recursive systems</strong> order the variables: <span class="math inline">\(X_1\)</span> causes <span class="math inline">\(X_2\)</span>; <span class="math inline">\(X_2\)</span> causes <span class="math inline">\(X_3\)</span>; but <span class="math inline">\(X_3\)</span> does not feed back. The DAG has no cycles. If in addition the equation-level errors are uncorrelated, a recursive system is <strong>identified by its structure alone</strong> – we can estimate each equation by OLS, one at a time, and get unbiased, consistent estimates.</p>
+<p><strong>Non-recursive (simultaneous) systems</strong> contain feedback: <span class="math inline">\(X_1\)</span> causes <span class="math inline">\(X_2\)</span> <em>and</em> <span class="math inline">\(X_2\)</span> causes <span class="math inline">\(X_1\)</span>. The DAG now includes a cycle. OLS is biased on every equation in the cycle. Identification now requires <strong>excluded instruments</strong>: at least one exogenous variable in each equation that is absent from the other.</p>
+<p>The pictures make the difference vivid:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-rec-vs-nonrec" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rec-vs-nonrec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="12-endogenous-regression_files/figure-html/fig-rec-vs-nonrec-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rec-vs-nonrec-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.6: Recursive (left): variables are ordered, no feedback. Non-recursive (right): X₁ and X₂ feed back into each other — OLS is biased; instruments are required.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Recursive models underwrite <strong>path analysis</strong> and most of what we call “mediation.” Non-recursive models are where 2SLS becomes important (though it too can be used in recursive models with endogeneity).</p>
+</div>
+</div>
+</section>
+<section id="practical-considerations" class="level2" data-number="12.8">
+<h2 data-number="12.8" class="anchored" data-anchor-id="practical-considerations"><span class="header-section-number">12.8</span> Practical Considerations</h2>
+<p><span class="citation" data-cites="bartels1991">Bartels (<a href="#ref-bartels1991" role="doc-biblioref">1991</a>)</span> lays out a number of challenges (some of them unfixable) that come with 2SLS.</p>
+<p><strong>Finding a valid instrument is hard.</strong> We need something that predicts the endogenous regressor but has no direct effect on the outcome and no connection to the unobserved confounder. In practice, candidate instruments usually fail at least one of these checks.</p>
+<p><strong>Weak instruments.</strong> Even when an instrument is valid, it may not be <em>strong</em>: it may explain too little variation in the endogenous regressor. Consider</p>
+<p><span class="math display">\[
+y_1 = b_1 x_1 + b_2 x_2 + b_3 x_3 + e_1,
+\]</span></p>
+<p>with endogenous <span class="math inline">\(x_1\)</span> and the first stage</p>
+<p><span class="math display">\[
+x_1 = a_1 z_1 + a_2 x_2 + a_3 x_3 + e_1.
+\]</span></p>
+<p>If <span class="math inline">\(a_1\)</span> is small, <span class="math inline">\(\hat{x}_1\)</span> is mostly a linear combination of <span class="math inline">\(x_2\)</span> and <span class="math inline">\(x_3\)</span> – exactly the other regressors already in the second stage. That buys us collinearity in place of endogeneity.</p>
+</section>
+<section id="identification-and-inefficiency" class="level2" data-number="12.9">
+<h2 data-number="12.9" class="anchored" data-anchor-id="identification-and-inefficiency"><span class="header-section-number">12.9</span> Identification and Inefficiency</h2>
+<p>Consider an outcome equation with an endogenous <span class="math inline">\(x_2\)</span> and two exogenous controls <span class="math inline">\(z_1, z_2\)</span>:</p>
+<p><span class="math display">\[
+y = \beta_1 x_2 + \gamma_1 z_1 + \gamma_2 z_2 + \epsilon_1.
+\]</span></p>
+<p>Now suppose our first stage for <span class="math inline">\(x_2\)</span> uses only the same exogenous variables:</p>
+<p><span class="math display">\[
+x_2 = \pi_1 z_1 + \pi_2 z_2 + \epsilon_2.
+\]</span></p>
+<p>The fitted <span class="math inline">\(\hat{x}_2 = \hat\pi_1 z_1 + \hat\pi_2 z_2\)</span> is a linear combination of variables already in the outcome equation. Plugging it into the second stage produces a perfectly collinear matrix of regressors, and <span class="math inline">\(X^TX\)</span> is singular.</p>
+<p><span class="math display">\[
+y = \beta_1 \hat{x}_2 + \gamma_1 z_1 + \gamma_2 z_2 + \delta.
+\]</span></p>
+<p><span class="math inline">\(\mathbf{X^T X}\)</span> is singular; no inverse exists. The equation is <strong>not identified</strong>.</p>
+<p>The fix is to bring in an <strong>excluded instrument</strong> – a variable <span class="math inline">\(z_3\)</span> that appears in the first stage but is absent from the outcome equation:</p>
+<p><span class="math display">\[
+x_2 = \pi_1 z_1 + \pi_2 z_2 + \pi_3 z_3 + \epsilon_2.
+\]</span></p>
+<p>Now <span class="math inline">\(\hat{x}_2\)</span> contains a piece (<span class="math inline">\(\hat\pi_3 z_3\)</span>) that is not in the span of the second-stage regressors, and the design matrix has full rank. <strong>Identification requires at least one instrument that appears in the first stage but not the second</strong> – this is known as the <em>order condition</em>.</p>
+<p>A “truly” two-stage approach (run stage 1, save <span class="math inline">\(\hat{x}_2\)</span>, run stage 2 on it) gives unbiased coefficients but wrong standard errors – the second-stage regression doesn’t know that <span class="math inline">\(\hat{x}_2\)</span> is an estimate. Modern 2SLS implementations estimate everything jointly and produce the correct variance</p>
+<p><span class="math display">\[
+\sigma^2 (\hat{W}^T \hat{W})^{-1},
+\]</span></p>
+<p>where the matrix <span class="math inline">\(\hat{W}\)</span> is assembled column by column from two sources, the endogenous and exogenous IVs.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>What’s Inside <span class="math inline">\(\hat{W}\)</span>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="math inline">\(\hat{W}\)</span> is built column by column from two sources:</p>
+<ul>
+<li><span class="math inline">\(\hat{X}\)</span> – the <strong>fitted values</strong> of the endogenous regressors, obtained from the first-stage regression on <em>all</em> of the exogenous variables (the excluded instruments <em>and</em> the included controls). There is one column of <span class="math inline">\(\hat{X}\)</span> for every endogenous variable on the right-hand side of the outcome equation. Concretely, if <span class="math inline">\(x_2\)</span> is endogenous and the first stage is <span class="math inline">\(x_2 = \pi_1 z_1 + \pi_2 z_2 + \pi_3 z_3 + \epsilon_2\)</span>, then the <span class="math inline">\(\hat{x}_2\)</span> column of <span class="math inline">\(\hat{X}\)</span> is <span class="math inline">\(\hat\pi_1 z_1 + \hat\pi_2 z_2 + \hat\pi_3 z_3\)</span>.</li>
+<li><span class="math inline">\(Z\)</span> – the <strong>included exogenous regressors</strong> from the outcome equation itself: the intercept column of ones, the exogenous controls (<span class="math inline">\(z_1, z_2\)</span> in our running example), and any dummies or transformations that are not endogenous. These enter <span class="math inline">\(\hat{W}\)</span> unchanged; they do not need a first-stage projection because they are already uncorrelated with the error.</li>
+</ul>
+</div>
+</div>
+<p>By stacking these, this gives <span class="math inline">\(\hat{W} = [\,\hat{X}\ \ Z\,]\)</span>, an <span class="math inline">\(n \times (k_x + k_z)\)</span> matrix where <span class="math inline">\(k_x\)</span> is the number of endogenous regressors and <span class="math inline">\(k_z\)</span> is the number of included exogenous regressors. The 2SLS coefficient vector is then <span class="math inline">\(\hat{\boldsymbol{\beta}}_{2SLS} = (\hat{W}^T \hat{W})^{-1} \hat{W}^T \mathbf{y}\)</span>, which looks exactly like OLS applied to <span class="math inline">\(\hat{W}\)</span>.</p>
+<p>The subtle but important point: the variance <span class="math inline">\(\sigma^2 (\hat{W}^T \hat{W})^{-1}\)</span> uses <span class="math inline">\(\hat{W}\)</span>, <strong>but</strong> <span class="math inline">\(\sigma^2\)</span> is the variance of the residuals computed using the <em>original</em> <span class="math inline">\(X\)</span> (with the actual endogenous values), not <span class="math inline">\(\hat{X}\)</span>. That is, residuals are <span class="math inline">\(\mathbf{y} - X \hat{\boldsymbol{\beta}}_{2SLS}\)</span>, not <span class="math inline">\(\mathbf{y} - \hat{W} \hat{\boldsymbol{\beta}}_{2SLS}\)</span>. This is exactly the correction that a manual two-step procedure misses and that <code>ivreg()</code> handles automatically.</p>
+</section>
+<section id="testing-for-endogeneity" class="level2" data-number="12.10">
+<h2 data-number="12.10" class="anchored" data-anchor-id="testing-for-endogeneity"><span class="header-section-number">12.10</span> Testing for Endogeneity</h2>
+<p>If we have identified an instrument, we can also test whether endogeneity is actually a problem. The distinction matters. Under exogeneity, OLS is unbiased, consistent, and efficient (smallest variance among linear unbiased estimators). 2SLS is consistent but biased in finite samples, and it is always less efficient than OLS — its standard errors are larger. So if <span class="math inline">\(x\)</span> is actually exogenous, using 2SLS costs us precision for no real benefit; if <span class="math inline">\(x\)</span> is endogenous, we should not use OLS. Here, 2SLS or maybe an alternative estimator is the only choice.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Unbiasedness vs.&nbsp;Consistency
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>These two properties sound similar but aren’t the same thing.</p>
+<ul>
+<li><strong>Unbiasedness</strong> is a statement about a <em>single sample of size <span class="math inline">\(n\)</span></em>: <span class="math inline">\(E[\hat\beta] = \beta\)</span>. On average across all possible samples of that size, the estimator hits the target. OLS under Gauss-Markov is unbiased at every <span class="math inline">\(n\)</span>.</li>
+<li><strong>Consistency</strong> is a statement about what happens as <span class="math inline">\(n \to \infty\)</span>: <span class="math inline">\(\hat\beta \xrightarrow{p} \beta\)</span>. With enough data, the estimator concentrates on the true value. An estimator can be consistent without being unbiased — it just has to have its bias shrink to zero as the sample grows.</li>
+</ul>
+<p><strong>OLS</strong> under the Gauss-Markov assumptions is both unbiased <em>and</em> consistent.</p>
+<p><strong>2SLS</strong> is <strong>consistent but biased in finite samples.</strong> The bias comes from using estimated first-stage coefficients. By just plugging these into the second-stage, this ignores the fact the estimated variable is noisy, i.e, there is randomness. What’s more, this error is correlated with the second-stage error, which creates bias. This goes away as n grows, but in a small sample, it may be non trivial…<strong>consistency and unbiasedness are not the same thing.</strong></p>
+</div>
+</div>
+<p>To test for this, the first stage, save the residuals <span class="math inline">\(\hat{\delta}\)</span>, and include the residuals in the second-stage equation:</p>
+<p><span class="math display">\[
+y = \beta_1 x_1 + \beta_2 \hat{\delta} + \gamma_1 z_1 + \gamma_2 z_2 + \gamma_3 x_3 + \epsilon.
+\]</span></p>
+<p>If <span class="math inline">\(\hat{\beta}_2\)</span> is significantly different from zero, the part of <span class="math inline">\(x_1\)</span> that is <em>not</em> explained by the instruments is correlated with <span class="math inline">\(y\)</span>’s error – i.e., <span class="math inline">\(x_1\)</span> is endogenous.</p>
+<p>The <strong>Hausman test</strong> compares the two coefficient vectors directly:</p>
+<p><span class="math display">\[
+H = (\beta_c - \beta_e)^T (V_c - V_e)^{-1} (\beta_c - \beta_e),
+\]</span></p>
+<p>distributed <span class="math inline">\(\chi^2\)</span> with degrees of freedom equal to the number of compared coefficients. Think of <span class="math inline">\(H\)</span> as a squared distance between the two coefficient vectors, scaled by the difference in their variance matrices.</p>
+<p>A small <span class="math inline">\(H\)</span> means the two estimators are similar, and we should prefer the efficient OLS estimator. A large <span class="math inline">\(H\)</span> says the estimators disagree, and we should use the 2SLS estimator.</p>
+<section id="recursive-equations" class="level3" data-number="12.10.1">
+<h3 data-number="12.10.1" class="anchored" data-anchor-id="recursive-equations"><span class="header-section-number">12.10.1</span> Recursive Equations</h3>
+<p>Consider a four-equation system with four exogenous variables <span class="math inline">\(z_1, z_2, z_3, z_4\)</span>. Each equation includes the <span class="math inline">\(x\)</span>’s determined earlier in the chain, plus some subset of the <span class="math inline">\(z\)</span>’s:</p>
+<p><span class="math display">\[
+x_1 = b_{00} + \omega_{11} z_1 + \omega_{12} z_2 + \omega_{13} z_3 + \omega_{14} z_4 + e_1,
+\]</span></p>
+<p><span class="math display">\[
+x_2 = b_{10} + b_{11} x_1 + \omega_{22} z_2 + \omega_{23} z_3 + \omega_{24} z_4 + e_2,
+\]</span></p>
+<p><span class="math display">\[
+x_3 = b_{20} + b_{21} x_2 + b_{22} x_1 + \omega_{33} z_3 + \omega_{34} z_4 + e_3,
+\]</span></p>
+<p><span class="math display">\[
+x_4 = b_{30} + b_{31} x_3 + b_{32} x_2 + b_{33} x_1 + \omega_{44} z_4 + e_4.
+\]</span></p>
+<p>Two things are going on in the structure of this system:</p>
+<ul>
+<li><strong>The <span class="math inline">\(x\)</span>’s are ordered.</strong> <span class="math inline">\(x_2\)</span> depends on <span class="math inline">\(x_1\)</span>; <span class="math inline">\(x_3\)</span> depends on <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>; <span class="math inline">\(x_4\)</span> depends on all three. No <span class="math inline">\(x_j\)</span> ever depends on a later <span class="math inline">\(x\)</span>. This is what makes the system <em>recursive</em> – the DAG has no cycles.</li>
+<li><strong>The <span class="math inline">\(z\)</span>’s have a staircase pattern of inclusion.</strong> <span class="math inline">\(z_1\)</span> appears only in the <span class="math inline">\(x_1\)</span> equation. <span class="math inline">\(z_2\)</span> appears in the <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> equations but is excluded from <span class="math inline">\(x_3\)</span> and <span class="math inline">\(x_4\)</span>. And so on. Each equation after the first is <em>missing</em> at least one exogenous variable that appears in an earlier equation.</li>
+</ul>
+<p>That exclusion pattern is deliberate. If the errors were correlated across equations (so endogeneity creeps in), the excluded <span class="math inline">\(z\)</span>’s would serve as available instruments: <span class="math inline">\(z_1\)</span> is available to identify the <span class="math inline">\(x_2, x_3, x_4\)</span> equations; <span class="math inline">\(z_2\)</span> is available to identify the <span class="math inline">\(x_3\)</span> and <span class="math inline">\(x_4\)</span> equations; and so on.</p>
+<p><strong>If the errors are uncorrelated across these equations</strong>, this is a classic <strong>recursive model</strong>. It’s identified – why? Each equation’s right-hand side contains only variables determined <em>earlier</em> in the chain (or exogenous <span class="math inline">\(z\)</span>’s), so exogeneity holds equation by equation, and OLS applied to each equation one at a time is consistent. We don’t actually need the excluded instruments for estimation in this case – but they’re still there if we need them.</p>
+<p>If, however, the errors <em>are</em> correlated, this will induce endogeneity and the model will no longer be consistent. Why? An unobserved factor driving, say, <span class="math inline">\(e_2\)</span> and <span class="math inline">\(e_3\)</span> would link <span class="math inline">\(x_2\)</span> (determined inside equation 2) to <span class="math inline">\(e_3\)</span>, violating exogeneity in equation 3.</p>
+<p>We could substitute equations into higher-order equations to show why this is a particularly interesting model. Let’s substitute the <span class="math inline">\(x_1\)</span> equation into the <span class="math inline">\(x_2\)</span> equation. For simplicity, let’s just assume there are two instruments:</p>
+<p><span class="math display">\[
+x_2 = (\omega_2 + b_{11} \omega_1) z_1 + \omega_3 z_2 + (e_2 + b_{11} e_1),
+\]</span></p>
+<p><span class="math display">\[
+x_2 = \omega^{*} z_1 + \omega_3 z_2 + e^{*}_1.
+\]</span></p>
+<p>We’ve actually seen something like this before – go back to your notes on specification bias from POL 682. There are two effects here: the <strong>direct effect</strong> of <span class="math inline">\(z_1 \to x_2\)</span> and the <strong>indirect effect</strong> of <span class="math inline">\(z_1 \to x_1 \to x_2\)</span>. The coefficient associated with the regression of <span class="math inline">\(x_2\)</span> on <span class="math inline">\(z_1\)</span> thus represents the <strong>total effect</strong>, which can be decomposed into these two components. If we have a correctly specified system of equations, this can allow us to detect interesting relationships in a dataset, beyond the traditional “direct effects” in a single-stage OLS equation. Of course, we need to make important assumptions that may or may not be tenable:</p>
+<ol type="1">
+<li>There must be at least one excluded instrument in each equation.</li>
+<li>The errors across equations should be uncorrelated.</li>
+<li>The relationship should be recursive and not simultaneous.</li>
+</ol>
+<p>These can be difficult assumptions to make in practice, but with a theoretically specified system of equations, it is useful to be able to diagnose direct and indirect (or mediated) effects.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-recursive" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-recursive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="12-endogenous-regression_files/figure-html/fig-recursive-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-recursive-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.7: A recursive system. Z₁ has a direct effect on X₂ and an indirect effect through X₁. The total effect is the sum.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="a-worked-example-2sls-in-the-2020-wss" class="level2" data-number="12.11">
+<h2 data-number="12.11" class="anchored" data-anchor-id="a-worked-example-2sls-in-the-2020-wss"><span class="header-section-number">12.11</span> A Worked Example: 2SLS in the 2020 WSS</h2>
+<p>Let’s use the <strong>2020 Western States Survey</strong> data, <code>wss20.rda</code>, to walk through 2SLS mechanically. What makes this example unusually clean is that our instrument is <em>literally randomized</em> – so the exogeneity of the instrument is guaranteed by design rather than argued from theory.</p>
+<p><strong>Research question.</strong> Does endorsing political protest – specifically, support for attending a march or rally – causally affect a respondent’s trust in government? Someone’s willingness to endorse a march is obviously <em>not</em> randomly assigned: people who are already distrustful of government, already politically engaged, or already ideologically extreme are more likely to endorse protest <em>and</em> to report different levels of trust. So <code>attend_march</code> is endogenous.</p>
+<p><strong>The instrument.</strong> In the survey, respondents were randomly assigned to one of two versions of the protest question. The control group saw a standard prompt asking whether they would support attending a march or rally. The treatment group saw the same item with the added phrase “even if it turns violent.” This random assignment, <code>violent_treat</code>, shifts stated support for attending a march (treated respondents endorse protest at lower rates), but the assignment itself is independent of every respondent characteristic – age, party, ideology, prior trust – <em>by randomization</em>.</p>
+<p><strong>Exclusion restriction.</strong> The assumption that makes 2SLS recover a causal effect here is that the wording manipulation affects trust in government <em>only</em> through its effect on stated willingness to attend a march.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"shared/data/wss20.rda"</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Each respondent appears on 5 rows (one per contestation item). Pivot wider so</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># there is exactly one row per respondent, with one column per contestation item</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># (including attend_march).</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> wss20 <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_cols     =</span> <span class="fu">c</span>(caseidID, violent_treat, trustGovernment),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from  =</span> contestation,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> contestation_value</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(trustGovernment),</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                <span class="sc">!</span><span class="fu">is.na</span>(attend_march),</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                <span class="sc">!</span><span class="fu">is.na</span>(violent_treat))</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3600</code></pre>
+</div>
+</div>
+<section id="the-dag-we-are-assuming" class="level3" data-number="12.11.1">
+<h3 data-number="12.11.1" class="anchored" data-anchor-id="the-dag-we-are-assuming"><span class="header-section-number">12.11.1</span> The DAG We Are Assuming</h3>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-wss-dag" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-wss-dag-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="12-endogenous-regression_files/figure-html/fig-wss-dag-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-wss-dag-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12.8: Assumed causal structure. The randomized violent-prompt treatment (Z) shifts endorsement of attending a march (X); march endorsement is posited to affect trust in government (Y); an unobserved U (prior political engagement, ideology, partisanship) confounds the X → Y relationship. Because Z is randomly assigned, there is no arrow into Z from U. The exclusion restriction is the absence of a direct arrow Z → Y.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="step-1-naive-ols" class="level3" data-number="12.11.2">
+<h3 data-number="12.11.2" class="anchored" data-anchor-id="step-1-naive-ols"><span class="header-section-number">12.11.2</span> Step 1: Naive OLS</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ols_fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(trustGovernment <span class="sc">~</span> attend_march, <span class="at">data =</span> d)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ols_fit)<span class="sc">$</span>coefficients</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Estimate Std. Error   t value     Pr(&gt;|t|)
+(Intercept)  2.29093941 0.04148615 55.221794 0.000000e+00
+attend_march 0.06072516 0.01292992  4.696484 2.745637e-06</code></pre>
+</div>
+</div>
+</section>
+<section id="step-2-the-first-stage" class="level3" data-number="12.11.3">
+<h3 data-number="12.11.3" class="anchored" data-anchor-id="step-2-the-first-stage"><span class="header-section-number">12.11.3</span> Step 2: The First Stage</h3>
+<p>Is the instrument relevant? Regress the endogenous regressor on the instrument:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>first_stage <span class="ot">&lt;-</span> <span class="fu">lm</span>(attend_march <span class="sc">~</span> violent_treat, <span class="at">data =</span> d)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(first_stage)<span class="sc">$</span>coefficients</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                Estimate Std. Error   t value     Pr(&gt;|t|)
+(Intercept)    3.1956278 0.03053741 104.64634 0.000000e+00
+violent_treat -0.5348349 0.04299575 -12.43925 8.235045e-35</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>first_stage_F <span class="ot">&lt;-</span> <span class="fu">summary</span>(first_stage)<span class="sc">$</span>fstatistic[<span class="dv">1</span>]</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>first_stage_F</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   value 
+154.7349 </code></pre>
+</div>
+</div>
+</section>
+<section id="step-3-2sls-via-ivreg" class="level3" data-number="12.11.4">
+<h3 data-number="12.11.4" class="anchored" data-anchor-id="step-3-2sls-via-ivreg"><span class="header-section-number">12.11.4</span> Step 3: 2SLS via <code>ivreg</code></h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AER)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>iv_fit <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(trustGovernment <span class="sc">~</span> attend_march <span class="sc">|</span> violent_treat, <span class="at">data =</span> d)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(iv_fit, <span class="at">diagnostics =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>coefficients</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               Estimate Std. Error     t value     Pr(&gt;|t|)
+(Intercept)  2.45646691 0.18757881 13.09565249 2.586825e-38
+attend_march 0.00415068 0.06384515  0.06501168 9.481683e-01
+attr(,"df")
+[1] 3598
+attr(,"nobs")
+[1] 3600</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(iv_fit, <span class="at">diagnostics =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>diagnostics</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 df1  df2   statistic      p-value
+Weak instruments   1 3598 154.7349467 8.235045e-35
+Wu-Hausman         1 3597   0.8232951 3.642793e-01
+Sargan             0   NA          NA           NA</code></pre>
+</div>
+</div>
+<p>The <code>diagnostics</code> block reports three things, in order:</p>
+<ol type="1">
+<li><strong>Weak instruments F-test.</strong> A formal version of the first-stage F above.</li>
+<li><strong>Wu-Hausman test.</strong> If this is not significant, OLS and 2SLS agree – you should prefer the efficient OLS estimate. If it <em>is</em> significant, 2SLS is telling you something OLS was missing, and you should prefer 2SLS.</li>
+<li><strong>Sargan test.</strong> Overidentification test; only meaningful when you have more instruments than endogenous regressors. With one instrument and one endogenous regressor the system is <em>exactly identified</em> and this test cannot be computed.</li>
+</ol>
+</section>
+<section id="step-4-compare-the-estimates" class="level3" data-number="12.11.5">
+<h3 data-number="12.11.5" class="anchored" data-anchor-id="step-4-compare-the-estimates"><span class="header-section-number">12.11.5</span> Step 4: Compare the Estimates</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimator =</span> <span class="fu">c</span>(<span class="st">"OLS"</span>, <span class="st">"2SLS (IV = violent_treat)"</span>),</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate  =</span> <span class="fu">c</span>(<span class="fu">coef</span>(ols_fit)[<span class="st">"attend_march"</span>],</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">coef</span>(iv_fit)[<span class="st">"attend_march"</span>]),</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">se        =</span> <span class="fu">c</span>(<span class="fu">summary</span>(ols_fit)<span class="sc">$</span>coefficients[<span class="st">"attend_march"</span>, <span class="st">"Std. Error"</span>],</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>                <span class="fu">summary</span>(iv_fit)<span class="sc">$</span>coefficients[<span class="st">"attend_march"</span>, <span class="st">"Std. Error"</span>])</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  estimator   estimate         se
+1                       OLS 0.06072516 0.01292992
+2 2SLS (IV = violent_treat) 0.00415068 0.06384515</code></pre>
+</div>
+</div>
+<p>Three features almost always show up in an IV table:</p>
+<ul>
+<li><strong>The 2SLS coefficient differs from the OLS coefficient</strong>, sometimes dramatically. If OLS were unbiased, we would expect them to agree in large samples.</li>
+<li><strong>The 2SLS standard error is larger than the OLS standard error.</strong> IV throws away information (the endogenous variation in <span class="math inline">\(X\)</span>), and we pay for that in efficiency.</li>
+<li><strong>A weak instrument makes everything worse.</strong> The 2SLS estimate is noisy <em>and</em> can still be biased in finite samples when the first-stage F is small.</li>
+</ul>
+</section>
+</section>
+<section id="iv-regression-in-r" class="level2" data-number="12.12">
+<h2 data-number="12.12" class="anchored" data-anchor-id="iv-regression-in-r"><span class="header-section-number">12.12</span> IV Regression in R</h2>
+<p>Instrumental variables regression is straightforward in <code>R</code>. The difficulty is almost always the research design – <em>is</em> there a valid instrument? – not the estimation. The <code>ivreg()</code> function in the <code>AER</code> package is the standard tool:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(AER)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">ivreg</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">|</span> z1 <span class="sc">+</span> x2, <span class="at">data =</span> df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Variables after <code>|</code> are the <em>full</em> set of exogenous regressors, including the instruments. <code>AER</code> also provides diagnostics: a Hausman test for endogeneity, a weak-instrument F-test, and a Sargan test for overidentifying restrictions (when you have more instruments than endogenous regressors).</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-bartels1991" class="csl-entry" role="listitem">
+Bartels, Larry M. 1991. <span>“Instrumental and <span>‘Quasi-Instrumental’</span> Variables.”</span> <em>American Journal of Political Science</em> 35 (3): 777–800.
+</div>
+</div>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/crweber9874\.github\.io\/methodology_ground_up\/readers\/weber\/linear-regression\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/11-measurement-error.html" class="pagination-link" aria-label="Measurement Error">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Measurement Error</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/98-data.html" class="pagination-link" aria-label="Data Sources">
+        <span class="nav-page-text">Data Sources</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

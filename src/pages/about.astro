@@ -1,225 +1,283 @@
 ---
-import Base from "@/layouts/Base.astro";
-import { site } from "@/data/site";
-import {
-  education,
-  employment,
-  honors,
-  service,
-  skills,
-  media,
-  workingPapers,
-} from "@/data/cv";
+import Layout from "../layouts/Layout.astro";
+import PageJumpNav from "../components/PageJumpNav.astro";
+import aboutRaw from "../data/about.yml?raw";
+import { aboutDataSchema } from "../lib/about";
+import { createUniqueSectionId } from "../lib/section-id";
+import siteConfig from "../side.config";
+import { parse } from "yaml";
+
+const aboutData = aboutDataSchema.parse(parse(aboutRaw) ?? {});
+const {
+  hero = {},
+  profile = [],
+  experience = [],
+  service = [],
+  education = [],
+  sections = [],
+} = aboutData;
+
+const pageTitle = siteConfig.pageTitles.about.title || hero.title || "About";
+const pageDescription = siteConfig.pageTitles.about.description || hero.description || "";
+
+const fixedSectionIds = new Set(["profile", "education", "experience", "service"]);
+const usedSectionIds = new Set(fixedSectionIds);
+
+const customSections = sections.map((section, index) => ({
+  ...section,
+  id: createUniqueSectionId(section.title, usedSectionIds, `section-${index + 1}`),
+  label: section.title?.trim() || `Section ${index + 1}`,
+}));
+
+const aboutNavItems = [
+  ...(profile.length > 0 ? [{ href: "#profile", label: "Profile" }] : []),
+  ...(education.length > 0 ? [{ href: "#education", label: "Education" }] : []),
+  ...(experience.length > 0 ? [{ href: "#experience", label: "Experience" }] : []),
+  ...(service.length > 0 ? [{ href: "#service", label: "Service" }] : []),
+  ...customSections.map((section) => ({
+    href: `#${section.id}`,
+    label: section.label,
+  })),
+];
 ---
 
-<Base title="About">
-  <!-- Intro -->
-  <section class="bg-ink px-6 pb-20 pt-40 md:px-10">
-    <div class="mx-auto grid max-w-5xl gap-10 md:grid-cols-[1fr_240px] md:items-start">
-      <div>
-      <p class="font-mono text-xs uppercase tracking-[0.3em] text-terra" data-reveal>
-        About
-      </p>
-      <h1
-        class="mt-4 font-display text-4xl font-light leading-tight tracking-tight text-paper sm:text-5xl"
-        data-reveal
-      >
-        Christopher Weber
-      </h1>
-      <p class="mt-3 text-sm text-paper/50" data-reveal>
-        Professor of Political Science · University of Arizona · Ph.D., Stony
-        Brook · Director, The Arizona Voter Project
-      </p>
-      <div class="mt-8 space-y-5 text-lg leading-relaxed text-paper/75" data-reveal>
-        <p>
-          I am a Professor in the School of Government and Public Policy at the
-          University of Arizona, where I direct <a
-            href={site.voterProject}
-            target="_blank"
-            rel="noopener"
-            class="link-underline text-terra">The Arizona Voter Project</a
-          >. I received my Ph.D. in political science from Stony Brook University
-          in 2008.
-        </p>
-        <p>
-          My research sits at the intersection of political psychology and
-          political behavior, with a focus on American political campaigns,
-          ideology, and authoritarianism. I also work extensively in political
-          methodology — experimental design, measurement, and, increasingly, the
-          data science of large voter files. My work has appeared in the
-          <em>American Journal of Political Science</em>, the
-          <em>Journal of Politics</em>, <em>Political Behavior</em>,
-          <em>Political Psychology</em>, and elsewhere.
-        </p>
-      </div>
-      </div>
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  schemaType="AboutPage"
+>
+  <div class="page-stack">
+    <header class="page-header">
+      <p class="page-kicker">Academic profile</p>
+      <h1 class="page-title">{pageTitle}</h1>
+      <p class="page-description">{pageDescription}</p>
+    </header>
 
-      <!-- Portrait: drop a headshot at /public/images/weber.jpg -->
-      <div
-        class="relative mx-auto aspect-[4/5] w-48 shrink-0 overflow-hidden rounded-xl border border-white/10 md:w-full"
-        data-reveal
-      >
-        <div
-          class="absolute inset-0 bg-gradient-to-br from-ink-700 to-ink"
-          aria-hidden="true"
-        >
-        </div>
-        <img
-          src="/images/weber.jpg"
-          alt="Christopher Weber"
-          loading="lazy"
-          class="absolute inset-0 h-full w-full object-cover"
-          onerror="this.style.display='none'"
-        />
-      </div>
-    </div>
-  </section>
+    <PageJumpNav items={aboutNavItems} />
 
-  <!-- Education + Employment -->
-  <section class="bg-paper px-6 py-20 text-ink md:px-10">
-    <div class="mx-auto grid max-w-5xl gap-16 md:grid-cols-2">
-      <div data-reveal>
-        <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-terra">
-          Education
-        </h2>
-        <div class="mt-6 space-y-6">
-          {
-            education.map((e) => (
-              <div>
-                <p class="font-display text-xl">{e.school}</p>
-                {e.items.map((it) => (
-                  <p class="mt-1 text-sm text-ink/60">{it}</p>
-                ))}
-              </div>
-            ))
-          }
-        </div>
-      </div>
-      <div data-reveal>
-        <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-terra">
-          Appointments
-        </h2>
-        <div class="mt-6 space-y-5">
-          {
-            employment.map((e) => (
-              <div class="flex gap-4">
-                <span class="w-24 shrink-0 font-mono text-sm text-ink/50">
-                  {e.years}
-                </span>
-                <div>
-                  <p class="font-medium">{e.role}</p>
-                  <p class="text-sm text-ink/60">{e.org}</p>
+    <div class="space-y-7 sm:space-y-8">
+      <!-- Profile Section -->
+      {
+        profile.length > 0 && (
+          <section id="profile" class="content-section scroll-mt-20 space-y-4">
+            <header class="border-b border-gray-200 pb-3 dark:border-gray-700">
+              <p class="section-kicker">At a glance</p>
+              <h2 class="section-heading">Profile</h2>
+            </header>
+            <div class="grid gap-3 md:grid-cols-3">
+              {profile.map((item) => (
+                <div class="surface-card">
+                  <p class="section-kicker">{item.label}</p>
+                  <p class="entry-title mt-2 text-[1.125rem]">
+                    {item.value}
+                  </p>
                 </div>
-              </div>
-            ))
-          }
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Honors + Service -->
-  <section class="bg-ink px-6 py-20 md:px-10">
-    <div class="mx-auto grid max-w-5xl gap-16 md:grid-cols-2">
-      <div data-reveal>
-        <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-terra">
-          Honors, Awards & Grants
-        </h2>
-        <ul class="mt-6 space-y-4">
-          {
-            honors.map((h) => (
-              <li class="border-l-2 border-terra/40 pl-4 text-sm leading-relaxed text-paper/75">
-                {h}
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-      <div data-reveal>
-        <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-terra">
-          Selected Service
-        </h2>
-        <div class="mt-6 space-y-4">
-          {
-            service.map((s) => (
-              <div class="flex gap-4">
-                <span class="w-24 shrink-0 font-mono text-sm text-paper/50">
-                  {s.years}
-                </span>
-                <p class="text-sm text-paper/80">{s.role}</p>
-              </div>
-            ))
-          }
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Skills -->
-  <section class="bg-paper px-6 py-20 text-ink md:px-10">
-    <div class="mx-auto max-w-5xl">
-      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-terra" data-reveal>
-        Technology & Skills
-      </h2>
-      <div class="mt-8 grid gap-px overflow-hidden rounded-2xl bg-ink/10 sm:grid-cols-2 lg:grid-cols-3" data-reveal>
-        {
-          skills.map((s) => (
-            <div class="bg-paper p-6">
-              <p class="font-display text-lg">{s.label}</p>
-              <p class="mt-1 text-sm text-ink/60">{s.detail}</p>
+              ))}
             </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
+          </section>
+        )
+      }
 
-  <!-- Working papers -->
-  <section class="bg-ink px-6 py-20 md:px-10">
-    <div class="mx-auto max-w-5xl">
-      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-terra" data-reveal>
-        Works in Progress
-      </h2>
-      <ul class="mt-6 space-y-4" data-reveal>
-        {
-          workingPapers.map((w) => (
-            <li class="flex gap-4 text-paper/80">
-              <span class="text-terra">—</span>
-              <span class="text-base leading-relaxed">{w}</span>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
-  </section>
-
-  <!-- Media -->
-  <section class="bg-paper px-6 py-20 text-ink md:px-10">
-    <div class="mx-auto max-w-5xl">
-      <h2 class="font-mono text-xs uppercase tracking-[0.3em] text-terra" data-reveal>
-        Recent Media
-      </h2>
-      <div class="mt-8 divide-y divide-ink/10" data-reveal>
-        {
-          media.map((m) => (
-            <div class="flex flex-col gap-1 py-4 sm:flex-row sm:items-baseline sm:gap-6">
-              <span class="w-64 shrink-0 font-display text-lg">{m.outlet}</span>
-              {m.href ? (
-                <a
-                  href={m.href}
-                  target="_blank"
-                  rel="noopener"
-                  class="link-underline text-sm text-ink/70"
-                >
-                  {m.note}
-                </a>
-              ) : (
-                <span class="text-sm text-ink/70">{m.note}</span>
-              )}
+      <!-- Education Section -->
+      {
+        education.length > 0 && (
+          <section id="education" class="content-section scroll-mt-20 space-y-4">
+            <header class="border-b border-gray-200 pb-3 dark:border-gray-700">
+              <p class="section-kicker">Formal training</p>
+              <h2 class="section-heading">Education</h2>
+            </header>
+            <div class="divide-y divide-gray-200 border-y border-gray-200 dark:divide-gray-700 dark:border-gray-700">
+              {education.map((edu) => (
+                <article class="grid gap-2 py-4 md:grid-cols-[9rem_minmax(0,1fr)] md:gap-6">
+				  <p class="entry-index">
+                    {edu.year}
+                  </p>
+                  <div class="space-y-1">
+					<h3 class="entry-title">
+                      {edu.degree}
+                    </h3>
+					<p class="entry-supporting">
+                      {edu.institution}
+                    </p>
+                  </div>
+                </article>
+              ))}
             </div>
-          ))
-        }
-      </div>
+          </section>
+        )
+      }
+
+      <!-- Experience Section -->
+      {
+        experience.length > 0 && (
+          <section id="experience" class="content-section scroll-mt-20 space-y-4">
+            <header class="border-b border-gray-200 pb-3 dark:border-gray-700">
+              <p class="section-kicker">Appointments</p>
+              <h2 class="section-heading">Experience</h2>
+            </header>
+            <div class="divide-y divide-gray-200 border-y border-gray-200 dark:divide-gray-700 dark:border-gray-700">
+              {experience.map((exp) => (
+                <article class="grid gap-3 py-5 md:grid-cols-[9rem_minmax(0,1fr)] md:gap-6">
+				  <p class="entry-index">
+                    {exp.period}
+                  </p>
+                  <div class="space-y-3">
+                    <div class="space-y-1">
+					  <h3 class="entry-title">
+                        {exp.role}
+                      </h3>
+					  <p class="entry-supporting font-semibold">
+                        {exp.organization}
+                      </p>
+                    </div>
+
+                    <ul class="list-disc space-y-2 pl-5 marker:text-accent-500 dark:marker:text-accent-400">
+                      {(exp.bullets || []).map((bullet) => (
+                        <li class="body-copy pl-1">
+                          {bullet}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      <!-- Service Section -->
+      {
+        service.length > 0 && (
+          <section id="service" class="content-section scroll-mt-20 space-y-4">
+            <header class="border-b border-gray-200 pb-3 dark:border-gray-700">
+              <p class="section-kicker">Community contributions</p>
+              <h2 class="section-heading">Academic Service</h2>
+            </header>
+            <div class="grid gap-3 md:grid-cols-2">
+              {service.map((item) => {
+                if (typeof item === "string") {
+                  return (
+                    <article class="surface-card h-full">
+                      <p class="section-kicker">Service</p>
+                      <p class="body-copy mt-2">{item}</p>
+                    </article>
+                  );
+                }
+                return (
+                  <article class="surface-card h-full space-y-2">
+                    <p class="section-kicker">{item.period}</p>
+                    <div class="space-y-1">
+                      <h3 class="font-heading text-lg font-semibold text-gray-950 dark:text-gray-50">
+                        {item.role}
+                      </h3>
+                      <p class="body-copy">
+                        {item.organization}
+                      </p>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        )
+      }
+
+      <!-- Custom Sections (Awards, etc.) -->
+      {
+        customSections.map((section) => (
+          <section id={section.id} class="content-section scroll-mt-20 space-y-4">
+            <header class="border-b border-gray-200 pb-3 dark:border-gray-700">
+              <p class="section-kicker">Additional record</p>
+              <h2 class="section-heading flex items-center gap-2">
+                {section.icon && (
+                  <span class={`${section.icon} text-accent-600 dark:text-accent-300`} aria-hidden="true"></span>
+                )}
+                <span>{section.title}</span>
+              </h2>
+            </header>
+            <div class="space-y-3">
+              {(section.items || []).map((item) => {
+                if (typeof item === "string") {
+                  return (
+                    <article class="surface-card">
+                      <p class="body-copy">{item}</p>
+                    </article>
+                  );
+                }
+                return (
+                  <article class="surface-card-hover group grid gap-4 md:grid-cols-[minmax(0,1fr)_auto]">
+                    <div class="min-w-0 space-y-3">
+                      <div class="space-y-1">
+                        {item.title && (
+                          <h3 class="entry-title">
+                            {item.link ? (
+                              <a
+                                href={item.link}
+                                target="_blank"
+                                rel="noreferrer"
+                                class="inline text-inherit no-underline transition-colors hover:text-accent-700 focus-visible:text-accent-700 dark:hover:text-accent-300 dark:focus-visible:text-accent-300"
+                              >
+                                <span>{item.title}</span>
+                                <span class="i-mdi:open-in-new ml-1 inline-block align-[0.05em] text-xs" aria-hidden="true"></span>
+                              </a>
+                            ) : item.title}
+                          </h3>
+                        )}
+                        {item.subtitle && (
+                          <p class="entry-meta font-semibold text-accent-700 dark:text-accent-300">{item.subtitle}</p>
+                        )}
+                        {item.description && (
+                          <p class="entry-summary">{item.description}</p>
+                        )}
+                      </div>
+
+                      {item.badges && item.badges.length > 0 && (
+                          <div class="flex flex-wrap gap-2">
+                            {item.badges.map((badge) => (
+                              <span class="meta-chip">{badge}</span>
+                            ))}
+                          </div>
+                      )}
+                      {item.highlights && item.highlights.length > 0 && (
+                          <ul class="space-y-2 border-l-2 border-accent-200 pl-4 dark:border-accent-800">
+                            {item.highlights.map((highlight) => (
+                              <li class="body-copy">
+                                {highlight}
+                              </li>
+                            ))}
+                          </ul>
+                      )}
+                      {item.links && item.links.length > 0 && (
+                          <div class="flex flex-wrap gap-2">
+                            {item.links.map((link) => (
+                              link.href && (
+                                <a
+                                  href={link.href}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  class="action-link min-h-11"
+                                >
+                                  <span class={link.icon ?? "i-mdi:open-in-new"} aria-hidden="true"></span>
+                                  {link.label ?? "Read more"}
+                                </a>
+                              )
+                            ))}
+                          </div>
+                      )}
+                    </div>
+                    {item.date && (
+                      <p class="entry-meta tabular-nums">
+                        {item.date}
+                      </p>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+        ))
+      }
     </div>
-  </section>
-</Base>
+  </div>
+</Layout>

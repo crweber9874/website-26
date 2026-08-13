@@ -11,7 +11,7 @@ export interface Course {
   subtitle: string;
   description: string;
   topics: string[];
-  /** Same-origin path under this site (e.g. /pedagogy/pol682/). */
+  /** Same-origin path under this site (e.g. /teaching/pol682/). */
   url?: string;
   repo?: string;
   embed: boolean;
@@ -28,7 +28,7 @@ export const courses: Course[] = [
     description:
       "A course reader for the first graduate regression sequence: the linear model from the ground up — OLS, the Gauss–Markov assumptions, inference, diagnostics, and reproducible workflows in R. It accompanies the textbooks below; many concepts and formulas are drawn from those sources.",
     topics: ["OLS", "Inference", "Diagnostics", "Reproducibility", "R / tidyverse"],
-    url: "/pedagogy/pol682/",
+    url: "/teaching/pol682/",
     embed: true,
     coreTexts: [
       {
@@ -66,7 +66,7 @@ export const courses: Course[] = [
       "Simulation",
       "Hierarchical models",
     ],
-    url: "/pedagogy/pol683/",
+    url: "/teaching/pol683/",
     embed: true,
     coreTexts: [
       {

@@ -1,265 +1,236 @@
 ---
-import Base from "@/layouts/Base.astro";
-import { site } from "@/data/site";
-import {
-  education,
-  employment,
-  honors,
-  service,
-  skills,
-  media,
-  workingPapers,
-} from "@/data/cv";
-import { allPublications, doiUrl, type Publication } from "@/data/publications";
+import Layout from "../layouts/Layout.astro";
+import aboutRaw from "../data/about.yml?raw";
+import siteConfig from "../side.config";
+import { parse } from "yaml";
+import { getAllPapers } from "../lib/papers";
 
-const books = allPublications.filter((p) => p.type === "book");
-const articles = allPublications.filter((p) => p.type === "article");
-const chapters = allPublications.filter((p) => p.type === "chapter");
-const references = allPublications.filter((p) => p.type === "reference");
+const about = parse(aboutRaw) ?? {};
+const experience = about.experience ?? [];
+const education = about.education ?? [];
+const service = about.service ?? [];
+const sections = about.sections ?? [];
 
-const pubGroups: { label: string; items: Publication[] }[] = [
-  { label: "Books", items: books },
-  { label: "Journal Articles", items: articles },
-  { label: "Book Chapters", items: chapters },
-  { label: "Encyclopedia & Reference", items: references },
-].filter((g) => g.items.length > 0);
+const papers = getAllPapers();
+const published = papers.filter((paper) => paper.category === "Publication");
+const inProgress = papers.filter(
+  (paper) => paper.category === "Work in Progress" || paper.category === "Working Paper",
+);
+
+const pageTitle = "Curriculum Vitae";
+const pageDescription =
+  "Appointments, education, service, honors, and the full publication record.";
+
+const formatAuthors = (authors: string[]) => authors.join(", ");
 ---
 
-<Base title="Curriculum Vitae">
-  <article class="cv bg-paper px-6 pb-24 pt-32 text-ink md:px-10">
-    <div class="mx-auto max-w-3xl">
-      <!-- Masthead -->
-      <header class="cv-head border-b border-ink/15 pb-8">
-        <h1 class="font-display text-4xl font-light tracking-tight sm:text-5xl">
-          Christopher Weber
-        </h1>
-        <p class="mt-2 text-sm text-ink/70">
-          Professor of Political Science · University of Arizona · Ph.D., Stony
-          Brook · Director, The Arizona Voter Project
-        </p>
-        <div
-          class="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-xs text-ink/60"
+<Layout title={pageTitle} description={pageDescription} schemaType="CollectionPage">
+  <div class="page-stack">
+    <header class="page-header">
+      <p class="page-kicker">{siteConfig.author}</p>
+      <h1 class="page-title">{pageTitle}</h1>
+      <p class="page-description">{pageDescription}</p>
+      <div class="flex flex-wrap gap-2 pt-2">
+        <button
+          type="button"
+          id="cv-print"
+          class="action-link glass-control px-3.5 min-h-11"
         >
-          <span>{site.email}</span>
-          <span>{site.office}</span>
-          <a href={site.voterProject} class="link-underline"
-            >voterproject.arizona.edu</a
-          >
-          <a href={site.github} class="link-underline">github.com/crweber9874</a>
-        </div>
+          <span class="i-mdi:printer" aria-hidden="true"></span>
+          Print / save as PDF
+        </button>
+        <a href="/researches" class="action-link glass-control px-3.5 min-h-11">
+          <span class="i-mdi:file-document-outline" aria-hidden="true"></span>
+          Publications with abstracts
+        </a>
+      </div>
+    </header>
 
-        <div id="download" class="cv-actions mt-6 flex flex-wrap gap-3">
-          <button
-            id="cv-print"
-            type="button"
-            class="rounded-full bg-ink px-6 py-2.5 text-sm font-semibold text-paper transition-transform hover:-translate-y-0.5"
-          >
-            Download PDF
-          </button>
-          <a
-            href="/research"
-            class="rounded-full border border-ink/25 px-6 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-ink/60"
-            >Selected publications</a
-          >
-        </div>
-      </header>
+    <section class="content-section space-y-4">
+      <h2 class="section-heading border-b border-gray-200 pb-3 dark:border-gray-700">
+        Appointments
+      </h2>
+      <ul class="space-y-3">
+        {
+          experience.map((entry: any) => (
+            <li class="cv-row">
+              <span class="cv-period">{entry.period}</span>
+              <span>
+                <span class="font-semibold">{entry.role}</span>
+                <span class="text-gray-600 dark:text-gray-300"> — {entry.organization}</span>
+                {entry.bullets && (
+                  <ul class="mt-1 space-y-1">
+                    {entry.bullets.map((bullet: string) => (
+                      <li class="body-copy">{bullet}</li>
+                    ))}
+                  </ul>
+                )}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
 
-      <!-- Appointments -->
-      <section class="cv-section">
-        <h2 class="cv-h2">Appointments</h2>
-        <ul class="mt-4 space-y-3">
-          {
-            employment.map((e) => (
-              <li class="cv-row">
-                <span class="cv-years">{e.years}</span>
-                <span>
-                  <span class="font-medium">{e.role}</span>
-                  <span class="text-ink/60"> — {e.org}</span>
-                </span>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+    <section class="content-section space-y-4">
+      <h2 class="section-heading border-b border-gray-200 pb-3 dark:border-gray-700">
+        Education
+      </h2>
+      <ul class="space-y-3">
+        {
+          education.map((entry: any) => (
+            <li class="cv-row">
+              <span class="cv-period">{entry.year}</span>
+              <span>
+                <span class="font-semibold">{entry.degree}</span>
+                <span class="text-gray-600 dark:text-gray-300"> — {entry.institution}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
 
-      <!-- Education -->
-      <section class="cv-section">
-        <h2 class="cv-h2">Education</h2>
-        <ul class="mt-4 space-y-3">
-          {
-            education.map((e) => (
-              <li>
-                <p class="font-medium">{e.school}</p>
-                {e.items.map((it) => (
-                  <p class="text-sm text-ink/60">{it}</p>
-                ))}
-              </li>
-            ))
-          }
-        </ul>
-      </section>
-
-      <!-- Publications -->
-      {
-        pubGroups.map((group) => (
-          <section class="cv-section">
-            <h2 class="cv-h2">{group.label}</h2>
-            <ol class="mt-4 space-y-4">
-              {group.items.map((p) => (
-                <li class="text-sm leading-relaxed">
-                  <span class="text-ink/70">{p.authors}</span> ({p.year}).{" "}
-                  <span class="italic">{p.title}.</span>{" "}
-                  <span class="text-ink/70">{p.venue}.</span>
-                  {p.doi && (
-                    <a
-                      href={doiUrl(p.doi)}
-                      class="link-underline ml-1 font-mono text-xs text-ink/60"
-                    >
-                      doi.org/{p.doi}
-                    </a>
-                  )}
-                  {p.amazon && (
-                    <a
-                      href={p.amazon}
-                      class="link-underline ml-1 font-mono text-xs text-ink/60"
-                    >
-                      amazon
-                    </a>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </section>
-        ))
-      }
-
-      <!-- Manuscripts in progress -->
-      <section class="cv-section">
-        <h2 class="cv-h2">Manuscripts in Progress</h2>
-        <ul class="mt-4 space-y-3 text-sm leading-relaxed">
-          {workingPapers.map((w) => <li>{w}</li>)}
-        </ul>
-      </section>
-
-      <!-- Honors & Awards -->
-      <section class="cv-section">
-        <h2 class="cv-h2">Honors, Awards & Grants</h2>
-        <ul class="mt-4 space-y-2 text-sm leading-relaxed">
-          {honors.map((h) => <li>{h}</li>)}
-        </ul>
-      </section>
-
-      <!-- Service -->
-      <section class="cv-section">
-        <h2 class="cv-h2">Professional Service</h2>
-        <ul class="mt-4 space-y-3">
-          {
-            service.map((s) => (
-              <li class="cv-row">
-                <span class="cv-years">{s.years}</span>
-                <span>{s.role}</span>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
-
-      <!-- Technical skills -->
-      <section class="cv-section">
-        <h2 class="cv-h2">Technical Skills</h2>
-        <ul class="mt-4 space-y-2 text-sm leading-relaxed">
-          {
-            skills.map((s) => (
-              <li>
-                <span class="font-medium">{s.label}:</span>{" "}
-                <span class="text-ink/70">{s.detail}</span>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
-
-      <!-- Media -->
-      <section class="cv-section">
-        <h2 class="cv-h2">Selected Media</h2>
-        <ul class="mt-4 space-y-2 text-sm leading-relaxed">
-          {
-            media.map((m) => (
-              <li>
-                <span class="font-medium">{m.outlet}</span>
-                <span class="text-ink/60"> — {m.note}</span>
-                {m.href && (
-                  <a href={m.href} class="link-underline ml-1 font-mono text-xs text-ink/60">
+    <section class="content-section space-y-4">
+      <h2 class="section-heading border-b border-gray-200 pb-3 dark:border-gray-700">
+        Publications
+      </h2>
+      <ol class="space-y-3">
+        {
+          published.map((paper) => (
+            <li class="cv-row">
+              <span class="cv-period">{paper.year}</span>
+              <span class="body-copy">
+                {formatAuthors(paper.authors)}. <em>{paper.title}.</em>
+                {paper.venue && <span class="text-gray-600 dark:text-gray-300"> {paper.venue}.</span>}
+                {paper.url && (
+                  <a href={paper.url} class="ml-1 font-mono text-xs underline" rel="noreferrer">
                     link
                   </a>
                 )}
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    {
+      inProgress.length > 0 && (
+        <section class="content-section space-y-4">
+          <h2 class="section-heading border-b border-gray-200 pb-3 dark:border-gray-700">
+            Manuscripts in progress
+          </h2>
+          <ul class="space-y-3">
+            {inProgress.map((paper) => (
+              <li class="cv-row">
+                <span class="cv-period">{paper.year}</span>
+                <span class="body-copy">
+                  {formatAuthors(paper.authors)}. <em>{paper.title}.</em>
+                </span>
               </li>
-            ))
-          }
-        </ul>
-      </section>
-    </div>
-  </article>
-</Base>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section class="content-section space-y-4">
+      <h2 class="section-heading border-b border-gray-200 pb-3 dark:border-gray-700">
+        Service
+      </h2>
+      <ul class="space-y-3">
+        {
+          service.map((entry: any) => (
+            <li class="cv-row">
+              <span class="cv-period">{entry.period}</span>
+              <span>
+                <span class="font-semibold">{entry.role}</span>
+                <span class="text-gray-600 dark:text-gray-300"> — {entry.organization}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    {
+      sections.map((section: any) => (
+        <section class="content-section space-y-4">
+          <h2 class="section-heading border-b border-gray-200 pb-3 dark:border-gray-700">
+            {section.title}
+          </h2>
+          <ul class="space-y-3">
+            {(section.items ?? []).map((item: any) =>
+              typeof item === "string" ? (
+                <li class="body-copy">{item}</li>
+              ) : (
+                <li class="cv-row">
+                  <span class="cv-period">{item.date}</span>
+                  <span>
+                    <span class="font-semibold">{item.title}</span>
+                    {item.subtitle && (
+                      <span class="text-gray-600 dark:text-gray-300"> — {item.subtitle}</span>
+                    )}
+                    {item.description && (
+                      <p class="body-copy mt-1">
+                        {/^https?:\/\//.test(item.description) ? (
+                          <a href={item.description} class="underline" rel="noreferrer">
+                            {item.description}
+                          </a>
+                        ) : (
+                          item.description
+                        )}
+                      </p>
+                    )}
+                  </span>
+                </li>
+              ),
+            )}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</Layout>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    document
+      .getElementById("cv-print")
+      ?.addEventListener("click", () => window.print());
+  });
+</script>
 
 <style is:global>
-  .cv-section {
-    margin-top: 2.5rem;
-  }
-  .cv-h2 {
-    font-family: var(--font-mono, monospace);
-    font-size: 0.7rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, currentColor 55%, transparent);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    padding-bottom: 0.5rem;
-  }
   .cv-row {
     display: grid;
-    grid-template-columns: 6.5rem 1fr;
+    grid-template-columns: 8rem 1fr;
     gap: 1rem;
     align-items: baseline;
   }
-  .cv-years {
-    font-family: var(--font-mono, monospace);
+
+  .cv-period {
+    font-family: ui-monospace, monospace;
     font-size: 0.75rem;
-    color: rgba(0, 0, 0, 0.5);
+    color: rgb(107 114 128);
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 640px) {
+    .cv-row {
+      grid-template-columns: 1fr;
+      gap: 0.25rem;
+    }
   }
 
   @media print {
-    header:not(.cv-head),
+    header nav,
     footer,
-    .cv-actions,
-    #scroll-indicator {
+    .page-kicker,
+    #cv-print,
+    .action-link {
       display: none !important;
-    }
-    html,
-    body {
-      background: #fff !important;
-    }
-    .cv {
-      padding-top: 0 !important;
-      color: #000 !important;
-    }
-    .cv a {
-      color: #000 !important;
-      text-decoration: none;
-    }
-    .cv-section {
-      break-inside: avoid;
-    }
-    li {
-      break-inside: avoid;
-    }
-    @page {
-      margin: 1.6cm;
     }
   }
 </style>
-
-<script>
-  document.getElementById("cv-print")?.addEventListener("click", () => {
-    window.print();
-  });
-</script>
