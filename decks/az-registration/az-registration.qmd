@@ -788,7 +788,7 @@ Concluding remarks
 
 # Backup {.divider background-color="#0C234B"}
 
-## Data provenance {.smaller}
+## Data {.smaller}
 
 - **Voter file:** `r length(AZ_BUILDS)` monthly builds of Arizona's voter file, `r format(min(AZ_BUILDS))` to `r BUILD`. Party shares are of **active** registered voters; "neither" is everyone not registered Democratic or Republican.
 - **Aggregation:** all figures are aggregates; units with fewer than 500 registrants are suppressed.
