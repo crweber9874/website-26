@@ -1,0 +1,551 @@
+/*-- scss:defaults --*/
+// Matched to the AVP slides.com deck: white ground, News Cycle headings in navy
+// small caps, Lato body, red as an accent only.
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+
+$navy:    #0C234B;
+$azblue:  #0C234B;
+$azred:   #AB0520;
+$purple:  #3B1A66;
+$ink:     #2B2B2B;
+$muted:   #5A6470;
+$paper:   #FFFFFF;
+$panel:   #E3E7E9;
+$oasis:   #378DBD;
+$azurite: #1E5288;
+$sky:     #81D3EB;
+$sand:    #F4EDE0;
+
+$body-bg:    $paper;
+$body-color: $ink;
+$link-color: $navy;
+
+$font-family-sans-serif:    "Source Sans 3", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$presentation-heading-font: "Montserrat", "Source Sans 3", Helvetica, sans-serif;
+$presentation-heading-color: $navy;
+$presentation-heading-font-weight: 400;
+$mainFont: "Source Sans 3", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$presentation-font-size-root: 30px;
+$presentation-line-height: 1.55;
+
+/*-- scss:rules --*/
+
+.reveal {
+  font-family: "Source Sans 3", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.005em;
+}
+
+// Headings: navy, uppercase, letterspaced — the deck's signature
+.reveal h1,
+.reveal h2 {
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+  font-weight: 400;
+  text-align: center;
+  text-wrap: balance;
+  margin-bottom: 0.5em;
+}
+.reveal h1 { font-size: 1.85em; }
+.reveal h2 { font-size: 1.32em; }
+.reveal h3 {
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 0.82em;
+  color: $navy;
+}
+
+.reveal .slides section {
+  text-align: left;
+}
+
+// Title slide: grey panel, centred, like theirs
+#title-slide {
+  text-align: center;
+  background: $panel;
+  padding: 2.2em 2em 2.6em;
+  border-radius: 2px;
+}
+#title-slide .title {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 2em;
+  color: #333;
+}
+#title-slide .subtitle {
+  text-transform: none;
+  font-size: 1.05em;
+  color: $muted;
+  margin-top: 0.2em;
+}
+#title-slide .author,
+#title-slide .quarto-title-affiliation {
+  font-size: 0.72em;
+  color: $muted;
+}
+
+// Section dividers: large navy type on white, no dark fill
+.reveal section.quarto-title-block h1,
+.reveal .divider h1 {
+  font-size: 2.1em;
+}
+
+// The red dotted rule that separates columns in the source deck
+.reveal .columns > .column + .column {
+  border-left: 3px dotted $azred;
+  padding-left: 1.6em;
+}
+.reveal .columns > .column {
+  padding-right: 0.4em;
+}
+
+// A quiet red dotted rule under a lead statement
+.reveal .dotted {
+  border: none;
+  border-top: 3px dotted $azred;
+  width: 42%;
+  margin: 0.9em auto;
+}
+
+.reveal p,
+.reveal li { color: $ink; }
+.reveal .smaller { font-size: 0.8em; }
+.reveal strong { font-weight: 700; color: $navy; }
+
+.reveal .slide-number {
+  background: transparent;
+  color: $muted;
+  font-size: 0.55em;
+}
+
+.reveal .footer {
+  color: $muted;
+  font-size: 0.5em;
+  font-style: italic;
+}
+
+// Quarto places the logo (YAML `logo:`); just size and seat it.
+.reveal .slide-logo {
+  width: auto !important;
+  height: 35px !important;
+  max-height: 35px !important;
+  object-fit: contain; image-rendering: auto;
+  right: 32px !important;
+  bottom: 18px !important;
+  z-index: 31 !important;
+  opacity: 1;
+}
+
+.reveal table {
+  font-size: 0.68em;
+  border-collapse: collapse;
+}
+.reveal table th {
+  color: $navy;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.86em;
+  font-weight: 700;
+  border-bottom: 2px solid $navy;
+}
+.reveal table td { border-bottom: 1px solid #E6E9EC; }
+
+.reveal code { font-size: 0.78em; }
+.reveal pre code { max-height: 400px; }
+.reveal details > summary {
+  color: $muted;
+  font-size: 0.55em;
+  cursor: pointer;
+}
+
+// Tabs, toned to the deck
+.reveal .panel-tabset [role="tab"] {
+  font-family: "Montserrat", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.62em;
+  color: $muted;
+}
+.reveal .panel-tabset [role="tab"][aria-selected="true"] {
+  color: $navy;
+  border-bottom: 3px solid $azred;
+}
+
+// Keep figures clear of the logo
+.reveal .quarto-figure,
+.reveal .cell-output-display { margin-bottom: 0.2em; }
+
+/* ---- title slide --------------------------------------------------------- */
+#title-slide {
+  text-align: center;
+  background: transparent;
+  padding: 1.4em 2.4em 2.2em;
+}
+#title-slide .title {
+  display: block;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 2.1em;
+  font-weight: 400;
+  color: #333333;
+  margin: 0 0 0.12em;
+}
+#title-slide .subtitle {
+  display: block;
+  text-transform: none;
+  font-size: 1.0em;
+  font-weight: 400;
+  color: $muted;
+  margin: 0;
+}
+/* the deck's red dotted rule, under the subtitle */
+#title-slide .subtitle::after {
+  content: "";
+  display: block;
+  border-top: 3px dotted $azred;
+  width: 240px;
+  margin: 0.95em auto 1.05em;
+}
+#title-slide .author {
+  font-size: 0.8em;
+  font-weight: 700;
+  color: $navy;
+  margin: 0 0 0.15em;
+}
+#title-slide .institute,
+#title-slide .quarto-title-affiliation {
+  font-size: 0.66em;
+  color: $muted;
+  line-height: 1.75;
+  margin: 0;
+}
+/* contact line reads as a link even when it is plain text */
+#title-slide .institute { font-style: normal; }
+
+/* ---- "who we are" / "what this is": bigger, roomier ---------------------- */
+.reveal .who h3 {
+  font-size: 1.0em;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5em;
+}
+.reveal .who p,
+.reveal .who li { font-size: 1.05em; line-height: 1.7; }
+.reveal .who .columns > .column { padding-top: 0.3em; }
+
+/* leaflet and plotly want room and no stray borders */
+.reveal .leaflet-container { background: #FFFFFF; border-radius: 3px; }
+.reveal .leaflet-control-layers { font-family: "Source Sans 3", sans-serif; font-size: 13px; }
+
+/* ---- columns: stop the third one wrapping ------------------------------- */
+/* The dotted divider adds padding on top of the author's width:N%, so three
+   columns overflowed 100% and the last wrapped onto its own row. Border-box
+   folds the padding back into the declared width. */
+.reveal .columns {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 0;
+}
+.reveal .columns > .column {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* ---- the early-voting stat card ----------------------------------------- */
+.reveal .statcard .columns > .column {
+  padding: 0 1.4em;
+  text-align: center;
+}
+.reveal .statcard .columns > .column + .column {
+  border-left: 3px dotted $azred;
+}
+.reveal .statcard h3 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 2.6em;
+  font-weight: 700;
+  color: $navy;
+  letter-spacing: 0;
+  text-transform: none;
+  margin: 0 0 0.18em;
+  line-height: 1;
+}
+.reveal .statcard p {
+  font-size: 0.82em;
+  line-height: 1.55;
+  color: $ink;
+  margin: 0;
+}
+.reveal .statcard .card-head {
+  text-align: center;
+  font-size: 0.6em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $muted;
+  margin-bottom: 1.2em;
+}
+
+/* a single stated conclusion under a slide's bullets */
+.reveal .takeaway {
+  margin-top: 0.7em;
+  padding: 0.55em 0.9em;
+  border-left: 4px solid $azred;
+  background: #F7F8F9;
+  font-size: 0.86em;
+  line-height: 1.55;
+}
+.reveal .takeaway strong { color: $navy; }
+
+/* ---- registration table slide: fit 15 rows, bullets alongside ----------- */
+.reveal .regtable .columns > .column + .column {
+  padding-left: 1.3em;
+  border-left: 3px dotted $azred;
+}
+.reveal .regtable table { font-size: 0.46em; }
+.reveal .regtable table th,
+.reveal .regtable table td { padding: 3px 6px; }
+.reveal .regtable .dataTables_wrapper { margin: 0; }
+.reveal .regtable li { font-size: 0.72em; line-height: 1.5; margin-bottom: 0.35em; }
+.reveal .regtable ul { margin-top: 0; }
+.reveal .regtable .takeaway { font-size: 0.72em; margin-top: 0.9em; }
+
+/* ---- electoral landscape ------------------------------------------------ */
+.reveal .landscape .columns > .column + .column {
+  padding-left: 1.4em;
+  border-left: 3px dotted $azred;
+}
+.reveal .landscape li {
+  font-size: 0.78em;
+  line-height: 1.55;
+  margin-bottom: 0.5em;
+}
+.reveal .landscape ul { margin-top: 0.2em; }
+.reveal .landscape .cell { margin-bottom: 0.4em; }
+
+/* ---- CD trend ----------------------------------------------------------- */
+.reveal .cdtrend li { font-size: 0.72em; line-height: 1.35; margin-bottom: 0.5em; }
+.reveal .cdtrend .columns { align-items: center; }
+.reveal .cdtrend ul { margin-top: 0.2em; }
+.reveal .cdtrend img { max-height: none; width: 100%; }
+
+
+/* ==== University of Arizona brand pass ===================================
+   Arizona Blue #0C234B, Arizona Red #AB0520, Azurite #1E5288, Oasis #378DBD,
+   Sky #81D3EB. Montserrat headings, Source Sans body (web stand-ins for the
+   university's Proxima Nova). Overrides everything above. */
+
+.reveal h1, .reveal h2, .reveal h3 { font-family: "Montserrat", sans-serif; }
+.reveal h2 {
+  text-align: left;
+  font-weight: 800;
+  font-size: 1.08em;
+  letter-spacing: 0.02em;
+  color: $azblue;
+  margin-bottom: 0.7em;
+  padding-bottom: 0.32em;
+  position: relative;
+}
+.reveal h2::after {
+  content: ""; position: absolute; left: 0; bottom: 0;
+  width: 70px; height: 4px; background: $azred;
+}
+.reveal h3 { font-weight: 700; letter-spacing: 0.05em; color: $azurite; }
+.reveal .slides section { padding-left: 0.2em; }
+
+// dotted rules become solid Arizona-blue hairlines; red kept as the accent
+.reveal .columns > .column + .column,
+.reveal .landscape .columns > .column + .column,
+.reveal .regtable .columns > .column + .column,
+.reveal .statcard .columns > .column + .column {
+  border-left: 2px solid rgba(12, 35, 75, 0.18);
+}
+.reveal .dotted { border-top: 4px solid $azred; width: 90px; margin: 0.9em 0; }
+
+.reveal .takeaway {
+  background: $sand; border-left: 6px solid $azred; border-radius: 0 4px 4px 0;
+}
+.reveal table th { border-bottom: 3px solid $azred; color: $azblue; }
+.reveal .panel-tabset [role="tab"][aria-selected="true"] { border-bottom-color: $azred; }
+.reveal .statcard h3 { color: $azred; font-weight: 800; }
+.reveal .statcard .card-head { color: $azurite; font-weight: 700; }
+.reveal .slide-number { color: $azblue; font-weight: 700; background: transparent; }
+
+// footer left, clear of the logo
+.reveal .footer {
+  left: 40px !important; right: auto !important; bottom: 26px !important;
+  transform: none !important; text-align: left;
+  font-style: normal; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #A8ADB3; font-size: 0.4em; font-weight: 500;
+}
+
+// logo turns white on dark slides
+
+/* ---- dark slides: title, dividers, conclusion --------------------------- */
+.reveal .slides section.has-dark-background,
+.reveal .slides section.has-dark-background h1,
+.reveal .slides section.has-dark-background h2,
+.reveal .slides section.has-dark-background h3,
+.reveal .slides section.has-dark-background p,
+.reveal .slides section.has-dark-background li { color: #FFFFFF; }
+.reveal .slides section.has-dark-background strong { color: $sky; }
+.reveal .slides section.has-dark-background h2::after { background: $azred; }
+.reveal .slides section.has-dark-background a { color: $sky; }
+
+#title-slide { text-align: left; padding: 0 0 0 0.6em; background: transparent; }
+#title-slide .title {
+  font-family: "Montserrat", sans-serif; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.02em; font-size: 2.35em; line-height: 1.05; color: #FFFFFF;
+  text-align: left; margin: 0 0 0.2em;
+}
+#title-slide .subtitle {
+  font-family: "Montserrat", sans-serif; font-weight: 500; font-size: 1.15em;
+  color: $sky; text-align: left;
+}
+#title-slide .subtitle::after {
+  border-top: 6px solid $azred; width: 120px; margin: 0.7em 0 0.9em;
+}
+#title-slide .author { color: #FFFFFF; font-size: 0.95em; text-align: left; }
+#title-slide .institute, #title-slide .quarto-title-affiliation {
+  color: rgba(255,255,255,0.82); font-size: 0.62em; text-align: left;
+}
+#title-slide .institute a { color: $sky; }
+
+// section dividers
+.reveal section.divider { text-align: left; }
+.reveal section.divider h1 {
+  text-align: left; font-family: "Montserrat", sans-serif; font-weight: 800;
+  font-size: 2.6em; letter-spacing: 0.03em; color: #FFFFFF;
+  border-left: 12px solid $azred; padding-left: 0.5em;
+}
+
+/* ---- conclusion --------------------------------------------------------- */
+.reveal .conclusion { text-align: left; }
+.reveal .conclusion .kicker {
+  font-family: "Montserrat", sans-serif; font-weight: 700; font-size: 0.5em;
+  letter-spacing: 0.3em; text-transform: uppercase; color: $sky; margin-bottom: 0.4em;
+}
+.reveal .conclusion .headline {
+  font-family: "Montserrat", sans-serif; font-weight: 800;
+  font-size: 1.75em; line-height: 1.12; text-transform: uppercase; color: #FFFFFF;
+  max-width: 88%; margin-bottom: 0.6em;
+}
+.reveal .conclusion .headline em { color: #FFFFFF; font-style: normal; box-shadow: inset 0 -0.32em 0 $azred; }
+.reveal .conclusion .big {
+  display: flex; gap: 0; margin: 0 0 1em;
+}
+.reveal .conclusion .big > div {
+  flex: 1; padding: 0.2em 1.1em 0.2em 1.1em;
+  border-left: 4px solid $azred;
+}
+.reveal .conclusion .big .n {
+  font-family: "Montserrat", sans-serif; font-weight: 800; font-size: 2.7em; line-height: 1; color: #FFFFFF;
+}
+.reveal .conclusion .big .l {
+  font-size: 0.62em; line-height: 1.4; color: rgba(255,255,255,0.85); margin-top: 0.4em;
+}
+.reveal .conclusion .takeaways { max-width: 90%; }
+.reveal .conclusion .takeaways ol { margin: 0 0 0.6em 1.2em; }
+.reveal .conclusion .takeaways li {
+  font-size: 0.95em; line-height: 1.4; color: rgba(255,255,255,0.92); margin-bottom: 0.7em;
+}
+.reveal .conclusion .takeaways li::marker { color: $sky; font-weight: 700; }
+.reveal .conclusion .takeaways strong { color: #FFFFFF; }
+.reveal .conclusion .close {
+  font-family: "Montserrat", sans-serif; font-weight: 600; font-size: 0.62em;
+  letter-spacing: 0.08em; color: $sky; margin-top: 0.6em;
+}
+
+#title-slide .quarto-title-authors { justify-content: flex-start; }
+#title-slide .quarto-title-author, #title-slide .quarto-title-author-name { text-align: left; }
+.reveal .who p, .reveal .who li { font-size: 0.98em; line-height: 1.5; }
+.reveal .who ol, .reveal .who ul { margin-top: 0.2em; }
+
+/* keep content clear of the logo band */
+.reveal .slides section { max-height: 640px; }
+.reveal .landscape li { font-size: 0.7em; line-height: 1.4; margin-bottom: 0.3em; }
+
+.reveal .sunburst .plotly, .reveal .sunburst .html-widget { margin: 0 auto; }
+
+.reveal .mapsb .sb-cap { font-size: 0.62em; line-height: 1.4; min-height: 3.2em; text-align: center; margin-bottom: 0.2em; }
+.reveal .mapsb .columns > .column + .column { border-left: none; }
+.reveal .mapsb h2 { margin-bottom: 0.3em; }
+.reveal .mapsb .leaflet-container { margin: 0; }
+.reveal .mapsb .cell, .reveal .mapsb .html-widget { margin: 0 !important; }
+.reveal .mapsb .leaflet-container, .reveal .mapsb .html-widget { width: 100% !important; max-width: 100%; }
+.reveal .mapsb .column { overflow: hidden; }
+.reveal .mapsb #sb-plot .js-plotly-plot, .reveal .mapsb #sb-plot .plot-container { width: 100% !important; }
+
+/* County / CD selector: a large segmented toggle, unmissable when presenting */
+.reveal .mapsb .leaflet-control-layers {
+  border: none; background: transparent; box-shadow: none; font-family: "Montserrat", sans-serif;
+}
+.reveal .mapsb .leaflet-control-layers-toggle { display: none; }
+.reveal .mapsb .leaflet-control-layers-list { display: block !important; }
+.reveal .mapsb .leaflet-control-layers-base {
+  display: flex; border: 3px solid $azblue; border-radius: 10px; overflow: hidden;
+  box-shadow: 0 4px 14px rgba(12,35,75,.25); background: #fff;
+}
+.reveal .mapsb .leaflet-control-layers-base label { margin: 0; }
+.reveal .mapsb .leaflet-control-layers-base label span {
+  display: block; padding: 10px 22px; font-size: 20px; font-weight: 700;
+  letter-spacing: .04em; text-transform: uppercase; color: $azblue; background: #fff; cursor: pointer;
+}
+.reveal .mapsb .leaflet-control-layers-base label:hover span { background: #E8EEF6; }
+.reveal .mapsb .leaflet-control-layers-base label:has(input:checked) span {
+  background: $azred; color: #fff;
+}
+.reveal .mapsb .leaflet-control-layers-selector { display: none; }
+.reveal .mapsb .sb-selector { display: flex; justify-content: center; margin: 0 0 8px; }
+.reveal .mapsb .sb-selector .leaflet-control-layers { float: none; margin: 0; }
+.reveal .mapsb .leaflet-control-layers-base label span { white-space: nowrap; }
+
+
+.reveal .pipeline { display: flex; align-items: stretch; margin: 0.5em 0 0.6em; }
+.reveal .pipeline .stage {
+  flex: 1; position: relative; text-align: center; padding: 0.7em 0.7em 0.7em 1.3em;
+  background: $azurite; color: #FFFFFF; margin-right: 6px;
+  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%, 22px 50%);
+}
+.reveal .pipeline .stage:first-child {
+  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%);
+}
+.reveal .pipeline .stage.goal { background: $azblue; }
+.reveal .pipeline .stage:last-child { background: $azred; }
+.reveal .pipeline .stage p { margin: 0; color: #FFFFFF !important; }
+.reveal .pipeline .name {
+  font-family: "Montserrat", sans-serif; font-weight: 800; font-size: 0.62em;
+  text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.2; color: #FFFFFF;
+}
+.reveal .pipeline .stage .sub { font-size: 0.5em; color: $sky !important; margin-top: 0.35em; }
+.reveal .pipeline .stage:last-child .sub { color: #FFFFFF !important; }
+.reveal .pipeline .tag {
+  font-family: "Montserrat", sans-serif; font-size: 0.45em; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.75) !important; margin-top: 0.9em;
+}
+
+.reveal .quad h3 { margin-bottom: 0.2em; }
+.reveal .quad p { margin: 0.2em 0 0.4em; }
+
+/* common white footer banner on every slide */
+.reveal .avp-banner {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 71px; z-index: 25;
+  background: #FFFFFF; border-top: 3px solid #AB0520;
+}
+.reveal .avp-url {
+  position: absolute; left: 72px; bottom: 38px; line-height: 15px; z-index: 31;
+  font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 13px;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #1E5288 !important;
+  text-decoration: none; border-bottom: none;
+}
+
+/* ---- congressional district table + map ---- */
+.reveal .cdmap table { font-size: 0.55em; width: 100%; }
+.reveal .cdmap table th, .reveal .cdmap table td { padding: 4px 6px; }
+.reveal .cdmap td.num, .reveal .cdmap th.num { text-align: right; }
+.reveal .cdmap #cd-tbl tbody tr { cursor: pointer; }
+.reveal .cdmap #cd-tbl tbody tr:hover { outline: 1px solid #0C234B; }
+.reveal .cdmap #cd-tbl tbody tr.sel td:first-child { font-weight: 700; box-shadow: inset 4px 0 0 #AB0520; }
+.reveal .cdmap #cd-tbl tbody tr.sel { outline: 2px solid #0C234B; }
+.reveal .cdmap .leaflet-container { background: #FFFFFF; }
+.reveal .cdmap li { font-size: 0.66em; line-height: 1.4; margin-bottom: 0.2em; }
+.reveal .cdmap ul { margin-top: 0.3em; }

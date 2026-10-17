@@ -1,0 +1,34 @@
+{
+ "source": "AZ precinct canvass, AZ_GENERAL_2024_US_REPRESENTATIVE_IN_CONGRESS_-_DISTRICT_NO_6 (246 precincts), via avp-web-widgets/local_data/contest_results",
+ "note": "Vendored because the congressional contest files are not published to avp-data.pages.dev; the published precinct artifacts carry statewide races only.",
+ "district": "CD 6",
+ "year": 2024,
+ "total_votes": 431129,
+ "counties": {
+  "Pima": 327977,
+  "Cochise": 47082,
+  "Pinal": 39121,
+  "Graham": 13741,
+  "Greenlee": 3208
+ },
+ "candidates": [
+  {
+   "name": "Ciscomani, Juan",
+   "party": "REP",
+   "votes": 215596,
+   "pct": 50.01
+  },
+  {
+   "name": "Engel, Kirsten",
+   "party": "DEM",
+   "votes": 204774,
+   "pct": 47.5
+  },
+  {
+   "name": "Eastwood, Athena",
+   "party": "GRN",
+   "votes": 10759,
+   "pct": 2.5
+  }
+ ]
+}

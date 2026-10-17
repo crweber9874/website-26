@@ -1,0 +1,799 @@
+---
+title: "The Arizona Electorate in 2026"
+subtitle: "Registration and Voting"
+author: "Christopher Weber"
+institute: "Professor<br>School of Government and Public Policy<br>University of Arizona<br>chrisweber@arizona.edu"
+format:
+  revealjs:
+    theme: [default, avp.scss]
+    width: 1360
+    height: 790
+    slide-number: c/t
+    transition: fade
+    logo: avp-logo.png
+    fig-width: 11
+    fig-height: 4.8
+    fig-align: center
+    code-fold: true
+    code-summary: "code"
+    embed-resources: true
+    include-after-body: avp-url.html
+    title-slide-attributes:
+      data-background-color: "#0C234B"
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(tidyverse)
+library(plotly)
+library(leaflet)
+library(sf)
+library(crosstalk)
+library(DT)
+source("_data.R")
+
+all_units <- az_all_levels()
+counties  <- filter(all_units, level == "county")
+statewide <- az_statewide(counties)
+BUILD     <- statewide$file_date
+early     <- az_early()
+spread_by <- az_spread(all_units)
+pp <- function(x, d = 1) sprintf(paste0("%.", d, "f%%"), x)
+```
+
+## The Arizona Voter Project {.who}
+
+The AVP provides **public-facing tools, data, and analysis** to understand the political, social,
+and cultural characteristics of the Arizona electorate, with public resources to **access,
+experiment with, and interact with** Arizona's voter file.
+
+::: {.pipeline}
+::: {.stage}
+::: {.name}
+Voter File Data
+:::
+::: {.sub}
+Regular builds
+:::
+:::
+::: {.stage}
+::: {.name}
+Data Warehouse
+:::
+::: {.sub}
+Processing
+:::
+:::
+::: {.stage}
+::: {.name}
+Public Data
+:::
+::: {.sub}
+Aggregated
+:::
+:::
+::: {.stage}
+::: {.name}
+Interpretation
+:::
+::: {.sub}
+Analysis
+:::
+:::
+::: {.stage}
+::: {.name}
+Visualization
+:::
+::: {.sub}
+Broader understanding
+:::
+:::
+:::
+
+::: {.columns .quad}
+::: {.column width="50%"}
+### Data warehouse
+
+Builds of the voter file over time, election records, Census data, and public opinion — secured under privacy protocols.
+:::
+::: {.column width="50%"}
+### Public data
+
+Voting data aggregated to the boundaries people actually argue about: **counties, legislative and congressional districts, ZIP codes**.
+:::
+:::
+
+::: {.columns .quad}
+::: {.column width="50%"}
+### Analysis
+
+Tools and research that turn the data into answers about **who registers, who votes, and how**.
+:::
+::: {.column width="50%"}
+### Visualization
+
+Maps, charts, and dashboards that make the results **understandable and easy to explore**.
+:::
+:::
+
+# Registration {.divider background-color="#0C234B"}
+
+## The electoral landscape {.landscape}
+
+```{r landscape}
+#| fig-height: 3.3
+land <- counties |>
+  mutate(grp = if_else(unit %in% c("Maricopa", "Pima"), unit, "Other 13 counties")) |>
+  group_by(grp) |>
+  summarise(dem = sum(dem_n) / sum(registered), registered = sum(registered), .groups = "drop") |>
+  mutate(grp = factor(grp, c("Maricopa", "Pima", "Other 13 counties"))) |>
+  arrange(grp) |>
+  mutate(share = 100 * registered / sum(registered),
+         right = cumsum(share),
+         left  = lag(right, default = 0),
+         mid   = (left + right) / 2)
+
+two <- sum(land$share[land$grp != "Other 13 counties"])
+
+# reverse = TRUE so the stack reads Maricopa first, left to right.
+# No `family=` on geom_text: the font is not registered with the graphics device
+# and the labels are dropped silently when it is set.
+ggplot(land) +
+  geom_rect(aes(xmin = left, xmax = right, ymin = 0, ymax = 1, fill = dem),
+            colour = "white", linewidth = 1.2) +
+  geom_text(aes(mid, 0.68, label = grp),
+            colour = "white",
+            size = 6.4, fontface = "bold") +
+  geom_text(aes(mid, 0.38, label = sprintf("%.1f%%", share)),
+            colour = "white",
+            size = 9.0, fontface = "bold") +
+  geom_text(aes(mid, 0.13, label = sprintf("%.0f%% Democratic", 100 * dem)),
+            colour = "white", size = 4.4) +
+  # bracket under the two metro counties
+  annotate("segment", x = 0, xend = two, y = -0.22, yend = -0.22,
+           colour = "#AB0520", linewidth = 0.7) +
+  annotate("segment", x = 0, xend = 0, y = -0.22, yend = -0.12,
+           colour = "#AB0520", linewidth = 0.7) +
+  annotate("segment", x = two, xend = two, y = -0.22, yend = -0.12,
+           colour = "#AB0520", linewidth = 0.7) +
+  annotate("text", x = two / 2, y = -0.46, size = 4.1, colour = "#AB0520",
+           label = sprintf("Maricopa and Pima together: %.1f%% of the electorate", two)) +
+  # red = few Democrats, blue = many; midpoint is the statewide Democratic share
+  scale_fill_gradient2(low = "#AB0520", mid = "#5A2A6E", high = "#1E5288",
+                       midpoint = statewide$democratic / 100, guide = "none") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(-0.62, 1.05)) +
+  labs(x = NULL, y = NULL) +
+  theme_void() +
+  theme(legend.position = "none")
+```
+
+::: {.columns}
+::: {.column width="50%"}
+
+```{r landscape-left}
+#| output: asis
+pick  <- function(nm) filter(counties, unit == nm)
+share <- function(nm) 100 * pick(nm)$registered / statewide$registered
+mar <- pick("Maricopa"); pim <- pick("Pima")
+cat(sprintf(
+"- **Maricopa alone is %.0f%% of the state's active registration** — %s of %s active registered voters.
+- Add **Pima** (%.1f%%) and two counties hold roughly three quarters of the electorate.
+",
+  share("Maricopa"), format(mar$registered, big.mark = ","),
+  format(statewide$registered, big.mark = ","), share("Pima")))
+```
+
+:::
+::: {.column width="50%"}
+
+```{r landscape-right}
+#| output: asis
+apa <- pick("Apache"); moh <- pick("Mohave")
+cat(sprintf(
+"- The remaining thirteen are small but **not uniform**: Mohave is %.0f%% Republican.
+- Apache — much of it the Navajo Nation — is %.0f%% Democratic, the most Democratic county in the state.
+",
+  moh$republican, apa$democratic))
+```
+
+:::
+:::
+
+## Where the parties are {.mapsb}
+
+::: {.columns}
+::: {.column width="56%"}
+```{r map}
+
+# Diverging red - grey - blue: Republican margin red, Democratic blue, parity grey.
+RGB_PAL <- colorNumeric(c("#1E5288", "#D6D8DA", "#AB0520"), domain = c(-45, 45))
+LV <- c("county", "cd")
+
+# No basemap. CARTO ended anonymous access and now stamps "API KEY REQUIRED" into
+# the tile image itself, so polygons on white are used instead.
+m <- leaflet(width = "100%", height = 520, options = leafletOptions(zoomControl = TRUE, zoomSnap = 0.25,
+                                                    attributionControl = FALSE))
+units_js <- list()
+
+for (lv in LV) {
+  d <- az_map_data(lv) |> st_transform(4326)
+  grp <- unname(AZ_LEVELS[lv])
+  units_js[[lv]] <- setNames(
+    lapply(seq_len(nrow(d)), function(i)
+      c(d$dem_n[i], d$active[i] - d$dem_n[i] - d$rep_n[i], d$rep_n[i])),
+    d$unit)
+  m <- m |>
+    addPolygons(
+      data = d, group = grp, layerId = paste(lv, d$unit, sep = ":"),
+      fillColor = ~RGB_PAL(lean), fillOpacity = 0.85,
+      color = "white", weight = 1.2,
+      label = ~sprintf("%s — D %.1f%% · Neither %.1f%% · R %.1f%%",
+                       unit, democratic, neither, republican) |> lapply(htmltools::HTML),
+      highlightOptions = highlightOptions(weight = 3, color = "#0C234B",
+                                          bringToFront = TRUE)
+    ) |>
+    addLabelOnlyMarkers(
+      data = suppressWarnings(st_point_on_surface(st_geometry(d))),
+      group = grp, label = d$unit,
+      labelOptions = labelOptions(noHide = TRUE, textOnly = TRUE, direction = "center",
+                                  style = list("color" = "#1A1A1A",
+                                               "font-family" = "Source Sans 3, sans-serif",
+                                               "font-size" = "12px",
+                                               "text-shadow" = "0 0 3px #fff, 0 0 3px #fff"))
+    )
+}
+
+tot <- Reduce(`+`, units_js$county)
+js_data <- list(state = as.numeric(tot), units = units_js)
+
+m |>
+  addLayersControl(baseGroups = unname(AZ_LEVELS[LV]),
+                   options = layersControlOptions(collapsed = FALSE)) |>
+  setView(-111.9, 34.2, zoom = 6.5) |>
+  htmlwidgets::onRender("
+function(el, x, data) {
+  var map = this, sel = {lv: 'county', name: 'Pima'};
+  var cap = document.getElementById('sb-cap');
+  var P = ['Democratic', 'Neither party', 'Republican'];
+  var C = ['rgba(30,82,136,.80)', 'rgba(59,26,102,.55)', 'rgba(171,5,32,.80)'];
+  var sum = function(a) { return a[0] + a[1] + a[2]; };
+  var fmt = function(n) { return n.toLocaleString('en-US'); };
+
+  function render() {
+    var a = data.units[sel.lv][sel.name], t = sum(a);
+    Plotly.react('sb-plot', [{
+      type: 'pie', labels: ['Dem.', 'Neither', 'Rep.'], values: a, sort: false, direction: 'clockwise', rotation: 90,
+      hole: 0.52, marker: {colors: C, line: {color: 'white', width: 3}},
+      textinfo: 'percent', textfont: {size: 22, color: 'white'}, insidetextorientation: 'horizontal',
+      pull: [0.02, 0.02, 0.02],
+      hovertemplate: '<b>%{label}</b><br>%{value:,.0f} active<extra></extra>'
+    }], {autosize: true, margin: {t: 10, b: 10, l: 10, r: 10}, showlegend: true,
+         legend: {orientation: 'h', x: 0.5, xanchor: 'center', y: -0.02, font: {size: 16}},
+         paper_bgcolor: 'rgba(0,0,0,0)', font: {family: 'Source Sans 3', color: '#0C234B'},
+         annotations: [{text: '<b>' + sel.name + '</b><br>' + fmt(t), showarrow: false,
+                        font: {size: 20}, x: 0.5, y: 0.5}]},
+      {displayModeBar: false, responsive: true});
+    cap.innerHTML = 'Active registered voters by party &middot; click any area to update';
+  }
+
+  // polygons are recognised by their hover label: unit name, then D share
+  function bind() {
+    Object.values(map._layers).forEach(function(l) {
+      var c = l._tooltip && l._tooltip._content;
+      var m = typeof c === 'string' && c.match(/^(.+?) — D /);
+      if (!m || l._sbBound) return;
+      var lv = data.units.county[m[1]] ? 'county' : (data.units.cd[m[1]] ? 'cd' : null);
+      if (!lv) return;
+      l._sbBound = true;
+      l.on('click', function() { sel = {lv: lv, name: m[1]}; render(); });
+    });
+  }
+  map.on('baselayerchange', function(e) {
+    var lv = e.name === 'Congressional district' ? 'cd' : 'county';
+    sel = {lv: lv, name: lv === 'cd' ? 'CD 6' : 'Pima'}; bind(); render();
+  });
+  // the widget fills in its layers only once the slide is shown, so keep binding
+  // lift the selector out of the map into its own row above it, so it can never cover the state
+  function lift() {
+    var ctl = el.querySelector('.leaflet-control-layers');
+    if (!ctl) return;
+    var bar = document.createElement('div');
+    bar.className = 'sb-selector';
+    ctl.classList.remove('leaflet-control');
+    bar.appendChild(ctl);
+    el.parentNode.insertBefore(bar, el);
+  }
+  setInterval(function() { bind(); lift(); }, 500);
+  setTimeout(render, 0);
+  // the pie is first drawn while the slide is hidden, so redraw at full size once it shows
+  function refit() { render(); Plotly.Plots.resize('sb-plot'); }
+  Reveal.on('slidechanged', function() { setTimeout(refit, 350); });
+  Reveal.on('ready', function() { setTimeout(refit, 350); });
+}", data = js_data)
+```
+:::
+::: {.column width="44%"}
+::: {#sb-cap .sb-cap}
+:::
+
+::: {#sb-plot style="height:470px"}
+:::
+:::
+:::
+
+## Congressional District 6 {.smaller}
+
+```{r cd6}
+#| fig-height: 2.4
+cd6 <- jsonlite::fromJSON("cd6-2024.json", simplifyVector = FALSE)
+cand <- bind_rows(lapply(cd6$candidates, as_tibble)) |>
+  mutate(party = recode(party, REP = "Republican", DEM = "Democratic",
+                        GRN = "Green", IND = "Independent"),
+         label = sub(",.*$", "", name))
+
+reg6 <- filter(all_units, level == "cd", unit == "CD 6")
+
+ggplot(cand, aes(pct, fct_reorder(label, pct), fill = party)) +
+  geom_col(width = 0.6) +
+  geom_text(aes(label = sprintf("%.1f%%  (%s)", pct, format(votes, big.mark = ","))),
+            hjust = -0.06, size = 4, colour = "#4A5568") +
+  scale_fill_manual(values = c(Republican = "#AB0520", Democratic = "#1E5288",
+                               Green = "#70B865", Independent = "#3B1A66")) +
+  scale_x_continuous(limits = c(0, 68), expand = c(0, 0), labels = NULL) +
+  labs(x = NULL, y = NULL,
+       title = "U.S. House, CD 6 — November 2024",
+       caption = "246 precincts across Pima, Cochise, Pinal, Graham and Greenlee.") +
+  theme_avp(13) +
+  theme(legend.position = "none")
+```
+
+```{r cd6-bullets}
+#| output: asis
+rep <- cand |> filter(party == "Republican") |> slice(1)
+dem <- cand |> filter(party == "Democratic") |> slice(1)
+
+# 2022 U.S. House, CD 6: AZ Secretary of State, 2022 General Election canvass
+# (Results.Summary.xml), pulled via the azsos-results skill. Not vendored as its
+# own JSON (cf. cd6-2024.json) — these four numbers are small enough to pin here
+# with their source, rather than add a second data file for one slide.
+c22_rep_votes <- 177201L; c22_rep_pct <- 50.73
+c22_dem_votes <- 171969L; c22_dem_pct <- 49.23
+c22_margin    <- c22_rep_votes - c22_dem_votes
+c22_total     <- 349283L
+
+cat(sprintf(
+"- This is the **Giffords seat** -- redrawn -- which has remained compettitive. Gabrielle Giffords (CD 8, 2007–2012), Ron Barber (CD 8 special, then CD 2), Martha McSally (CD 2, 2015–2019) and Ann Kirkpatrick (CD 2, 2019–2023) — renumbered CD 6 for the 2022 cycle, when Juan Ciscomani first won it.
+- **2024:** %s (R) %.1f%% to %s (D) %.1f%% — a margin of **%s votes** on %s cast.
+- **2022:** Ciscomani (R) %.2f%% to Engel (D) %.2f%% — a margin of **%s votes** on %s cast, the seat's first election under the new boundaries. *AZ SoS 2022 General Election canvass.*
+- Registration in CD 6 today: **%.1f%%** Democratic · **%.1f%%** neither party · **%.1f%%** Republican. 
+",
+  rep$label, rep$pct, dem$label, dem$pct,
+  format(rep$votes - dem$votes, big.mark = ","), format(cd6$total_votes, big.mark = ","),
+  c22_rep_pct, c22_dem_pct, format(c22_margin, big.mark = ","), format(c22_total, big.mark = ","),
+  reg6$democratic, reg6$neither, reg6$republican))
+```
+
+## Congressional District 6, over time {.cdtrend .nostretch}
+
+::: {.columns}
+::: {.column width="66%"}
+
+```{r cd6-trend}
+#| fig-width: 8.6
+#| fig-height: 5.6
+#| out-width: "100%"
+tr6 <- az_cd_trend("AZ-CD-06") |> mutate(district = "CD 6")
+tr7 <- az_cd_trend("AZ-CD-07") |> mutate(district = "CD 7")
+
+long <- bind_rows(tr6, tr7) |>
+  select(build, district,
+         Democratic      = total_democratic,
+         `Neither party` = neither_n,
+         Republican      = total_republican) |>
+  pivot_longer(-c(build, district), names_to = "group", values_to = "n") |>
+  mutate(group = factor(group, names(AVP_COL)))
+
+last <- long |> filter(district == "CD 6") |> group_by(group) |>
+  slice_max(build, n = 1) |> ungroup()
+
+ggplot(long, aes(build, n, colour = group, alpha = district,
+                 group = interaction(district, group))) +
+  geom_line(linewidth = 1.5) +
+  geom_point(size = 2.6) +
+  ggrepel::geom_text_repel(
+    data = last,
+    aes(x = build, y = n, colour = group,
+        label = format(round(n), big.mark = ",")),
+    inherit.aes = FALSE,
+    direction = "y",
+    nudge_x = 20,
+    hjust = 0,
+    size = 4.2,
+    fontface = "bold",
+    box.padding = 0.4,
+    point.padding = 0.3,
+    segment.color = "#5A6470",
+    segment.alpha = 0.8,
+    max.overlaps = Inf,
+    seed = 17,
+    show.legend = FALSE
+  ) +
+  scale_colour_manual(values = AVP_COL, name = "Party") +
+  scale_alpha_manual(values = c("CD 6" = 1, "CD 7" = 0.22), guide = "none") +
+  scale_x_date(date_labels = "%b %Y",
+               expand = expansion(mult = c(0.02, 0.12))) +
+  scale_y_continuous(labels = scales::label_comma(),
+                     breaks = scales::pretty_breaks(5)) +
+  labs(x = NULL, y = "Active registered voters (count)",
+       title = "Active registered voters by party: CD 6 and CD 7",
+       subtitle = "CD 6 is solid; CD 7 is faint. Dips reflect voter-file maintenance.",
+       caption = sprintf("%d builds, %s to %s.",
+                         nrow(tr6), format(min(tr6$build), "%b %Y"), format(max(tr6$build), "%b %Y"))) +
+  theme_avp(16) +
+  theme(legend.position = "top")
+```
+
+:::
+::: {.column width="34%"}
+
+```{r cd6-trend-bullets}
+#| output: asis
+pct <- function(a, b) sprintf("%+.1f%%", 100 * (b - a) / a)
+first6 <- head(tr6, 1); last6 <- tail(tr6, 1)
+first7 <- head(tr7, 1); last7 <- tail(tr7, 1)
+cat(sprintf(
+"- **Total active:** %s to %s (%s)
+- **Democratic:** %s to %s (%s)
+- **Republican:** %s to %s (%s)
+- **Neither party:** %s to %s (%s)
+- *Fainter lines show CD 7, for comparison.*
+",
+  format(first6$active, big.mark=","), format(last6$active, big.mark=","), pct(first6$active, last6$active),
+  format(first6$total_democratic, big.mark=","), format(last6$total_democratic, big.mark=","), pct(first6$total_democratic, last6$total_democratic),
+  format(first6$total_republican, big.mark=","), format(last6$total_republican, big.mark=","), pct(first6$total_republican, last6$total_republican),
+  format(first6$neither_n, big.mark=","), format(last6$neither_n, big.mark=","), pct(first6$neither_n, last6$neither_n)))
+```
+
+:::
+:::
+
+## Registration, by County {.regtable}
+
+::: {.columns}
+::: {.column width="58%"}
+
+```{r reg-table}
+tbl <- counties |>
+  transmute(County = unit, `Active registered` = registered,
+            Democratic = democratic, `Neither party` = neither,
+            Republican = republican) |>
+  arrange(desc(`Active registered`))
+
+# Use one scale across party columns so equal percentages have equal bar lengths.
+bar <- function(fill) styleColorBar(c(0, 60), fill)
+
+tbl |>
+  datatable(
+    rownames = FALSE,
+    options = list(dom = "t", paging = FALSE, ordering = TRUE,
+                   scrollY = FALSE,
+                   columnDefs = list(list(className = "dt-right", targets = 1:4))),
+    class = "compact hover"
+  ) |>
+  formatRound("Active registered", digits = 0, mark = ",") |>
+  formatRound(c("Democratic", "Neither party", "Republican"), digits = 1) |>
+  formatStyle("Democratic", background = bar("#BFD0E4"),
+              backgroundSize = "94% 62%", backgroundRepeat = "no-repeat",
+              backgroundPosition = "center") |>
+  formatStyle("Neither party", background = bar("#BBA6D8"),
+              backgroundSize = "94% 62%", backgroundRepeat = "no-repeat",
+              backgroundPosition = "center") |>
+  formatStyle("Republican", background = bar("#EFC2C6"),
+              backgroundSize = "94% 62%", backgroundRepeat = "no-repeat",
+              backgroundPosition = "center")
+```
+
+:::
+::: {.column width="42%"}
+
+```{r range-bullets}
+#| output: asis
+cs <- filter(spread_by, level_name == "County")
+g  <- function(x) filter(cs, group == x)
+rng <- function(x) {
+  r <- g(x)
+  sprintf("**%.0f points** — %.1f%% in %s to %.1f%% in %s",
+          r$range, r$min, r$lo_unit, r$max, r$hi_unit)
+}
+cat(sprintf(
+"- Statewide: **%.1f%%** Democratic · **%.1f%%** neither party · **%.1f%%** Republican
+- Democratic across counties spans %s
+- Republican spans almost exactly as much: %s
+- **Neither party** spans only %s
+",
+  statewide$democratic, statewide$neither, statewide$republican,
+  rng("Democratic"), rng("Republican"), rng("Neither party")))
+
+party_rng <- mean(c(g("Democratic")$range, g("Republican")$range))
+none_rng  <- g("Neither party")$range
+cat(sprintf(
+"\n::: {.takeaway}\n**%.0f points against %.0f.** Each party's share varies about %.1f times as much across Arizona as the share registered with neither.\n:::\n",
+  party_rng, none_rng, party_rng / none_rng))
+```
+
+:::
+:::
+
+## Registration, by Congressional District {.regtable .cdmap}
+
+::: {.columns}
+::: {.column width="56%"}
+
+```{r cd-table}
+cds <- all_units |> filter(level == "cd") |>
+  mutate(num = as.integer(sub("CD ", "", unit))) |> arrange(num)
+bar_cell <- function(v, col) sprintf(
+  '<td class="num" data-v="%.4f" style="background:linear-gradient(90deg,%s %.1f%%,transparent %.1f%%)">%.1f</td>',
+  v, col, v / 60 * 94, v / 60 * 94, v)
+rows <- vapply(seq_len(nrow(cds)), function(i) with(cds[i, ], sprintf(
+  '<tr data-unit="%s"><td data-v="%d">%s</td><td class="num" data-v="%d">%s</td>%s%s%s</tr>',
+  unit, num, unit, registered, format(registered, big.mark = ","),
+  bar_cell(democratic, "#BFD0E4"), bar_cell(neither, "#BBA6D8"), bar_cell(republican, "#EFC2C6"))),
+  character(1))
+htmltools::HTML(paste0(
+  '<table id="cd-tbl"><thead><tr><th>District</th><th class="num">Active registered</th>',
+  '<th class="num">Democratic</th><th class="num">Neither party</th><th class="num">Republican</th></tr></thead><tbody>',
+  paste(rows, collapse = ""), '</tbody></table>'))
+```
+
+:::
+::: {.column width="44%"}
+
+```{r cd-map}
+dm <- az_map_data("cd") |> st_transform(4326)
+leaflet(dm, width = "100%", height = 380,
+        options = leafletOptions(zoomControl = FALSE, attributionControl = FALSE,
+                                 dragging = FALSE, scrollWheelZoom = FALSE,
+                                 doubleClickZoom = FALSE, boxZoom = FALSE,
+                                 keyboard = FALSE, zoomSnap = 0.1)) |>
+  addPolygons(layerId = ~unit, fillColor = "#FFFFFF", fillOpacity = 1,
+              color = "#000000", weight = 1,
+              label = ~unit, labelOptions = labelOptions(direction = "auto")) |>
+  fitBounds(st_bbox(dm)[[1]], st_bbox(dm)[[2]], st_bbox(dm)[[3]], st_bbox(dm)[[4]]) |>
+  htmlwidgets::onRender("
+function(el, x) {
+  var map = this, layers = {}, cur = null;
+  function paint(name) {
+    Object.keys(layers).forEach(function(k) {
+      var on = k === name;
+      layers[k].setStyle({fillColor: on ? '#000000' : '#FFFFFF', weight: on ? 2.5 : 1});
+      if (on) layers[k].bringToFront();
+    });
+    document.querySelectorAll('#cd-tbl tbody tr').forEach(function(r) {
+      r.classList.toggle('sel', r.dataset.unit === name);
+    });
+    cur = name;
+  }
+  var fresh = false;
+  function wire() {
+    fresh = false;
+    map.eachLayer(function(l) {
+      var name = l._tooltip && l._tooltip._content;
+      if (typeof name === 'string' && l.setStyle && !l._cdBound) {
+        l._cdBound = true; fresh = true; layers[name] = l;
+        l.on('click', function() { paint(name); });
+      }
+    });
+    document.querySelectorAll('#cd-tbl tbody tr').forEach(function(r) {
+      if (r._cdBound) return;
+      r._cdBound = true;
+      r.addEventListener('click', function() { paint(r.dataset.unit); });
+    });
+  }
+  function refit() {
+    map.invalidateSize();
+    if (Object.keys(layers).length) map.fitBounds(L.featureGroup(Object.values(layers)).getBounds(), {padding: [4, 4]});
+  }
+  // click a column header to sort; click again to reverse
+  var sortCol = -1, asc = true;
+  document.querySelectorAll('#cd-tbl thead th').forEach(function(th, i) {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', function() {
+      asc = (sortCol === i) ? !asc : (i === 0);
+      sortCol = i;
+      var tb = document.querySelector('#cd-tbl tbody');
+      Array.from(tb.rows).sort(function(a, b) {
+        var d = a.cells[i].dataset.v - b.cells[i].dataset.v;
+        return asc ? d : -d;
+      }).forEach(function(r) { tb.appendChild(r); });
+      document.querySelectorAll('#cd-tbl thead th').forEach(function(h, j) {
+        h.textContent = h.textContent.replace(/ [▲▼]$/, '');
+        if (j === i) h.textContent += asc ? ' ▲' : ' ▼';
+      });
+    });
+  });
+  wire(); paint(cur || 'CD 6');
+  // layers arrive only once the slide is shown, so keep wiring until they do
+  setInterval(function() {
+    wire();
+    if (fresh) { paint(cur || 'CD 6'); refit(); }
+  }, 500);
+  Reveal.on('slidechanged', function() { setTimeout(refit, 350); });
+  Reveal.on('ready', function() { setTimeout(refit, 350); });
+}")
+```
+
+:::
+:::
+
+```{r cd-bullets}
+#| output: asis
+cs <- filter(spread_by, level_name == AZ_LEVELS[["cd"]])
+g  <- function(x) filter(cs, group == x)
+rng <- function(x) {
+  r <- g(x)
+  sprintf("%.0f points (%.1f%% in %s to %.1f%% in %s)", r$range, r$min, r$lo_unit, r$max, r$hi_unit)
+}
+cat(sprintf(
+"- **Partisan differences are large:** Democratic registration range %s; Republican range %s.
+- **Neither party is less variable:** its range is only %s across the nine districts.
+",
+  rng("Democratic"), rng("Republican"), rng("Neither party")))
+```
+
+# How Arizonans vote {.divider background-color="#0C234B"}
+
+## Early voting is the norm {.statcard}
+
+::: {.card-head}
+Statewide · `r BUILD` build
+:::
+
+::: {.columns}
+::: {.column width="34%"}
+### `r pp(early$enrolment$share)`
+
+on the **Active Early Voting List** — a ballot arrives automatically, every election.
+:::
+::: {.column width="33%"}
+### `r pp(filter(early$overall, period == "2024-11-05")$share)`
+
+of ballots in the **November 2024 general** were cast early.
+:::
+::: {.column width="33%"}
+### `r pp(filter(early$overall, period == "2026-07-21")$share)`
+
+of ballots in the **July 2026 primary** were cast early.
+:::
+:::
+
+::: {.fragment .smaller}
+“Early” covers three different acts — returned by mail, dropped at a secure box, or voted
+in person before Election Day. One ballot code, and no published figure separates them.
+:::
+
+## There is a partisan difference
+
+```{r early-party}
+#| fig-height: 4.2
+bp <- early$by_party |>
+  mutate(party = factor(party, c("Democratic", "Republican", "Other"),
+                        labels = c("Democratic", "Republican", "Neither / other")),
+         election = factor(period, c("2024-11-05", "2026-07-21"),
+                           labels = c("November 2024 general", "July 2026 primary")))
+cols <- c(Democratic = "rgba(30,82,136,0.55)", Republican = "rgba(171,5,32,0.55)",
+          `Neither / other` = "rgba(59,26,102,0.55)")
+lines <- c(Democratic = "#1E5288", Republican = "#AB0520", `Neither / other` = "#3B1A66")
+
+p <- plot_ly(width = 1120, height = 400)
+for (g in names(cols)) {
+  d <- filter(bp, party == g)
+  p <- add_bars(p, data = d, x = ~election, y = ~share, name = g,
+                text = sprintf("%.1f%%", d$share), textposition = "outside",
+                textfont = list(size = 18, color = "#1B2A4A"),
+                marker = list(color = lines[[g]], line = list(width = 0)),
+                hovertemplate = paste0(g, ": %{y:.1f}%<extra></extra>"))
+}
+p |>
+  layout(barmode = "group", bargap = 0.3, bargroupgap = 0.06,
+         xaxis = list(title = "", tickfont = list(size = 16)),
+         yaxis = list(title = "Share of ballots cast early", ticksuffix = "%",
+                      range = c(0, 108), tickfont = list(size = 14)),
+         legend = list(orientation = "h", x = 0.5, xanchor = "center", y = -0.12,
+                       yanchor = "top", font = list(size = 16), entrywidth = 170),
+         font = list(family = "Source Sans 3"),
+         margin = list(t = 30, b = 70)) |>
+  config(displayModeBar = FALSE)
+```
+
+::: {.smaller}
+- **Democratic registrants lead on early voting:** `r sprintf("%.1f%%", filter(bp, party == "Democratic", period == "2026-07-21")$share)` of their July 2026 primary ballots were cast early, versus `r sprintf("%.1f%%", filter(bp, party == "Republican", period == "2026-07-21")$share)` for Republicans.
+- **The gap is more pronounced in the primary:** Democrats were `r sprintf("%.1f", filter(bp, party == "Democratic", period == "2026-07-21")$share - filter(bp, party == "Republican", period == "2026-07-21")$share)` points ahead of Republicans, up from `r sprintf("%.1f", filter(bp, party == "Democratic", period == "2024-11-05")$share - filter(bp, party == "Republican", period == "2024-11-05")$share)` in November 2024.
+- **Neither party / other trails** (`r sprintf("%.1f%%", filter(bp, party == "Neither / other", period == "2026-07-21")$share)` in the primary). Independents must **ask for** a party ballot in the primary, which depresses their early share.
+:::
+
+## Registration as a share of citizens of voting age {.smaller}
+
+```{r pop-rate}
+#| fig-height: 3.4
+rate <- az_registration_rate()
+vap_2024 <- 100 * AZ_2024_CANVASS$ballots_cast / rate$vap[1]
+cvap <- rate$vap[1]
+ylim <- c(50, 90)
+cnt_ticks <- seq(3e6, 5e6, by = 5e5)  # counts that fall inside ylim * CVAP
+cnt_ticks <- cnt_ticks[cnt_ticks / cvap * 100 >= ylim[1] & cnt_ticks / cvap * 100 <= ylim[2]]
+plot_ly(rate, x = ~build, width = 1000, height = 300) |>
+  add_trace(y = ~rate, type = "scatter", mode = "lines+markers",
+            name = "Active registrants, % of CVAP",
+            line = list(color = "#1E5288", width = 4),
+            marker = list(color = "#1E5288", size = 9),
+            hovertemplate = "%{y:.1f}% of citizen voting-age population<extra>%{x|%b %Y}</extra>") |>
+  add_trace(y = ~active, yaxis = "y2", type = "scatter", mode = "lines",
+            line = list(color = "rgba(0,0,0,0)"), showlegend = FALSE,
+            hovertemplate = "%{y:,.0f} active registrants<extra>%{x|%b %Y}</extra>") |>
+  add_trace(y = ~turnout24, type = "scatter", mode = "lines+markers",
+            name = "Voted in Nov 2024, % of registrants in each build",
+            line = list(color = "#EF9B20", width = 4),
+            marker = list(color = "#EF9B20", size = 9),
+            hovertemplate = "%{y:.1f}% of registrants voted in Nov 2024<extra>%{x|%b %Y}</extra>") |>
+  layout(shapes = list(list(type = "line", xref = "paper", x0 = 0, x1 = 1,
+                            yref = "y", y0 = vap_2024, y1 = vap_2024,
+                            line = list(color = "rgba(171,5,32,0.35)", width = 3, dash = "dot"))),
+         annotations = list(list(xref = "paper", x = 0.93, xanchor = "right",
+                                 yref = "y", y = vap_2024, yanchor = "bottom", showarrow = FALSE,
+                                 text = sprintf("Nov 2024 general: ballots cast = %.1f%% of CVAP", vap_2024),
+                                 font = list(size = 15, color = "rgba(171,5,32,0.8)"))),
+         legend = list(orientation = "h", x = 0.5, xanchor = "center", y = -0.1, yanchor = "top",
+                       font = list(size = 15), entrywidth = 420),
+         xaxis = list(title = "", tickformat = "%b %Y", tickfont = list(size = 15)),
+         yaxis = list(title = "Percent", ticksuffix = "%",
+                      range = ylim, tickfont = list(size = 14)),
+         yaxis2 = list(overlaying = "y", side = "right", showgrid = FALSE,
+                       title = "Active registrants (count)",
+                       range = ylim / 100 * cvap, tickvals = cnt_ticks,
+                       ticktext = sprintf("%.1fM", cnt_ticks / 1e6),
+                       tickfont = list(size = 14)),
+         font = list(family = "Source Sans 3"),
+         margin = list(t = 20, r = 70, b = 90)) |>
+  config(displayModeBar = FALSE)
+```
+
+::: {.smaller}
+- **Active registrants** were `r sprintf("%.1f%%", rate$rate[1])` of Arizona's citizen voting-age population (CVAP) in `r format(rate$build[1], "%b %Y")`, peaked at `r sprintf("%.1f%%", max(rate$rate))` in `r format(rate$build[which.max(rate$rate)], "%b %Y")`, and stood at `r sprintf("%.1f%%", tail(rate$rate, 1))` in `r format(tail(rate$build, 1), "%b %Y")`. 
+- **Voted in Nov 2024 (gold line):** each build's `turnout_gen_2024` field, weighted by active registrants: `r sprintf("%.1f%%", rate$turnout24[1])` in `r format(rate$build[1], "%b %Y")` to `r sprintf("%.1f%%", tail(rate$turnout24, 1))` in `r format(tail(rate$build, 1), "%b %Y")`. Its base is the registrants in that build, not CVAP, so it is not directly comparable to the blue line.
+- **Turnout benchmark (transparent line):** the Secretary of State's official canvass counts `r format(AZ_2024_CANVASS$ballots_cast, big.mark = ",")` ballots cast in the November 2024 general, or **`r sprintf("%.1f%%", vap_2024)`** of citizen voting-age population (`r sprintf("%.1f%%", AZ_2024_CANVASS$turnout_registered)` of those registered).
+- Source: U.S. Census Bureau, ACS `r rate$vap_year[1]` 1-year estimates, citizens 18 and over (`r format(rate$vap[1], big.mark = ",")`). Canvass: Arizona Secretary of State. The same CVAP is used for every build, which ensures consistency across all visualizations.
+:::
+
+## {.conclusion background-color="#0C234B"}
+
+::: {.kicker}
+Conclusion
+:::
+
+::: {.headline}
+Concluding remarks
+:::
+
+::: {.takeaways}
+1. **Registration is concentrated.** Maricopa and Pima hold `r sprintf("%.0f%%", two)` of active registrants.
+2. **No party holds a majority.** Statewide, active voters are `r sprintf("%.0f%%", statewide$republican)` Republican, `r sprintf("%.0f%%", statewide$democratic)` Democratic, and `r sprintf("%.0f%%", statewide$neither)` neither party.
+3. **Arizona votes early.** `r pp(filter(early$overall, period == "2024-11-05")$share, 0)` of November 2024 ballots were cast early, and `r pp(early$enrolment$share, 0)` of voters are on the early list.
+4. **Participation has room to grow.** Active registrants peaked at `r sprintf("%.0f%%", max(rate$rate))` of citizens of voting age, and `r sprintf("%.0f%%", vap_2024)` cast a ballot in 2024.
+:::
+
+# Backup {.divider background-color="#0C234B"}
+
+## Data provenance {.smaller}
+
+- **Voter file:** `r length(AZ_BUILDS)` monthly builds of Arizona's voter file, `r format(min(AZ_BUILDS))` to `r BUILD`. Party shares are of **active** registered voters; "neither" is everyone not registered Democratic or Republican.
+- **Aggregation:** all figures are aggregates; units with fewer than 500 registrants are suppressed.
+- **Population:** U.S. Census Bureau, ACS `r rate$vap_year[1]` 1-year estimates, table B29001 (citizens 18 and over, `r format(rate$vap[1], big.mark = ",")`), applied to every build.
+- **2024 turnout:** Arizona Secretary of State official canvass, November 2024 general (`r format(AZ_2024_CANVASS$ballots_cast, big.mark = ",")` ballots cast).
+- **Early voting:** ballots cast early and the Active Early Voting List, from the voter file builds.
+- **Election Administration and Voting Survey (EAVS):** reports a slightly different 2024 ballot count than the state canvass; the canvass is used here.
+- **Congressional District 6:** 2024 results from the Secretary of State canvass.
