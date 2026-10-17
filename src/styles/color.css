@@ -1,23 +1,12 @@
 :root {
-  --background: light-dark(
-    oklch(0.9578 0.0058 264.53),
-    oklch(0.2007 0.0199 284.46)
-  );
-  --foreground: light-dark(
-    oklch(0.4363 0.0428 281.03),
-    oklch(0.8708 0.0481 273.67)
-  );
-  /* University of Arizona azurite (#1E5288) in light, oasis (#378DBD) in dark */
-  --primary: light-dark(oklch(0.4239 0.1073 253.4), oklch(0.6216 0.0962 234.4));
-  --primary-foreground: light-dark(oklch(0.98 0 0), oklch(0.145 0 0));
-  --muted: light-dark(oklch(0.92 0.002 264.53), oklch(0.269 0 0));
-  --muted-foreground: light-dark(oklch(0.556 0 0), oklch(0.708 0 0));
-  /* UA chili (#8B0015) in light, a lifted red in dark */
-  --accent: light-dark(oklch(0.3714 0.1594 22.6), oklch(0.6512 0.1594 22.6));
-  --accent-foreground: light-dark(
-    oklch(0.9578 0.0058 264.53),
-    oklch(0.145 0 0)
-  );
+  --background: light-dark(oklch(1 0 0), oklch(0.145 0 0));
+  --foreground: light-dark(oklch(0.145 0 0), oklch(0.98 0 0));
+  --primary: light-dark(oklch(0.205 0 0), oklch(0.922 0 0));
+  --primary-foreground: light-dark(oklch(0.98 0 0), oklch(0.205 0 0));
+  --muted: light-dark(oklch(0.95 0 0), oklch(0.26 0 0));
+  --muted-foreground: light-dark(oklch(0.45 0 0), oklch(0.72 0 0));
+  --accent: light-dark(oklch(0.145 0 0), oklch(0.98 0 0));
+  --accent-foreground: light-dark(oklch(0.98 0 0), oklch(0.145 0 0));
   --interactive-background: color-mix(in oklab, var(--accent) 18%, transparent);
   --interactive-border: color-mix(in oklab, var(--accent) 55%, var(--border));
   --interactive-foreground: var(--foreground);
