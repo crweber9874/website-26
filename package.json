@@ -9,7 +9,9 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/sync-decks.mjs",
     "build": "astro build",
+    "sync:decks": "node scripts/sync-decks.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "sync": "astro sync",
