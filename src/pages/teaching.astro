@@ -18,27 +18,6 @@ const readerHref = (url: string) => url.replace(/\/$/, "")
   breadcrumbs={[{ label: "Teaching" }]}
   prose={false}
 >
-  <div class="how-to-read">
-    <p>
-      <strong>How to use these.</strong> Each course has a reader — a book I wrote
-      for the course — that you read <em>alongside</em> the textbooks listed with
-      it, not instead of them. The readers restate the standard material in one
-      notation, work every example in R, and show the code.
-    </p>
-    <p>
-      Take the two in order: <strong>POL 682</strong> builds the linear model and
-      the assumptions behind it; <strong>POL 683</strong> picks up where those
-      assumptions run out.
-    </p>
-    <p class="how-to-read-source">
-      The readers are written in the <a
-        href="https://github.com/crweber9874/methodology_ground_up"
-        rel="noopener"
-        target="_blank">methodology_ground_up</a
-      > repository, a shared teaching hub with Chad Westerland, and published here.
-    </p>
-  </div>
-
   {
     courses.map((course) => (
       <Section title={`${course.code} · ${course.title}`}>

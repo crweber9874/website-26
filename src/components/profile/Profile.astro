@@ -1,10 +1,8 @@
 ---
 import type { ProfileConfig } from "@/types"
 
-import Avatar from "@/components/base/Avatar.astro"
 import Badge from "@/components/base/Badge.astro"
 import Icon from "@/components/base/Icon.astro"
-import avatar from "@/assets/avatar.png"
 
 import EmailLink from "./EmailLink.astro"
 import Pronunciation from "./Pronunciation.astro"
@@ -25,18 +23,6 @@ const aboutLinks = getProfileLinkPlacement("about")
 
 <article id="profile">
   <header class="profile-header">
-    <Avatar
-      src={avatar}
-      alt={profile.name}
-      fallback={profile.name.charAt(0)}
-      data-slot="profile-avatar"
-      width={180}
-      height={180}
-      loading="eager"
-      fetchpriority="high"
-      class="profile-avatar"
-    />
-
     <div class="profile-content">
       <div class="profile-heading">
         <h1>
