@@ -199,7 +199,7 @@ cat(sprintf(
 apa <- pick("Apache"); moh <- pick("Mohave")
 cat(sprintf(
 "- The remaining thirteen are small but **not uniform**: Mohave is %.0f%% Republican.
-- Apache — much of it the Navajo Nation — is %.0f%% Democratic, the most Democratic county in the state.
+- Apache is %.0f%% Democratic, the most Democratic county in the state.
 ",
   moh$republican, apa$democratic))
 ```
@@ -370,10 +370,11 @@ c22_margin    <- c22_rep_votes - c22_dem_votes
 c22_total     <- 349283L
 
 cat(sprintf(
-"- This is the **Giffords seat** -- redrawn -- which has remained compettitive. Gabrielle Giffords (CD 8, 2007–2012), Ron Barber (CD 8 special, then CD 2), Martha McSally (CD 2, 2015–2019) and Ann Kirkpatrick (CD 2, 2019–2023) — renumbered CD 6 for the 2022 cycle, when Juan Ciscomani first won it.
+"- This is the **Giffords seat** — redrawn — which has remained competitive. Giffords (AZ-08, Jan 2007 – Jan 2012, resigned); Barber (AZ-08 special Jun 2012; AZ-02 Jan 2013 – Jan 2015); McSally (AZ-02 Jan 2015 – Jan 2019); Kirkpatrick (AZ-02 Jan 2019 – Jan 2023) — renumbered CD 6 for the 2022 cycle, when Juan Ciscomani first won it.
 - **2024:** %s (R) %.1f%% to %s (D) %.1f%% — a margin of **%s votes** on %s cast.
 - **2022:** Ciscomani (R) %.2f%% to Engel (D) %.2f%% — a margin of **%s votes** on %s cast, the seat's first election under the new boundaries. *AZ SoS 2022 General Election canvass.*
-- Registration in CD 6 today: **%.1f%%** Democratic · **%.1f%%** neither party · **%.1f%%** Republican. 
+- Registration in CD 6 today: **%.1f%%** Democratic · **%.1f%%** neither party · **%.1f%%** Republican.
+- ^Third candidate in 2024: Athena Eastwood (Green), **10,759 votes (2.5%%)**.^
 ",
   rep$label, rep$pct, dem$label, dem$pct,
   format(rep$votes - dem$votes, big.mark = ","), format(cd6$total_votes, big.mark = ","),
@@ -454,7 +455,7 @@ cat(sprintf(
 - **Democratic:** %s to %s (%s)
 - **Republican:** %s to %s (%s)
 - **Neither party:** %s to %s (%s)
-- *Fainter lines show CD 7, for comparison.*
+- *Fainter lines show CD 7, for comparison (the other Tucson district).*
 ",
   format(first6$active, big.mark=","), format(last6$active, big.mark=","), pct(first6$active, last6$active),
   format(first6$total_democratic, big.mark=","), format(last6$total_democratic, big.mark=","), pct(first6$total_democratic, last6$total_democratic),
@@ -515,9 +516,9 @@ rng <- function(x) {
 }
 cat(sprintf(
 "- Statewide: **%.1f%%** Democratic · **%.1f%%** neither party · **%.1f%%** Republican
-- Democratic across counties spans %s
-- Republican spans almost exactly as much: %s
-- **Neither party** spans only %s
+- Democratic across counties range %s
+- Republican range is almost exactly as much: %s
+- **Neither party** range is only %s
 ",
   statewide$democratic, statewide$neither, statewide$republican,
   rng("Democratic"), rng("Republican"), rng("Neither party")))
@@ -661,7 +662,7 @@ Statewide · `r BUILD` build
 ::: {.column width="34%"}
 ### `r pp(early$enrolment$share)`
 
-on the **Active Early Voting List** — a ballot arrives automatically, every election.
+on the **Active Early Voting List** — a ballot arrives automatically for every election you remain enrolled.
 :::
 ::: {.column width="33%"}
 ### `r pp(filter(early$overall, period == "2024-11-05")$share)`
@@ -676,7 +677,7 @@ of ballots in the **July 2026 primary** were cast early.
 :::
 
 ::: {.fragment .smaller}
-“Early” covers three different acts — returned by mail, dropped at a secure box, or voted
+“Early” covers three different forms of voting using an early ballot — returned by mail, dropped at a secure box, or voted
 in person before Election Day.
 :::
 
@@ -706,7 +707,7 @@ p |>
   layout(barmode = "group", bargap = 0.3, bargroupgap = 0.06,
          xaxis = list(title = "", tickfont = list(size = 16)),
          yaxis = list(title = "Share of ballots cast early", ticksuffix = "%",
-                      range = c(0, 108), tickfont = list(size = 14)),
+                      range = c(0, 118), tickfont = list(size = 14)),
          legend = list(orientation = "h", x = 0.5, xanchor = "center", y = -0.12,
                        yanchor = "top", font = list(size = 16), entrywidth = 170),
          font = list(family = "Source Sans 3"),
@@ -717,7 +718,7 @@ p |>
 ::: {.smaller}
 - **Democratic registrants lead on early voting:** `r sprintf("%.1f%%", filter(bp, party == "Democratic", period == "2026-07-21")$share)` of their July 2026 primary ballots were cast early, versus `r sprintf("%.1f%%", filter(bp, party == "Republican", period == "2026-07-21")$share)` for Republicans.
 - **The gap is more pronounced in the primary:** Democrats were `r sprintf("%.1f", filter(bp, party == "Democratic", period == "2026-07-21")$share - filter(bp, party == "Republican", period == "2026-07-21")$share)` points ahead of Republicans, up from `r sprintf("%.1f", filter(bp, party == "Democratic", period == "2024-11-05")$share - filter(bp, party == "Republican", period == "2024-11-05")$share)` in November 2024.
-- **Neither party / other trails** (`r sprintf("%.1f%%", filter(bp, party == "Neither / other", period == "2026-07-21")$share)` in the primary). Independents must **ask for** a party ballot in the primary, which depresses their early share.
+- **Neither party / other trails** (`r sprintf("%.1f%%", filter(bp, party == "Neither / other", period == "2026-07-21")$share)` in the primary). Independents on the AEVL must **ask for** a party ballot.
 :::
 
 ## Registration as a share of citizens of voting age {.smaller}
@@ -784,9 +785,9 @@ Concluding remarks
 :::
 
 ::: {.takeaways}
-1. **Registration is concentrated.** Maricopa and Pima hold `r sprintf("%.0f%%", two)` of active registrants.
+1. **Registration is concentrated** in two counties. Maricopa and Pima hold `r sprintf("%.1f%%", two)` of active registrants.
 2. **No party holds a majority.** Statewide, active voters are `r sprintf("%.0f%%", statewide$republican)` Republican, `r sprintf("%.0f%%", statewide$democratic)` Democratic, and `r sprintf("%.0f%%", statewide$neither)` neither party.
-3. **Arizona votes early.** `r pp(filter(early$overall, period == "2024-11-05")$share, 0)` of November 2024 ballots were cast early, and `r pp(early$enrolment$share, 0)` of voters are on the early list.
+3. **Arizona votes early ballot**, in large numbers. `r pp(filter(early$overall, period == "2024-11-05")$share, 0)` of November 2024 ballots were cast early, and `r pp(early$enrolment$share, 0)` of voters are on the early list.
 4. **Participation has room to grow.** Active registrants peaked at `r sprintf("%.0f%%", max(rate$rate))` of citizens of voting age, and `r sprintf("%.0f%%", vap_2024)` cast a ballot in 2024.
 :::
 
@@ -801,3 +802,61 @@ Concluding remarks
 - **Early voting:** ballots cast early and the Active Early Voting List, from the voter file builds.
 - **Election Administration and Voting Survey (EAVS):** reports a slightly different 2024 ballot count than the state canvass; the canvass is used here.
 - **Congressional District 6:** 2024 results from the Secretary of State canvass.
+
+## Neither / other, by county {.sunflower}
+
+::: {.slide-note}
+"Neither / other" = active registrants not registered Democratic or Republican. Statewide share and one petal per county; petal length is the county's share.
+:::
+
+::: {.columns}
+::: {.column width="34%"}
+
+### `r pp(statewide$neither)`
+
+of **active** registrants statewide are not registered with either major party (`r format(round(statewide$active * statewide$neither / 100), big.mark = ",")` of `r format(statewide$active, big.mark = ",")`).
+
+```{r neither-range-bullets}
+#| output: asis
+n_cs <- filter(spread_by, level_name == "County", group == "Neither party")
+cat(sprintf(
+"- **County range:** %.1f%% in %s to %.1f%% in %s (%.0f points).
+- **Flatter than partisan shares** — Democratic and Republican each vary roughly %.1fx as much across counties.
+",
+  n_cs$min, n_cs$lo_unit, n_cs$max, n_cs$hi_unit, n_cs$range,
+  mean(c(filter(spread_by, level_name == "County", group == "Democratic")$range,
+         filter(spread_by, level_name == "County", group == "Republican")$range)) / n_cs$range))
+```
+
+:::
+::: {.column width="66%"}
+
+```{r neither-sunflower}
+#| fig-width: 7.6
+#| fig-height: 5.6
+#| out-width: "100%"
+sun <- counties |>
+  select(unit, neither) |>
+  arrange(desc(neither)) |>
+  mutate(unit = factor(unit, levels = unit))
+
+ymax <- max(sun$neither) * 1.08
+
+ggplot(sun, aes(x = unit, y = neither, fill = neither)) +
+  geom_col(width = 0.86, colour = "white", linewidth = 0.6) +
+  geom_text(aes(y = neither + ymax * 0.06,
+                label = sprintf("%s\n%.1f%%", unit, neither)),
+            size = 3.1, lineheight = 0.95, colour = "#1F3864") +
+  geom_hline(yintercept = statewide$neither,
+             colour = "#AB0520", linewidth = 0.5, linetype = "dashed") +
+  scale_fill_gradient(low = "#D9CFEA", high = "#3B1A66", guide = "none") +
+  scale_y_continuous(limits = c(-ymax * 0.55, ymax * 1.18)) +
+  coord_polar(start = 0) +
+  labs(x = NULL, y = NULL,
+       caption = sprintf("Dashed ring = statewide share (%.1f%%).", statewide$neither)) +
+  theme_void(base_size = 12) +
+  theme(plot.caption = element_text(colour = "#6A7179", hjust = 0.5))
+```
+
+:::
+:::
