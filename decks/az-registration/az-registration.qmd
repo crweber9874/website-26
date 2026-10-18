@@ -677,7 +677,7 @@ of ballots in the **July 2026 primary** were cast early.
 
 ::: {.fragment .smaller}
 “Early” covers three different acts — returned by mail, dropped at a secure box, or voted
-in person before Election Day. One ballot code, and no published figure separates them.
+in person before Election Day.
 :::
 
 ## There is a partisan difference
