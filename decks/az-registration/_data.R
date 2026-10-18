@@ -102,6 +102,30 @@ pretty_unit <- function(geoid, level) {
   )
 }
 
+## Statewide composition of "Neither" (= not D, not R). County recorders disagree
+## on where independents belong (see note above az_units), so this subdivision is
+## only reported statewide, where the differences wash out.
+az_neither_mix <- function(level = "county") {
+  parts <- c("total_libertarian", "total_nolabels",
+             "total_other_party", "total_party_not_specified")
+  d <- read_avp(sprintf("data/%s/summary.json", level)) |>
+    as_tibble() |>
+    filter(variable %in% c("total_active", "total_registered",
+                           "total_democratic", "total_republican", parts)) |>
+    group_by(variable) |>
+    summarise(value = sum(value, na.rm = TRUE), .groups = "drop") |>
+    tibble::deframe()
+  base <- unname(if (!is.na(d["total_active"])) d["total_active"] else d["total_registered"])
+  neither_n <- base - d[["total_democratic"]] - d[["total_republican"]]
+  tibble::tibble(
+    component = c("Libertarian", "No Labels", "Other party", "Party not specified"),
+    n         = unname(d[parts]),
+    pct_of_neither = 100 * unname(d[parts]) / neither_n,
+    pct_of_active  = 100 * unname(d[parts]) / base
+  ) |>
+    arrange(desc(n))
+}
+
 ## Statewide totals, from counts rather than averaged shares.
 az_statewide <- function(units) {
   units |>

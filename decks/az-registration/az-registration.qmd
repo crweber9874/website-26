@@ -36,6 +36,7 @@ library(DT)
 source("_data.R")
 
 all_units <- az_all_levels()
+neither_mix <- az_neither_mix()
 counties  <- filter(all_units, level == "county")
 statewide <- az_statewide(counties)
 BUILD     <- statewide$file_date
@@ -721,7 +722,7 @@ p |>
 - **Neither party / other trails** (`r sprintf("%.1f%%", filter(bp, party == "Neither / other", period == "2026-07-21")$share)` in the primary). Independents on the AEVL must **ask for** a party ballot.
 :::
 
-## Registration as a share of citizens of voting age {.smaller}
+## Registration among the Citizen Voting Age Population (CVAP) {.smaller}
 
 ```{r pop-rate}
 #| fig-height: 3.4
@@ -768,10 +769,7 @@ plot_ly(rate, x = ~build, width = 1000, height = 300) |>
 ```
 
 ::: {.smaller}
-- **Active registrants** were `r sprintf("%.1f%%", rate$rate[1])` of Arizona's citizen voting-age population (CVAP) in `r format(rate$build[1], "%b %Y")`, peaked at `r sprintf("%.1f%%", max(rate$rate))` in `r format(rate$build[which.max(rate$rate)], "%b %Y")`, and stood at `r sprintf("%.1f%%", tail(rate$rate, 1))` in `r format(tail(rate$build, 1), "%b %Y")`. 
-- **Voted in Nov 2024 (gold line):** each build's `turnout_gen_2024` field, weighted by active registrants: `r sprintf("%.1f%%", rate$turnout24[1])` in `r format(rate$build[1], "%b %Y")` to `r sprintf("%.1f%%", tail(rate$turnout24, 1))` in `r format(tail(rate$build, 1), "%b %Y")`. Its base is the registrants in that build, not CVAP, so it is not directly comparable to the blue line.
-- **Turnout benchmark (transparent line):** the Secretary of State's official canvass counts `r format(AZ_2024_CANVASS$ballots_cast, big.mark = ",")` ballots cast in the November 2024 general, or **`r sprintf("%.1f%%", vap_2024)`** of citizen voting-age population (`r sprintf("%.1f%%", AZ_2024_CANVASS$turnout_registered)` of those registered).
-- Source: U.S. Census Bureau, ACS `r rate$vap_year[1]` 1-year estimates, citizens 18 and over (`r format(rate$vap[1], big.mark = ",")`). Canvass: Arizona Secretary of State. The same CVAP is used for every build, which ensures consistency across all visualizations.
+CVAP: U.S. Census Bureau, ACS `r rate$vap_year[1]` 1-year estimates, citizens 18 and over (`r format(rate$vap[1], big.mark = ",")`), held fixed across builds.
 :::
 
 ## {.conclusion background-color="#0C234B"}
@@ -788,14 +786,14 @@ Concluding remarks
 1. **Registration is concentrated** in two counties. Maricopa and Pima hold `r sprintf("%.1f%%", two)` of active registrants.
 2. **No party holds a majority.** Statewide, active voters are `r sprintf("%.0f%%", statewide$republican)` Republican, `r sprintf("%.0f%%", statewide$democratic)` Democratic, and `r sprintf("%.0f%%", statewide$neither)` neither party.
 3. **Arizona votes early ballot**, in large numbers. `r pp(filter(early$overall, period == "2024-11-05")$share, 0)` of November 2024 ballots were cast early, and `r pp(early$enrolment$share, 0)` of voters are on the early list.
-4. **Participation has room to grow.** Active registrants peaked at `r sprintf("%.0f%%", max(rate$rate))` of citizens of voting age, and `r sprintf("%.0f%%", vap_2024)` cast a ballot in 2024.
+4. **Participation.** Active registrants peaked at `r sprintf("%.0f%%", max(rate$rate))` of citizens of voting age, and `r sprintf("%.0f%%", vap_2024)` cast a ballot in 2024.
 :::
 
 # Backup {.divider background-color="#0C234B"}
 
 ## Data {.smaller}
 
-- **Voter file:** `r length(AZ_BUILDS)` monthly builds of Arizona's voter file, `r format(min(AZ_BUILDS))` to `r BUILD`. Party shares are of **active** registered voters; "neither" is everyone not registered Democratic or Republican.
+- **Voter file:** `r length(AZ_BUILDS)` regular (typically monthly) builds of Arizona's voter file, `r format(min(AZ_BUILDS))` to `r BUILD`. Party shares are of **active** registered voters; "neither" is everyone not registered Democratic or Republican.
 - **Aggregation:** all figures are aggregates; units with fewer than 500 registrants are suppressed.
 - **Population:** U.S. Census Bureau, ACS `r rate$vap_year[1]` 1-year estimates, table B29001 (citizens 18 and over, `r format(rate$vap[1], big.mark = ",")`), applied to every build.
 - **2024 turnout:** Arizona Secretary of State official canvass, November 2024 general (`r format(AZ_2024_CANVASS$ballots_cast, big.mark = ",")` ballots cast).
@@ -803,59 +801,59 @@ Concluding remarks
 - **Election Administration and Voting Survey (EAVS):** reports a slightly different 2024 ballot count than the state canvass; the canvass is used here.
 - **Congressional District 6:** 2024 results from the Secretary of State canvass.
 
-## Neither / other, by county {.sunflower}
-
-::: {.slide-note}
-"Neither / other" = active registrants not registered Democratic or Republican. Statewide share and one petal per county; petal length is the county's share.
-:::
+## Neither / other, by county {.neither}
 
 ::: {.columns}
-::: {.column width="34%"}
+::: {.column width="38%"}
 
-### `r pp(statewide$neither)`
+::: {.neither-hero}
+::: {.pct}
+`r pp(statewide$neither)`
+:::
+::: {.cap}
+of active registrants statewide<br>
+(`r format(round(statewide$active * statewide$neither / 100), big.mark = ",")` of `r format(statewide$active, big.mark = ",")`)
+:::
+:::
 
-of **active** registrants statewide are not registered with either major party (`r format(round(statewide$active * statewide$neither / 100), big.mark = ",")` of `r format(statewide$active, big.mark = ",")`).
-
-```{r neither-range-bullets}
+```{r neither-mix-tiles}
 #| output: asis
-n_cs <- filter(spread_by, level_name == "County", group == "Neither party")
-cat(sprintf(
-"- **County range:** %.1f%% in %s to %.1f%% in %s (%.0f points).
-- **Flatter than partisan shares** — Democratic and Republican each vary roughly %.1fx as much across counties.
-",
-  n_cs$min, n_cs$lo_unit, n_cs$max, n_cs$hi_unit, n_cs$range,
-  mean(c(filter(spread_by, level_name == "County", group == "Democratic")$range,
-         filter(spread_by, level_name == "County", group == "Republican")$range)) / n_cs$range))
+nm <- neither_mix
+tile <- function(i) sprintf(
+'<div class="n-tile"><div class="n-name">%s</div><div class="n-pct">%.1f%%</div><div class="n-sub">%s &middot; %.1f%% of active</div></div>',
+  nm$component[i], nm$pct_of_neither[i],
+  format(nm$n[i], big.mark = ","), nm$pct_of_active[i])
+cat('<div class="n-tiles">',
+    paste(vapply(seq_len(nrow(nm)), tile, character(1)), collapse = ""),
+    '</div>', sep = "")
 ```
 
 :::
-::: {.column width="66%"}
+::: {.column width="62%"}
 
-```{r neither-sunflower}
+```{r neither-by-county}
 #| fig-width: 7.6
 #| fig-height: 5.6
 #| out-width: "100%"
-sun <- counties |>
+bar <- counties |>
   select(unit, neither) |>
-  arrange(desc(neither)) |>
+  arrange(neither) |>
   mutate(unit = factor(unit, levels = unit))
 
-ymax <- max(sun$neither) * 1.08
-
-ggplot(sun, aes(x = unit, y = neither, fill = neither)) +
-  geom_col(width = 0.86, colour = "white", linewidth = 0.6) +
-  geom_text(aes(y = neither + ymax * 0.06,
-                label = sprintf("%s\n%.1f%%", unit, neither)),
-            size = 3.1, lineheight = 0.95, colour = "#1F3864") +
-  geom_hline(yintercept = statewide$neither,
-             colour = "#AB0520", linewidth = 0.5, linetype = "dashed") +
-  scale_fill_gradient(low = "#D9CFEA", high = "#3B1A66", guide = "none") +
-  scale_y_continuous(limits = c(-ymax * 0.55, ymax * 1.18)) +
-  coord_polar(start = 0) +
+ggplot(bar, aes(neither, unit)) +
+  geom_vline(xintercept = statewide$neither,
+             colour = "#AB0520", linewidth = 0.4, linetype = "dashed") +
+  geom_col(fill = "#3B1A66", alpha = 0.45, colour = NA, width = 0.65) +
+  geom_text(aes(label = sprintf("%.1f%%", neither)),
+            hjust = -0.15, size = 3.4, colour = "#1F3864") +
+  scale_x_continuous(limits = c(0, max(bar$neither) * 1.12),
+                     expand = c(0, 0)) +
   labs(x = NULL, y = NULL,
-       caption = sprintf("Dashed ring = statewide share (%.1f%%).", statewide$neither)) +
-  theme_void(base_size = 12) +
-  theme(plot.caption = element_text(colour = "#6A7179", hjust = 0.5))
+       caption = sprintf("Dashed line = statewide %.1f%%.", statewide$neither)) +
+  theme_avp(13) +
+  theme(panel.grid.major.x = element_blank(),
+        axis.text.x = element_blank(),
+        plot.caption = element_text(hjust = 0))
 ```
 
 :::
