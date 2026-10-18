@@ -123,6 +123,10 @@ Maps, charts, and dashboards that make the results **understandable and easy to 
 
 ## The electoral landscape {.landscape}
 
+::: {.slide-note}
+Figures are **active registered voters** on the latest voter-file build.
+:::
+
 ```{r landscape}
 #| fig-height: 3.3
 land <- counties |>
@@ -160,7 +164,7 @@ ggplot(land) +
   annotate("segment", x = two, xend = two, y = -0.22, yend = -0.12,
            colour = "#AB0520", linewidth = 0.7) +
   annotate("text", x = two / 2, y = -0.46, size = 4.1, colour = "#AB0520",
-           label = sprintf("Maricopa and Pima together: %.1f%% of the electorate", two)) +
+           label = sprintf("Maricopa and Pima together: %.1f%% of active voters", two)) +
   # red = few Democrats, blue = many; midpoint is the statewide Democratic share
   scale_fill_gradient2(low = "#AB0520", mid = "#5A2A6E", high = "#1E5288",
                        midpoint = statewide$democratic / 100, guide = "none") +
