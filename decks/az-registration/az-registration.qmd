@@ -207,7 +207,7 @@ cat(sprintf(
 :::
 :::
 
-## Where the parties are {.mapsb}
+## Registration in Arizona Counties {.mapsb}
 
 ::: {.columns}
 ::: {.column width="56%"}
