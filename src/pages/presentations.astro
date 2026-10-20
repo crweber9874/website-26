@@ -1,0 +1,72 @@
+---
+import CommonLayout from "@/layouts/CommonLayout.astro"
+import Button from "@/components/base/Button.astro"
+import Section from "@/components/layout/Section.astro"
+import { presentations } from "@/data/presentations"
+
+const description = "Slides from talks and conference presentations."
+
+const fmt = (iso: string) =>
+  new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+---
+
+<CommonLayout
+  title="Presentations"
+  description={description}
+  breadcrumbs={[{ label: "Presentations" }]}
+  prose={false}
+>
+  {
+    presentations.map((p) => (
+      <Section title={p.title}>
+        {p.subtitle && <p class="talk-subtitle">{p.subtitle}</p>}
+        <p class="talk-meta">
+          {fmt(p.date)}
+          {p.venue && <> · {p.venue}</>}
+        </p>
+        {p.authors && <p class="talk-authors">{p.authors}</p>}
+        <p class="talk-description">{p.description}</p>
+        <div class="talk-actions">
+          <Button href={`/decks/${p.slug}`} variant="primary">
+            Open slides
+          </Button>
+          {p.repo && (
+            <Button href={p.repo} variant="ghost">
+              Source
+            </Button>
+          )}
+        </div>
+      </Section>
+    ))
+  }
+</CommonLayout>
+
+<style>
+  .talk-subtitle,
+  .talk-meta,
+  .talk-authors {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: var(--step--1);
+  }
+
+  .talk-subtitle {
+    color: var(--foreground);
+    font-size: var(--step-0);
+  }
+
+  .talk-description {
+    margin: 0;
+    max-inline-size: 68ch;
+  }
+
+  .talk-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2xs);
+  }
+</style>
