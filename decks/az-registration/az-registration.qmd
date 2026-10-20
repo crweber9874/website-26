@@ -377,7 +377,7 @@ c22_margin    <- c22_rep_votes - c22_dem_votes
 c22_total     <- 349283L
 
 cat(sprintf(
-"- This is the **Giffords seat** — redrawn — which has remained competitive. Giffords (AZ-08, Jan 2007 – Jan 2012, resigned); Barber (AZ-08 special Jun 2012; AZ-02 Jan 2013 – Jan 2015); McSally (AZ-02 Jan 2015 – Jan 2019); Kirkpatrick (AZ-02 Jan 2019 – Jan 2023) — became CD 6 for 2022, when Juan Ciscomani first won it.
+"- A **historically competitive seat**. Giffords (AZ-08, Jan 2007 – Jan 2012, resigned); Barber (AZ-08 special Jun 2012; AZ-02 Jan 2013 – Jan 2015); McSally (AZ-02 Jan 2015 – Jan 2019); Kirkpatrick (AZ-02 Jan 2019 – Jan 2023) — became CD 6 for 2022, when Juan Ciscomani first won it.
 - **2024 (two-party vote):** %s (R) %.1f%% to %s (D) %.1f%% — a margin of **%s votes** on %s cast.
 - **2022:** Ciscomani (R) %.2f%% to Engel (D) %.2f%% — a margin of **%s votes** on %s cast, the seat's first election under the new boundaries. *AZ SoS 2022 General Election canvass.*
 - Registration in CD 6 (%s build): **%.1f%%** Democratic · **%.1f%%** neither party · **%.1f%%** Republican.
